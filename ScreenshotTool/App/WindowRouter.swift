@@ -7,8 +7,17 @@ final class WindowRouter: ObservableObject {
     private let floatingToolbarController = FloatingToolbarController()
     private let editorWindowController = EditorWindowController()
     private let pinWindowController = PinWindowController()
+    private var openSettingsHandler: (() -> Void)?
+
+    func configureOpenSettings(_ handler: @escaping () -> Void) {
+        openSettingsHandler = handler
+    }
 
     func openSettings() {
+        if let openSettingsHandler {
+            openSettingsHandler()
+            return
+        }
         NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     }
 

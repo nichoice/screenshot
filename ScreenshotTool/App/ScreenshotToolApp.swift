@@ -13,9 +13,12 @@ struct ScreenshotToolApp: App {
 
     var body: some Scene {
         WindowGroup(environment.windowTitle) {
-            MainWindowView(viewModel: environment.mainWindowViewModel)
+            MainWindowRootView(
+                viewModel: environment.mainWindowViewModel,
+                windowRouter: environment.windowRouter
+            )
         }
-        Settings {
+        Window("Settings", id: "settings") {
             SettingsWindowView(viewModel: environment.settingsWindowViewModel)
         }
     }
