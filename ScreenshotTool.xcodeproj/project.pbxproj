@@ -7,28 +7,40 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0D4A9D90CDFAFC2AE8C281CC /* DefaultPermissionsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E46C51CC9E8DEAD64CC4E7 /* DefaultPermissionsService.swift */; };
 		0E54DD2AAE97127A433EBC0C /* ScreenshotToolApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3C64488E1E78A4656AE9EE /* ScreenshotToolApp.swift */; };
+		1009DD093BA663464465DD69 /* PermissionsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78F059F6FC8AD03AB17BCE43 /* PermissionsService.swift */; };
 		14561089389CBB46680BEC5C /* AppPreferencesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9F4ED443EC4B1342918DA0 /* AppPreferencesStoreTests.swift */; };
 		29F8377C3660A25C71FB9777 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBCCA47B28BA27905BBE04B /* MainWindowView.swift */; };
 		2A2F8667FE911BF0CB8C6C45 /* InputMethodManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CA61EEF321E1E3A0996831 /* InputMethodManager.swift */; };
+		3898F1966953DD2E37F6A3CA /* WindowRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142821DDB9D68DE5AAA5937B /* WindowRouter.swift */; };
+		43FA20C7CC4E6055F80F2684 /* MainWindowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96DA0C41E39F7C2E831D19A /* MainWindowViewModel.swift */; };
 		44695E5BF06CBB6BF24DE3BF /* TISInputSourceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953DE59AE9FB1F6A2EA40C05 /* TISInputSourceService.swift */; };
 		4A50952BBFB2883E1075D601 /* InputMethodManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4757A6711307DDE37432023 /* InputMethodManagerTests.swift */; };
+		527624E8348B42C568E29386 /* SettingsWindowViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE0CACE2BEFF60FA2DA5D55 /* SettingsWindowViewModelTests.swift */; };
 		530C623834BC22A14B60EB61 /* InputMethodAutomationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C013C738C0FD7785865D52CB /* InputMethodAutomationStatus.swift */; };
+		5FAABA4C4EF25A5C77842A8A /* LoginItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FA5F7BED24094950827608 /* LoginItemService.swift */; };
 		70BFC8241912EC093A43822E /* InputMethodRuleMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E327B95961B8727444A3319 /* InputMethodRuleMatcher.swift */; };
 		8C30AC932457E4403FE12C83 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */; };
 		8D09F5376590CC308EDBBBFB /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0982BB33903D7890904B2D09 /* AppPreferences.swift */; };
 		97132428A95BF0AFF7BBF8D6 /* InputMethodRuleMatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8375C689EF4344FA33EBEA /* InputMethodRuleMatcherTests.swift */; };
 		9A42A30EC53B5782012E6A5A /* WorkspaceFrontmostApplicationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A29132EAED83FDD9101C144E /* WorkspaceFrontmostApplicationObserver.swift */; };
 		9F59D4C70E80268EA40E7938 /* InputMethodRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6815CDBAD5EA132B74D2CD2 /* InputMethodRule.swift */; };
+		A5A15EED6A9E1C0EC67AB070 /* GeneralSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5758831A156231858844C83 /* GeneralSettingsView.swift */; };
 		AFCED526692F14D92E1BE224 /* InputMethodRulesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A436A6A1ED1DA28A494F93B7 /* InputMethodRulesStore.swift */; };
+		B130504773082ABD91DED858 /* AnnotationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA2958BC0CEAACBF6961DE6B /* AnnotationSettingsView.swift */; };
+		B1D3FBFEDBD25AC83B78A582 /* ScreenshotSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56C6199DB897EF702FF03409 /* ScreenshotSettingsView.swift */; };
 		B928BA370AC209BCA5D57AD2 /* InputMethodRulesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40F31A64695939EDBB5E181B /* InputMethodRulesStoreTests.swift */; };
+		C64D6236A0E8677C1B3250E6 /* SettingsWindowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19868BBE662767510679B0E /* SettingsWindowViewModel.swift */; };
 		CFCFB7C1D42A01202A6ECE83 /* ScreenshotToolSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */; };
 		CFE4C8799011C5ADD2AAB84F /* AppPreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0E78A29B7766EE08D0FF71 /* AppPreferencesStore.swift */; };
 		D6C9EFB5D0CB32D383AABE5B /* InputSourceDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7F2AF3DE1C64DCE26E5019 /* InputSourceDescriptor.swift */; };
+		D7C345731DBB141EF80683B5 /* InputMethodSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3F1AF4DF3BAF29C2CA9503 /* InputMethodSettingsView.swift */; };
 		D88FEE91DB768F298D26948F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874667A6E837D42B15A053C6 /* AppDelegate.swift */; };
 		DB775C1851B4702589E02063 /* InputSourceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B162CD12E8B44902077278F1 /* InputSourceService.swift */; };
 		E332CF7F237B4CC7900FC272 /* FrontmostApplicationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759DE94376F0FFF7DE591C2F /* FrontmostApplicationObserver.swift */; };
 		F9E41CF4F309E54F4AD058E8 /* SettingsWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */; };
+		FFA6A9D9631C9989F409679D /* SystemLoginItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C6D3908BEA8CF6F43DEBDF6 /* SystemLoginItemService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,24 +57,36 @@
 		02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotToolSmokeTests.swift; sourceTree = "<group>"; };
 		0982BB33903D7890904B2D09 /* AppPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferences.swift; sourceTree = "<group>"; };
 		138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		142821DDB9D68DE5AAA5937B /* WindowRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowRouter.swift; sourceTree = "<group>"; };
 		1E327B95961B8727444A3319 /* InputMethodRuleMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodRuleMatcher.swift; sourceTree = "<group>"; };
+		26E46C51CC9E8DEAD64CC4E7 /* DefaultPermissionsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultPermissionsService.swift; sourceTree = "<group>"; };
 		2CBCCA47B28BA27905BBE04B /* MainWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowView.swift; sourceTree = "<group>"; };
 		2F117D116B9900C856D7A689 /* ScreenshotToolTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScreenshotToolTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		40F31A64695939EDBB5E181B /* InputMethodRulesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodRulesStoreTests.swift; sourceTree = "<group>"; };
+		56C6199DB897EF702FF03409 /* ScreenshotSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSettingsView.swift; sourceTree = "<group>"; };
+		5BE0CACE2BEFF60FA2DA5D55 /* SettingsWindowViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowViewModelTests.swift; sourceTree = "<group>"; };
 		5C8375C689EF4344FA33EBEA /* InputMethodRuleMatcherTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodRuleMatcherTests.swift; sourceTree = "<group>"; };
 		759DE94376F0FFF7DE591C2F /* FrontmostApplicationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontmostApplicationObserver.swift; sourceTree = "<group>"; };
+		78F059F6FC8AD03AB17BCE43 /* PermissionsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsService.swift; sourceTree = "<group>"; };
 		7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowView.swift; sourceTree = "<group>"; };
 		874667A6E837D42B15A053C6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8C6D3908BEA8CF6F43DEBDF6 /* SystemLoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemLoginItemService.swift; sourceTree = "<group>"; };
 		8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScreenshotTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		953DE59AE9FB1F6A2EA40C05 /* TISInputSourceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TISInputSourceService.swift; sourceTree = "<group>"; };
 		A29132EAED83FDD9101C144E /* WorkspaceFrontmostApplicationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkspaceFrontmostApplicationObserver.swift; sourceTree = "<group>"; };
 		A436A6A1ED1DA28A494F93B7 /* InputMethodRulesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodRulesStore.swift; sourceTree = "<group>"; };
+		A96DA0C41E39F7C2E831D19A /* MainWindowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowViewModel.swift; sourceTree = "<group>"; };
 		B162CD12E8B44902077278F1 /* InputSourceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSourceService.swift; sourceTree = "<group>"; };
+		B19868BBE662767510679B0E /* SettingsWindowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowViewModel.swift; sourceTree = "<group>"; };
 		BF9F4ED443EC4B1342918DA0 /* AppPreferencesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferencesStoreTests.swift; sourceTree = "<group>"; };
 		C013C738C0FD7785865D52CB /* InputMethodAutomationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodAutomationStatus.swift; sourceTree = "<group>"; };
+		C5758831A156231858844C83 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		DF0E78A29B7766EE08D0FF71 /* AppPreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferencesStore.swift; sourceTree = "<group>"; };
+		EA2958BC0CEAACBF6961DE6B /* AnnotationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationSettingsView.swift; sourceTree = "<group>"; };
 		EB3C64488E1E78A4656AE9EE /* ScreenshotToolApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotToolApp.swift; sourceTree = "<group>"; };
+		EB3F1AF4DF3BAF29C2CA9503 /* InputMethodSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodSettingsView.swift; sourceTree = "<group>"; };
 		F4757A6711307DDE37432023 /* InputMethodManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodManagerTests.swift; sourceTree = "<group>"; };
+		F4FA5F7BED24094950827608 /* LoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemService.swift; sourceTree = "<group>"; };
 		F5CA61EEF321E1E3A0996831 /* InputMethodManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodManager.swift; sourceTree = "<group>"; };
 		F6815CDBAD5EA132B74D2CD2 /* InputMethodRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodRule.swift; sourceTree = "<group>"; };
 		FB7F2AF3DE1C64DCE26E5019 /* InputSourceDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSourceDescriptor.swift; sourceTree = "<group>"; };
@@ -108,8 +132,18 @@
 				696B093FDAFCB5FB423DA827 /* Features */,
 				084315020693D6A87AAED674 /* InputMethod */,
 				ACCF4A6581F560E4A561F370 /* Persistence */,
+				9258095DFBAB2E57DE45CAAD /* Support */,
 			);
 			path = ScreenshotTool;
+			sourceTree = "<group>";
+		};
+		2B1AB7FBE739B485F2B1C5C7 /* Permissions */ = {
+			isa = PBXGroup;
+			children = (
+				26E46C51CC9E8DEAD64CC4E7 /* DefaultPermissionsService.swift */,
+				78F059F6FC8AD03AB17BCE43 /* PermissionsService.swift */,
+			);
+			path = Permissions;
 			sourceTree = "<group>";
 		};
 		3F91B5DE00B68908F2ED6F93 /* InputMethod */ = {
@@ -121,10 +155,23 @@
 			path = InputMethod;
 			sourceTree = "<group>";
 		};
+		4487343D6BD2C60211D011A2 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				5BE0CACE2BEFF60FA2DA5D55 /* SettingsWindowViewModelTests.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 		4CE29843F0FD5D502E643524 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				EA2958BC0CEAACBF6961DE6B /* AnnotationSettingsView.swift */,
+				C5758831A156231858844C83 /* GeneralSettingsView.swift */,
+				EB3F1AF4DF3BAF29C2CA9503 /* InputMethodSettingsView.swift */,
+				56C6199DB897EF702FF03409 /* ScreenshotSettingsView.swift */,
 				7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */,
+				B19868BBE662767510679B0E /* SettingsWindowViewModel.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -144,6 +191,7 @@
 				874667A6E837D42B15A053C6 /* AppDelegate.swift */,
 				138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */,
 				EB3C64488E1E78A4656AE9EE /* ScreenshotToolApp.swift */,
+				142821DDB9D68DE5AAA5937B /* WindowRouter.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -151,11 +199,22 @@
 		87BB3A607BF0A78A7ACC5A24 /* ScreenshotToolTests */ = {
 			isa = PBXGroup;
 			children = (
+				4487343D6BD2C60211D011A2 /* Features */,
 				3F91B5DE00B68908F2ED6F93 /* InputMethod */,
 				9909A30B81786BBB57869D9D /* Persistence */,
 				04FB82D5F0832968C73490EA /* Smoke */,
 			);
 			path = ScreenshotToolTests;
+			sourceTree = "<group>";
+		};
+		9258095DFBAB2E57DE45CAAD /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				F4FA5F7BED24094950827608 /* LoginItemService.swift */,
+				8C6D3908BEA8CF6F43DEBDF6 /* SystemLoginItemService.swift */,
+				2B1AB7FBE739B485F2B1C5C7 /* Permissions */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 		9909A30B81786BBB57869D9D /* Persistence */ = {
@@ -182,6 +241,7 @@
 			isa = PBXGroup;
 			children = (
 				2CBCCA47B28BA27905BBE04B /* MainWindowView.swift */,
+				A96DA0C41E39F7C2E831D19A /* MainWindowViewModel.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -269,22 +329,33 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B130504773082ABD91DED858 /* AnnotationSettingsView.swift in Sources */,
 				D88FEE91DB768F298D26948F /* AppDelegate.swift in Sources */,
 				8C30AC932457E4403FE12C83 /* AppEnvironment.swift in Sources */,
 				8D09F5376590CC308EDBBBFB /* AppPreferences.swift in Sources */,
 				CFE4C8799011C5ADD2AAB84F /* AppPreferencesStore.swift in Sources */,
+				0D4A9D90CDFAFC2AE8C281CC /* DefaultPermissionsService.swift in Sources */,
 				E332CF7F237B4CC7900FC272 /* FrontmostApplicationObserver.swift in Sources */,
+				A5A15EED6A9E1C0EC67AB070 /* GeneralSettingsView.swift in Sources */,
 				530C623834BC22A14B60EB61 /* InputMethodAutomationStatus.swift in Sources */,
 				2A2F8667FE911BF0CB8C6C45 /* InputMethodManager.swift in Sources */,
 				9F59D4C70E80268EA40E7938 /* InputMethodRule.swift in Sources */,
 				70BFC8241912EC093A43822E /* InputMethodRuleMatcher.swift in Sources */,
 				AFCED526692F14D92E1BE224 /* InputMethodRulesStore.swift in Sources */,
+				D7C345731DBB141EF80683B5 /* InputMethodSettingsView.swift in Sources */,
 				D6C9EFB5D0CB32D383AABE5B /* InputSourceDescriptor.swift in Sources */,
 				DB775C1851B4702589E02063 /* InputSourceService.swift in Sources */,
+				5FAABA4C4EF25A5C77842A8A /* LoginItemService.swift in Sources */,
 				29F8377C3660A25C71FB9777 /* MainWindowView.swift in Sources */,
+				43FA20C7CC4E6055F80F2684 /* MainWindowViewModel.swift in Sources */,
+				1009DD093BA663464465DD69 /* PermissionsService.swift in Sources */,
+				B1D3FBFEDBD25AC83B78A582 /* ScreenshotSettingsView.swift in Sources */,
 				0E54DD2AAE97127A433EBC0C /* ScreenshotToolApp.swift in Sources */,
 				F9E41CF4F309E54F4AD058E8 /* SettingsWindowView.swift in Sources */,
+				C64D6236A0E8677C1B3250E6 /* SettingsWindowViewModel.swift in Sources */,
+				FFA6A9D9631C9989F409679D /* SystemLoginItemService.swift in Sources */,
 				44695E5BF06CBB6BF24DE3BF /* TISInputSourceService.swift in Sources */,
+				3898F1966953DD2E37F6A3CA /* WindowRouter.swift in Sources */,
 				9A42A30EC53B5782012E6A5A /* WorkspaceFrontmostApplicationObserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -298,6 +369,7 @@
 				97132428A95BF0AFF7BBF8D6 /* InputMethodRuleMatcherTests.swift in Sources */,
 				B928BA370AC209BCA5D57AD2 /* InputMethodRulesStoreTests.swift in Sources */,
 				CFCFB7C1D42A01202A6ECE83 /* ScreenshotToolSmokeTests.swift in Sources */,
+				527624E8348B42C568E29386 /* SettingsWindowViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

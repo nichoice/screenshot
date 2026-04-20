@@ -1,16 +1,22 @@
 import SwiftUI
 
 struct MainWindowView: View {
-    let title: String
+    @ObservedObject var viewModel: MainWindowViewModel
 
     var body: some View {
-        VStack(spacing: 16) {
-            Text(title)
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Screenshot Tool")
                 .font(.largeTitle)
-            Text("Project bootstrap complete")
-                .foregroundStyle(.secondary)
+            Text("Screen Recording: \(String(describing: viewModel.permissions.screenRecording))")
+            Text("Accessibility: \(String(describing: viewModel.permissions.accessibility))")
+            Button("Open Settings") {
+                viewModel.openSettings()
+            }
         }
         .frame(minWidth: 720, minHeight: 480)
         .padding(24)
+        .onAppear {
+            viewModel.refresh()
+        }
     }
 }

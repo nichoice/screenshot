@@ -7,10 +7,10 @@ struct ScreenshotToolApp: App {
 
     var body: some Scene {
         WindowGroup(environment.windowTitle) {
-            MainWindowView(title: environment.windowTitle)
+            MainWindowView(viewModel: environment.mainWindowViewModel)
         }
         Settings {
-            SettingsWindowView()
+            SettingsWindowView(viewModel: environment.settingsWindowViewModel)
         }
     }
 }
