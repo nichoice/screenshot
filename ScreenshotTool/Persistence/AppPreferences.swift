@@ -30,6 +30,7 @@ struct AppPreferences: Codable, Equatable {
     var stayResidentAfterClosingWindow: Bool = true
     var showsMenuBarIcon: Bool = true
     var launchAtLogin: Bool = false
+    var themePreference: AppThemePreference = .followSystem
 }
 
 struct CapturePreferences: Codable, Equatable {
