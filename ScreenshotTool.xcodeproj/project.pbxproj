@@ -1,0 +1,437 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0E54DD2AAE97127A433EBC0C /* ScreenshotToolApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB3C64488E1E78A4656AE9EE /* ScreenshotToolApp.swift */; };
+		29F8377C3660A25C71FB9777 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBCCA47B28BA27905BBE04B /* MainWindowView.swift */; };
+		8C30AC932457E4403FE12C83 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */; };
+		CFCFB7C1D42A01202A6ECE83 /* ScreenshotToolSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */; };
+		D88FEE91DB768F298D26948F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 874667A6E837D42B15A053C6 /* AppDelegate.swift */; };
+		F9E41CF4F309E54F4AD058E8 /* SettingsWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		8F3B49D9C144AF81369EC9EE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 055C17E77B676589DDB772A6 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 05A05D1C602AC3E853F5060F;
+			remoteInfo = ScreenshotTool;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotToolSmokeTests.swift; sourceTree = "<group>"; };
+		138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		2CBCCA47B28BA27905BBE04B /* MainWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowView.swift; sourceTree = "<group>"; };
+		2F117D116B9900C856D7A689 /* ScreenshotToolTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ScreenshotToolTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowView.swift; sourceTree = "<group>"; };
+		874667A6E837D42B15A053C6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScreenshotTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EB3C64488E1E78A4656AE9EE /* ScreenshotToolApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotToolApp.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		04FB82D5F0832968C73490EA /* Smoke */ = {
+			isa = PBXGroup;
+			children = (
+				02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */,
+			);
+			path = Smoke;
+			sourceTree = "<group>";
+		};
+		20824D2BA1203C4125C9C5DE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */,
+				2F117D116B9900C856D7A689 /* ScreenshotToolTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		21B580133C7ED14C9AB56F97 /* ScreenshotTool */ = {
+			isa = PBXGroup;
+			children = (
+				8543FDBD0328CBE1C82A3511 /* App */,
+				696B093FDAFCB5FB423DA827 /* Features */,
+			);
+			path = ScreenshotTool;
+			sourceTree = "<group>";
+		};
+		4CE29843F0FD5D502E643524 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		696B093FDAFCB5FB423DA827 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				C688CC72198DFE507FBE9FE7 /* Main */,
+				4CE29843F0FD5D502E643524 /* Settings */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		8543FDBD0328CBE1C82A3511 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				874667A6E837D42B15A053C6 /* AppDelegate.swift */,
+				138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */,
+				EB3C64488E1E78A4656AE9EE /* ScreenshotToolApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		87BB3A607BF0A78A7ACC5A24 /* ScreenshotToolTests */ = {
+			isa = PBXGroup;
+			children = (
+				04FB82D5F0832968C73490EA /* Smoke */,
+			);
+			path = ScreenshotToolTests;
+			sourceTree = "<group>";
+		};
+		C688CC72198DFE507FBE9FE7 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				2CBCCA47B28BA27905BBE04B /* MainWindowView.swift */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		EFDFF934645B7298CC4EED90 = {
+			isa = PBXGroup;
+			children = (
+				21B580133C7ED14C9AB56F97 /* ScreenshotTool */,
+				87BB3A607BF0A78A7ACC5A24 /* ScreenshotToolTests */,
+				20824D2BA1203C4125C9C5DE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		05A05D1C602AC3E853F5060F /* ScreenshotTool */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C48479B8CFC0E2E0A4433967 /* Build configuration list for PBXNativeTarget "ScreenshotTool" */;
+			buildPhases = (
+				7244A6A2D998C380A7DB1E08 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ScreenshotTool;
+			packageProductDependencies = (
+			);
+			productName = ScreenshotTool;
+			productReference = 8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */;
+			productType = "com.apple.product-type.application";
+		};
+		D584999B44DC230EE5BAB748 /* ScreenshotToolTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BDEDEF2D23D7790501B7205B /* Build configuration list for PBXNativeTarget "ScreenshotToolTests" */;
+			buildPhases = (
+				E5757EA34F9FADD3D974D0B0 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AAB6C0178B71F546C5EF5C7A /* PBXTargetDependency */,
+			);
+			name = ScreenshotToolTests;
+			packageProductDependencies = (
+			);
+			productName = ScreenshotToolTests;
+			productReference = 2F117D116B9900C856D7A689 /* ScreenshotToolTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		055C17E77B676589DDB772A6 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 5E0675CC3B8B5464E11F86C4 /* Build configuration list for PBXProject "ScreenshotTool" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = EFDFF934645B7298CC4EED90;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 20824D2BA1203C4125C9C5DE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				05A05D1C602AC3E853F5060F /* ScreenshotTool */,
+				D584999B44DC230EE5BAB748 /* ScreenshotToolTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		7244A6A2D998C380A7DB1E08 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D88FEE91DB768F298D26948F /* AppDelegate.swift in Sources */,
+				8C30AC932457E4403FE12C83 /* AppEnvironment.swift in Sources */,
+				29F8377C3660A25C71FB9777 /* MainWindowView.swift in Sources */,
+				0E54DD2AAE97127A433EBC0C /* ScreenshotToolApp.swift in Sources */,
+				F9E41CF4F309E54F4AD058E8 /* SettingsWindowView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E5757EA34F9FADD3D974D0B0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CFCFB7C1D42A01202A6ECE83 /* ScreenshotToolSmokeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AAB6C0178B71F546C5EF5C7A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 05A05D1C602AC3E853F5060F /* ScreenshotTool */;
+			targetProxy = 8F3B49D9C144AF81369EC9EE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		319D50A9F180625E64661B52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.1;
+			};
+			name = Release;
+		};
+		38F4D28C52B656F7B32FB556 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.1;
+			};
+			name = Debug;
+		};
+		65AB9EE3D62FC32C2DFF79FD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotTool;
+				PRODUCT_NAME = ScreenshotTool;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		BC476AEA38DD58D0F0038250 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotToolTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ScreenshotTool.app/Contents/MacOS/ScreenshotTool";
+			};
+			name = Debug;
+		};
+		BEE1A5AC0F4C74AFCFDD4FC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotToolTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ScreenshotTool.app/Contents/MacOS/ScreenshotTool";
+			};
+			name = Release;
+		};
+		CFA622EFAC85EEC2802E1AA5 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotTool;
+				PRODUCT_NAME = ScreenshotTool;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5E0675CC3B8B5464E11F86C4 /* Build configuration list for PBXProject "ScreenshotTool" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				38F4D28C52B656F7B32FB556 /* Debug */,
+				319D50A9F180625E64661B52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BDEDEF2D23D7790501B7205B /* Build configuration list for PBXNativeTarget "ScreenshotToolTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BC476AEA38DD58D0F0038250 /* Debug */,
+				BEE1A5AC0F4C74AFCFDD4FC7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		C48479B8CFC0E2E0A4433967 /* Build configuration list for PBXNativeTarget "ScreenshotTool" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CFA622EFAC85EEC2802E1AA5 /* Debug */,
+				65AB9EE3D62FC32C2DFF79FD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 055C17E77B676589DDB772A6 /* Project object */;
+}

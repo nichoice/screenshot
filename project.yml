@@ -1,0 +1,28 @@
+name: ScreenshotTool
+options:
+  bundleIdPrefix: com.nic
+settings:
+  base:
+    SWIFT_VERSION: 5.10
+targets:
+  ScreenshotTool:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - ScreenshotTool
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nic.ScreenshotTool
+        PRODUCT_NAME: ScreenshotTool
+        GENERATE_INFOPLIST_FILE: YES
+  ScreenshotToolTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - ScreenshotToolTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: ScreenshotTool
