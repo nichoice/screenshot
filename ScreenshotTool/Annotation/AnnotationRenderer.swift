@@ -107,7 +107,7 @@ struct AnnotationRenderer {
         NSGraphicsContext.restoreGraphicsState()
     }
 
-    private static func color(_ hex: String) -> NSColor {
+    static func nsColor(_ hex: String) -> NSColor {
         let trimmed = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var value: UInt64 = 0
         Scanner(string: trimmed).scanHexInt64(&value)
@@ -134,5 +134,9 @@ struct AnnotationRenderer {
             blue: CGFloat(blue) / 255.0,
             alpha: 1.0
         )
+    }
+
+    private static func color(_ hex: String) -> NSColor {
+        nsColor(hex)
     }
 }

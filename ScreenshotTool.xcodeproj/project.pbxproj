@@ -13,6 +13,7 @@
 		14561089389CBB46680BEC5C /* AppPreferencesStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF9F4ED443EC4B1342918DA0 /* AppPreferencesStoreTests.swift */; };
 		1C91223639C06709B54F15DC /* CaptureOutputService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BED5850DAA711BF62F9F21C /* CaptureOutputService.swift */; };
 		1F093818C4A4B13EA259F1E7 /* EditorWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD236CB6C100C8BB5262EE /* EditorWindowController.swift */; };
+		215717DC6FD46C2B50019781 /* AnnotationEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9123B1C20B88413E9B0D7913 /* AnnotationEditorView.swift */; };
 		29F8377C3660A25C71FB9777 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CBCCA47B28BA27905BBE04B /* MainWindowView.swift */; };
 		2A2F8667FE911BF0CB8C6C45 /* InputMethodManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CA61EEF321E1E3A0996831 /* InputMethodManager.swift */; };
 		3898F1966953DD2E37F6A3CA /* WindowRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 142821DDB9D68DE5AAA5937B /* WindowRouter.swift */; };
@@ -61,6 +62,7 @@
 		B96848F1EEEE843F892914C4 /* FloatingToolbarPlacementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46FF9388543EF6C5729B0A2 /* FloatingToolbarPlacementTests.swift */; };
 		C3E8F65B8C6D32209C7B118B /* PinWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C145B0B308B762843C68CC3F /* PinWindowController.swift */; };
 		C64D6236A0E8677C1B3250E6 /* SettingsWindowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19868BBE662767510679B0E /* SettingsWindowViewModel.swift */; };
+		C96C5899EC702DD0C6588CF8 /* AnnotationEditorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3648F167A50F9ECC5A22DD7 /* AnnotationEditorState.swift */; };
 		CFCFB7C1D42A01202A6ECE83 /* ScreenshotToolSmokeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */; };
 		CFE4C8799011C5ADD2AAB84F /* AppPreferencesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0E78A29B7766EE08D0FF71 /* AppPreferencesStore.swift */; };
 		D6C9EFB5D0CB32D383AABE5B /* InputSourceDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB7F2AF3DE1C64DCE26E5019 /* InputSourceDescriptor.swift */; };
@@ -70,6 +72,7 @@
 		DB775C1851B4702589E02063 /* InputSourceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B162CD12E8B44902077278F1 /* InputSourceService.swift */; };
 		E31EA2A5872BB43703F87BB0 /* CarbonHotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = D07EA74445937E9B1C6708DD /* CarbonHotkeyService.swift */; };
 		E332CF7F237B4CC7900FC272 /* FrontmostApplicationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 759DE94376F0FFF7DE591C2F /* FrontmostApplicationObserver.swift */; };
+		E58D7B3E83BB1E91089C1E0F /* AnnotationEditorStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4E43181286B8C929F7B5A4F /* AnnotationEditorStateTests.swift */; };
 		E7DA9C964367D2B923F5175B /* CaptureHotkeyHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21A03562077B3A4A6ADBB667 /* CaptureHotkeyHandlerTests.swift */; };
 		EC99CBBE290AC14FA27F4758 /* CarbonHotkeyServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A668883B4ADE44150D7CB7C9 /* CarbonHotkeyServiceTests.swift */; };
 		ECB84DCFC1E653099AF127AC /* AnnotationRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0C674C6021B323A92DB8E4 /* AnnotationRenderer.swift */; };
@@ -123,6 +126,7 @@
 		89DD236CB6C100C8BB5262EE /* EditorWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorWindowController.swift; sourceTree = "<group>"; };
 		8C6D3908BEA8CF6F43DEBDF6 /* SystemLoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemLoginItemService.swift; sourceTree = "<group>"; };
 		8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScreenshotTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9123B1C20B88413E9B0D7913 /* AnnotationEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationEditorView.swift; sourceTree = "<group>"; };
 		944E8DDCDCE59654D1908E08 /* CaptureSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSelectionTests.swift; sourceTree = "<group>"; };
 		953DE59AE9FB1F6A2EA40C05 /* TISInputSourceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TISInputSourceService.swift; sourceTree = "<group>"; };
 		9927F3546533AC9496180294 /* AnnotationItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationItem.swift; sourceTree = "<group>"; };
@@ -135,10 +139,12 @@
 		B162CD12E8B44902077278F1 /* InputSourceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSourceService.swift; sourceTree = "<group>"; };
 		B19868BBE662767510679B0E /* SettingsWindowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowViewModel.swift; sourceTree = "<group>"; };
 		B34CAAC16EA2433255151D4E /* AnnotationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationTool.swift; sourceTree = "<group>"; };
+		B4E43181286B8C929F7B5A4F /* AnnotationEditorStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationEditorStateTests.swift; sourceTree = "<group>"; };
 		BF9F4ED443EC4B1342918DA0 /* AppPreferencesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferencesStoreTests.swift; sourceTree = "<group>"; };
 		C013C738C0FD7785865D52CB /* InputMethodAutomationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodAutomationStatus.swift; sourceTree = "<group>"; };
 		C145B0B308B762843C68CC3F /* PinWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinWindowController.swift; sourceTree = "<group>"; };
 		C2B08ED1CE845DE7129DD804 /* CaptureOverlayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureOverlayView.swift; sourceTree = "<group>"; };
+		C3648F167A50F9ECC5A22DD7 /* AnnotationEditorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationEditorState.swift; sourceTree = "<group>"; };
 		C5758831A156231858844C83 /* GeneralSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralSettingsView.swift; sourceTree = "<group>"; };
 		CB0C674C6021B323A92DB8E4 /* AnnotationRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationRenderer.swift; sourceTree = "<group>"; };
 		CF5A9F36FA63B29D9F34F367 /* CaptureSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSelection.swift; sourceTree = "<group>"; };
@@ -190,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				A43E9A3349C44B29139E2679 /* AnnotationDocumentTests.swift */,
+				B4E43181286B8C929F7B5A4F /* AnnotationEditorStateTests.swift */,
 				1FCC58B168D02F41FE863013 /* AnnotationRendererTests.swift */,
 				D46FF9388543EF6C5729B0A2 /* FloatingToolbarPlacementTests.swift */,
 			);
@@ -418,6 +425,8 @@
 		E2F228651C2C48D494AFAE04 /* Editor */ = {
 			isa = PBXGroup;
 			children = (
+				C3648F167A50F9ECC5A22DD7 /* AnnotationEditorState.swift */,
+				9123B1C20B88413E9B0D7913 /* AnnotationEditorView.swift */,
 				89DD236CB6C100C8BB5262EE /* EditorWindowController.swift */,
 			);
 			path = Editor;
@@ -508,6 +517,8 @@
 			files = (
 				60467323545C40CDFB6A1CB7 /* AnnotationCanvasView.swift in Sources */,
 				788B091B50AE05B3F6B8B409 /* AnnotationDocument.swift in Sources */,
+				C96C5899EC702DD0C6588CF8 /* AnnotationEditorState.swift in Sources */,
+				215717DC6FD46C2B50019781 /* AnnotationEditorView.swift in Sources */,
 				987E3FFB463C428BF6AF8D77 /* AnnotationItem.swift in Sources */,
 				ECB84DCFC1E653099AF127AC /* AnnotationRenderer.swift in Sources */,
 				B130504773082ABD91DED858 /* AnnotationSettingsView.swift in Sources */,
@@ -567,6 +578,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				3ECB04F64AB17930D28EC7E8 /* AnnotationDocumentTests.swift in Sources */,
+				E58D7B3E83BB1E91089C1E0F /* AnnotationEditorStateTests.swift in Sources */,
 				AF73499ABB6E62A6F67C0607 /* AnnotationRendererTests.swift in Sources */,
 				14561089389CBB46680BEC5C /* AppPreferencesStoreTests.swift in Sources */,
 				3C84D8EF7ACDB672FC8E4178 /* CaptureCoordinatorTests.swift in Sources */,

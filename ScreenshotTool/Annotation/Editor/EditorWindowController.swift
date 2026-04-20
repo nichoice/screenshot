@@ -6,8 +6,13 @@ final class EditorWindowController {
     private var window: NSWindow?
 
     func show(result: CaptureResult, document: AnnotationDocument) {
-        let view = AnnotationCanvasView(image: result.image, document: document)
-        let hosting = NSHostingView(rootView: view.frame(minWidth: 800, minHeight: 600))
+        let editorState = AnnotationEditorState(document: document)
+        let view = AnnotationEditorView(
+            image: result.image,
+            document: document,
+            editorState: editorState
+        )
+        let hosting = NSHostingView(rootView: view)
         let window = NSWindow(
             contentRect: CGRect(x: 120, y: 120, width: 900, height: 680),
             styleMask: [.titled, .closable, .resizable],
