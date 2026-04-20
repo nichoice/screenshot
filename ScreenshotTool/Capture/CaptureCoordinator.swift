@@ -8,6 +8,10 @@ final class CaptureCoordinator: ObservableObject {
     @Published private(set) var currentSelection: CaptureSelection?
     @Published private(set) var lastResult: CaptureResult?
 
+    var onCaptureStarted: (() -> Void)?
+    var onCaptureCancelled: (() -> Void)?
+    var onCaptureCompleted: ((CaptureResult) -> Void)?
+
     init(screenCaptureService: ScreenCaptureService) {
         self.screenCaptureService = screenCaptureService
     }
@@ -15,6 +19,7 @@ final class CaptureCoordinator: ObservableObject {
     func beginCapture() {
         isCapturing = true
         currentSelection = nil
+        onCaptureStarted?()
     }
 
     func updateSelection(start: CGPoint, end: CGPoint) {
@@ -24,6 +29,7 @@ final class CaptureCoordinator: ObservableObject {
     func cancelCapture() {
         isCapturing = false
         currentSelection = nil
+        onCaptureCancelled?()
     }
 
     func completeSelection() async throws {
@@ -38,5 +44,6 @@ final class CaptureCoordinator: ObservableObject {
         lastResult = result
         currentSelection = nil
         isCapturing = false
+        onCaptureCompleted?(result)
     }
 }

@@ -10,6 +10,9 @@ final class AppEnvironment: ObservableObject {
     let inputSourceService: InputSourceService
     let inputMethodManager: InputMethodManager
     let windowRouter: WindowRouter
+    let captureCoordinator: CaptureCoordinator
+    let hotkeyHandler: CaptureHotkeyHandler
+    let menuBarController: MenuBarController
     let mainWindowViewModel: MainWindowViewModel
     let settingsWindowViewModel: SettingsWindowViewModel
 
@@ -21,7 +24,10 @@ final class AppEnvironment: ObservableObject {
         loginItemService: LoginItemService,
         inputSourceService: InputSourceService,
         inputMethodManager: InputMethodManager,
-        windowRouter: WindowRouter
+        windowRouter: WindowRouter,
+        captureCoordinator: CaptureCoordinator,
+        hotkeyHandler: CaptureHotkeyHandler,
+        menuBarController: MenuBarController
     ) {
         self.windowTitle = windowTitle
         self.preferencesStore = preferencesStore
@@ -31,6 +37,9 @@ final class AppEnvironment: ObservableObject {
         self.inputSourceService = inputSourceService
         self.inputMethodManager = inputMethodManager
         self.windowRouter = windowRouter
+        self.captureCoordinator = captureCoordinator
+        self.hotkeyHandler = hotkeyHandler
+        self.menuBarController = menuBarController
         self.mainWindowViewModel = MainWindowViewModel(
             permissionsService: permissionsService,
             windowRouter: windowRouter
@@ -45,17 +54,60 @@ final class AppEnvironment: ObservableObject {
         )
     }
 
+    func start() {
+        inputMethodManager.startObserving()
+        try? hotkeyHandler.start()
+        menuBarController.setVisible(preferencesStore.appPreferences.showsMenuBarIcon)
+        captureCoordinator.onCaptureStarted = { [weak windowRouter, weak captureCoordinator] in
+            guard let coordinator = captureCoordinator else { return }
+            windowRouter?.showCaptureOverlay(
+                onSelectionChanged: { start, end in
+                    coordinator.updateSelection(start: start, end: end)
+                },
+                onSelectionCompleted: {
+                    Task { @MainActor in
+                        try? await coordinator.completeSelection()
+                    }
+                },
+                onCancelled: {
+                    coordinator.cancelCapture()
+                }
+            )
+        }
+        captureCoordinator.onCaptureCancelled = { [weak windowRouter] in
+            windowRouter?.hideCaptureOverlay()
+        }
+        captureCoordinator.onCaptureCompleted = { [weak windowRouter] _ in
+            windowRouter?.hideCaptureOverlay()
+        }
+    }
+
     static func bootstrap() -> AppEnvironment {
         let preferencesStore = AppPreferencesStore()
         let rulesURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("ScreenshotTool/input-method-rules.json")
         let rulesStore = InputMethodRulesStore(fileURL: rulesURL)
         let inputSourceService = TISInputSourceService()
+        let windowRouter = WindowRouter()
+        let captureCoordinator = CaptureCoordinator(screenCaptureService: WindowListScreenCaptureService())
         let manager = InputMethodManager(
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
             inputSourceService: inputSourceService,
             matcher: InputMethodRuleMatcher()
+        )
+        let hotkeyHandler = CaptureHotkeyHandler(
+            hotkeyService: CarbonHotkeyService(),
+            preferencesStore: preferencesStore,
+            captureCoordinator: captureCoordinator
+        )
+        let menuBarController = MenuBarController(
+            openSettings: {
+                windowRouter.openSettings()
+            },
+            startCapture: {
+                captureCoordinator.beginCapture()
+            }
         )
 
         return AppEnvironment(
@@ -65,7 +117,10 @@ final class AppEnvironment: ObservableObject {
             loginItemService: SystemLoginItemService(),
             inputSourceService: inputSourceService,
             inputMethodManager: manager,
-            windowRouter: WindowRouter()
+            windowRouter: windowRouter,
+            captureCoordinator: captureCoordinator,
+            hotkeyHandler: hotkeyHandler,
+            menuBarController: menuBarController
         )
     }
 
@@ -77,11 +132,26 @@ final class AppEnvironment: ObservableObject {
             fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("rules-tests.json")
         )
         let inputSourceService = TISInputSourceService()
+        let windowRouter = WindowRouter()
+        let captureCoordinator = CaptureCoordinator(screenCaptureService: WindowListScreenCaptureService())
         let manager = InputMethodManager(
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
             inputSourceService: inputSourceService,
             matcher: InputMethodRuleMatcher()
+        )
+        let hotkeyHandler = CaptureHotkeyHandler(
+            hotkeyService: CarbonHotkeyService(),
+            preferencesStore: preferencesStore,
+            captureCoordinator: captureCoordinator
+        )
+        let menuBarController = MenuBarController(
+            openSettings: {
+                windowRouter.openSettings()
+            },
+            startCapture: {
+                captureCoordinator.beginCapture()
+            }
         )
 
         return AppEnvironment(
@@ -91,7 +161,10 @@ final class AppEnvironment: ObservableObject {
             loginItemService: SystemLoginItemService(),
             inputSourceService: inputSourceService,
             inputMethodManager: manager,
-            windowRouter: WindowRouter()
+            windowRouter: windowRouter,
+            captureCoordinator: captureCoordinator,
+            hotkeyHandler: hotkeyHandler,
+            menuBarController: menuBarController
         )
     }
 }
