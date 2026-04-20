@@ -7,8 +7,15 @@ struct MainWindowView: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("Screenshot Tool")
                 .font(.largeTitle)
-            Text("Screen Recording: \(String(describing: viewModel.permissions.screenRecording))")
-            Text("Accessibility: \(String(describing: viewModel.permissions.accessibility))")
+            Text("Recent captures")
+                .font(.headline)
+            List(viewModel.recentCaptures) { item in
+                VStack(alignment: .leading) {
+                    Text(item.previewFilePath)
+                    Text(item.savedFilePath ?? "Copied only")
+                        .foregroundStyle(.secondary)
+                }
+            }
             Button("Open Settings") {
                 viewModel.openSettings()
             }

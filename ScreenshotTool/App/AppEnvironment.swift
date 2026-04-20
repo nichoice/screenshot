@@ -13,6 +13,8 @@ final class AppEnvironment: ObservableObject {
     let captureCoordinator: CaptureCoordinator
     let hotkeyHandler: CaptureHotkeyHandler
     let menuBarController: MenuBarController
+    let historyStore: CaptureHistoryStore
+    let outputService: CaptureOutputService
     let mainWindowViewModel: MainWindowViewModel
     let settingsWindowViewModel: SettingsWindowViewModel
 
@@ -27,7 +29,9 @@ final class AppEnvironment: ObservableObject {
         windowRouter: WindowRouter,
         captureCoordinator: CaptureCoordinator,
         hotkeyHandler: CaptureHotkeyHandler,
-        menuBarController: MenuBarController
+        menuBarController: MenuBarController,
+        historyStore: CaptureHistoryStore,
+        outputService: CaptureOutputService
     ) {
         self.windowTitle = windowTitle
         self.preferencesStore = preferencesStore
@@ -40,9 +44,12 @@ final class AppEnvironment: ObservableObject {
         self.captureCoordinator = captureCoordinator
         self.hotkeyHandler = hotkeyHandler
         self.menuBarController = menuBarController
+        self.historyStore = historyStore
+        self.outputService = outputService
         self.mainWindowViewModel = MainWindowViewModel(
             permissionsService: permissionsService,
-            windowRouter: windowRouter
+            windowRouter: windowRouter,
+            historyStore: historyStore
         )
         self.settingsWindowViewModel = SettingsWindowViewModel(
             preferencesStore: preferencesStore,
@@ -77,8 +84,19 @@ final class AppEnvironment: ObservableObject {
         captureCoordinator.onCaptureCancelled = { [weak windowRouter] in
             windowRouter?.hideCaptureOverlay()
         }
-        captureCoordinator.onCaptureCompleted = { [weak windowRouter] _ in
+        captureCoordinator.onCaptureCompleted = { [weak self, weak windowRouter] result in
+            guard let self else { return }
             windowRouter?.hideCaptureOverlay()
+            let document = AnnotationDocument()
+            let defaultDirectory = URL(fileURLWithPath: self.preferencesStore.capturePreferences.defaultSaveDirectoryPath ?? FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)[0].appendingPathComponent("ScreenshotTool").path)
+            windowRouter?.presentFloatingToolbar(
+                for: result,
+                document: document,
+                outputService: self.outputService,
+                defaultSaveDirectory: defaultDirectory,
+                imageFormat: self.preferencesStore.capturePreferences.imageFormat
+            )
+            self.mainWindowViewModel.refresh()
         }
     }
 
@@ -90,6 +108,9 @@ final class AppEnvironment: ObservableObject {
         let inputSourceService = TISInputSourceService()
         let windowRouter = WindowRouter()
         let captureCoordinator = CaptureCoordinator(screenCaptureService: WindowListScreenCaptureService())
+        let historyURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("ScreenshotTool/history.json")
+        let historyStore = CaptureHistoryStore(fileURL: historyURL, limit: preferencesStore.annotationPreferences.historyLimit)
         let manager = InputMethodManager(
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
@@ -109,6 +130,14 @@ final class AppEnvironment: ObservableObject {
                 captureCoordinator.beginCapture()
             }
         )
+        let cacheDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("ScreenshotTool/Captures")
+        let outputService = CaptureOutputService(
+            renderer: AnnotationRenderer(),
+            clipboardService: PasteboardClipboardService(),
+            historyStore: historyStore,
+            cacheDirectory: cacheDirectory
+        )
 
         return AppEnvironment(
             preferencesStore: preferencesStore,
@@ -120,7 +149,9 @@ final class AppEnvironment: ObservableObject {
             windowRouter: windowRouter,
             captureCoordinator: captureCoordinator,
             hotkeyHandler: hotkeyHandler,
-            menuBarController: menuBarController
+            menuBarController: menuBarController,
+            historyStore: historyStore,
+            outputService: outputService
         )
     }
 
@@ -134,6 +165,10 @@ final class AppEnvironment: ObservableObject {
         let inputSourceService = TISInputSourceService()
         let windowRouter = WindowRouter()
         let captureCoordinator = CaptureCoordinator(screenCaptureService: WindowListScreenCaptureService())
+        let historyStore = CaptureHistoryStore(
+            fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("history-tests.json"),
+            limit: preferencesStore.annotationPreferences.historyLimit
+        )
         let manager = InputMethodManager(
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
@@ -153,6 +188,12 @@ final class AppEnvironment: ObservableObject {
                 captureCoordinator.beginCapture()
             }
         )
+        let outputService = CaptureOutputService(
+            renderer: AnnotationRenderer(),
+            clipboardService: PasteboardClipboardService(),
+            historyStore: historyStore,
+            cacheDirectory: FileManager.default.temporaryDirectory.appendingPathComponent("captures-tests")
+        )
 
         return AppEnvironment(
             preferencesStore: preferencesStore,
@@ -164,7 +205,9 @@ final class AppEnvironment: ObservableObject {
             windowRouter: windowRouter,
             captureCoordinator: captureCoordinator,
             hotkeyHandler: hotkeyHandler,
-            menuBarController: menuBarController
+            menuBarController: menuBarController,
+            historyStore: historyStore,
+            outputService: outputService
         )
     }
 }
