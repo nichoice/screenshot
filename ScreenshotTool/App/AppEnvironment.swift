@@ -115,7 +115,8 @@ final class AppEnvironment: ObservableObject {
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
             inputSourceService: inputSourceService,
-            matcher: InputMethodRuleMatcher()
+            matcher: InputMethodRuleMatcher(),
+            observer: WorkspaceFrontmostApplicationObserver()
         )
         let hotkeyHandler = CaptureHotkeyHandler(
             hotkeyService: CarbonHotkeyService(),
