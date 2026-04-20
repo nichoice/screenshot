@@ -49,7 +49,10 @@ final class AppEnvironment: ObservableObject {
         self.mainWindowViewModel = MainWindowViewModel(
             permissionsService: permissionsService,
             windowRouter: windowRouter,
-            historyStore: historyStore
+            historyStore: historyStore,
+            startCaptureAction: {
+                captureCoordinator.beginCapture()
+            }
         )
         self.settingsWindowViewModel = SettingsWindowViewModel(
             preferencesStore: preferencesStore,

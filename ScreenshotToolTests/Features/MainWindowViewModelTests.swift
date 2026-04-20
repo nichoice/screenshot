@@ -21,6 +21,28 @@ final class MainWindowViewModelTests: XCTestCase {
 
         XCTAssertEqual(viewModel.recentCaptures.count, 1)
     }
+
+    @MainActor
+    func testStartCaptureInvokesConfiguredAction() {
+        let permissionsService = LocalFakePermissionsService()
+        let router = WindowRouter()
+        let historyURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
+        let historyStore = CaptureHistoryStore(fileURL: historyURL, limit: 5)
+        var didStartCapture = false
+
+        let viewModel = MainWindowViewModel(
+            permissionsService: permissionsService,
+            windowRouter: router,
+            historyStore: historyStore,
+            startCaptureAction: {
+                didStartCapture = true
+            }
+        )
+
+        viewModel.startCapture()
+
+        XCTAssertTrue(didStartCapture)
+    }
 }
 
 private struct LocalFakePermissionsService: PermissionsService {
