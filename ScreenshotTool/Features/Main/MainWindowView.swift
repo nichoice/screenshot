@@ -40,6 +40,13 @@ struct MainWindowView: View {
                         Text(verbatim: String(describing: viewModel.permissions.accessibility))
                             .foregroundStyle(.secondary)
                     }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("截图快捷键")
+                            .font(.headline)
+                        Text(viewModel.shortcutSummary)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             } label: {

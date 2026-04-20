@@ -35,4 +35,8 @@ final class MainWindowViewModel: ObservableObject {
     func startCapture() {
         startCaptureAction()
     }
+
+    var shortcutSummary: String {
+        "Command + Shift + 4"
+    }
 }
