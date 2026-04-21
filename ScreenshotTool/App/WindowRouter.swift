@@ -1,5 +1,21 @@
 import AppKit
 import Foundation
+import SwiftUI
+
+@MainActor
+protocol ShareService {
+    func share(fileURL: URL)
+}
+
+@MainActor
+final class SystemShareService: ShareService {
+    func share(fileURL: URL) {
+        let picker = NSSharingServicePicker(items: [fileURL])
+        guard let view = NSApp.keyWindow?.contentView else { return }
+        let rect = CGRect(x: view.bounds.midX, y: view.bounds.midY, width: 1, height: 1)
+        picker.show(relativeTo: rect, of: view, preferredEdge: .minY)
+    }
+}
 
 @MainActor
 final class WindowRouter: ObservableObject {
@@ -47,21 +63,123 @@ final class WindowRouter: ObservableObject {
         for result: CaptureResult,
         document: AnnotationDocument,
         outputService: CaptureOutputService,
+        ocrService: OCRService,
+        shareService: ShareService,
         defaultSaveDirectory: URL,
-        imageFormat: CaptureImageFormat
+        imageFormat: CaptureImageFormat,
+        defaultOutputAction: CaptureOutputAction
     ) {
-        let frame = FloatingToolbarPlacement.resolve(
-            selectionRect: result.selectionRect,
-            availableRect: NSScreen.main?.visibleFrame ?? .zero,
-            toolbarSize: CGSize(width: 260, height: 44)
+        let targetScreen = NSScreen.screens.first { $0.frame.intersects(result.selectionRect) } ?? NSScreen.main
+        let screenFrame = targetScreen?.frame ?? result.selectionRect
+        let inlineState = InlineCaptureEditorState(result: result, screenFrame: screenFrame, document: document)
+
+        func finalizedResult() -> CaptureResult? {
+            inlineState.finalizedResult()
+        }
+
+        func copyAndClose() {
+            guard let finalized = finalizedResult() else { return }
+            _ = try? outputService.copy(result: finalized, document: document)
+            inlineState.showFeedback("已复制到剪贴板")
+            self.hideCaptureOverlay()
+        }
+
+        func save() {
+            guard let finalized = finalizedResult() else { return }
+            let token = inlineState.beginBusyAction(.save)
+            _ = try? outputService.save(result: finalized, document: document, format: imageFormat, directory: defaultSaveDirectory)
+            inlineState.showFeedback("已保存到默认目录")
+            inlineState.endBusyAction(.save, token: token)
+        }
+
+        func saveAndClose() {
+            save()
+            self.hideCaptureOverlay()
+        }
+
+        func openEditor() {
+            guard let finalized = finalizedResult() else { return }
+            self.editorWindowController.show(result: finalized, document: document)
+            self.hideCaptureOverlay()
+        }
+
+        func share() {
+            guard let finalized = finalizedResult() else { return }
+            let token = inlineState.beginBusyAction(.share)
+            let item = try? outputService.prepareShareItem(
+                result: finalized,
+                document: document,
+                format: imageFormat,
+                directory: defaultSaveDirectory
+            )
+            guard let filePath = item?.savedFilePath else {
+                inlineState.endBusyAction(.share, token: token)
+                return
+            }
+            inlineState.showFeedback("已打开分享面板")
+            shareService.share(fileURL: URL(fileURLWithPath: filePath))
+            inlineState.endBusyAction(.share, token: token)
+        }
+
+        func recognizeText() {
+            guard let image = inlineState.currentCroppedImage() else {
+                inlineState.presentRecognizedText("")
+                return
+            }
+            let token = inlineState.beginBusyAction(.ocr)
+
+            Task { @MainActor in
+                let text = (try? await ocrService.recognizeText(in: image)) ?? ""
+                outputService.copyRecognizedText(text)
+                inlineState.presentRecognizedText(text)
+                inlineState.endBusyAction(.ocr, token: token)
+            }
+        }
+
+        let content = InlineAnnotationEditorView(
+            state: inlineState,
+            onCopy: {
+                copyAndClose()
+            },
+            onSave: {
+                save()
+            },
+            onPin: {
+                guard let finalized = finalizedResult() else { return }
+                let rendered = AnnotationRenderer().render(baseImage: finalized.image, items: [])
+                self.pinWindowController.show(image: rendered)
+            },
+            onEdit: {
+                openEditor()
+            },
+            onOCR: {
+                recognizeText()
+            },
+            onShare: {
+                share()
+            },
+            onCancel: {
+                self.hideCaptureOverlay()
+            },
+            onConfirm: {
+                switch defaultOutputAction {
+                case .copyOnly:
+                    copyAndClose()
+                case .saveOnly:
+                    saveAndClose()
+                case .copyAndSave:
+                    save()
+                    copyAndClose()
+                case .openEditor:
+                    openEditor()
+                }
+            }
         )
 
-        floatingToolbarController.show(
-            frame: frame,
-            copyAction: { _ = try? outputService.copy(result: result, document: document) },
-            saveAction: { _ = try? outputService.save(result: result, document: document, format: imageFormat, directory: defaultSaveDirectory) },
-            pinAction: { self.pinWindowController.show(image: result.image) },
-            editAction: { self.editorWindowController.show(result: result, document: document) }
-        )
+        hideCaptureOverlay()
+        let hosting = NSHostingView(rootView: content)
+        let window = CaptureOverlayWindow(contentView: hosting, frame: screenFrame)
+        window.makeKeyAndOrderFront(nil)
+        overlayWindows = [window]
     }
 }

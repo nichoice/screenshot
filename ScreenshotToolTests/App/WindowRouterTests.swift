@@ -15,4 +15,15 @@ final class WindowRouterTests: XCTestCase {
 
         XCTAssertTrue(wasCalled)
     }
+
+    @MainActor
+    func testInlineCaptureToolbarPlacementPrefersBottomWhenSpaceIsAvailable() {
+        let placement = FloatingToolbarPlacement.resolve(
+            selectionRect: CGRect(x: 120, y: 120, width: 360, height: 220),
+            availableRect: CGRect(x: 0, y: 0, width: 1200, height: 900),
+            toolbarSize: CGSize(width: 640, height: 56)
+        )
+
+        XCTAssertGreaterThan(placement.minY, 340)
+    }
 }

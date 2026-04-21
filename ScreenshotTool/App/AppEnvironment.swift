@@ -15,6 +15,8 @@ final class AppEnvironment: ObservableObject {
     let menuBarController: MenuBarController
     let historyStore: CaptureHistoryStore
     let outputService: CaptureOutputService
+    let ocrService: OCRService
+    let shareService: ShareService
     let themeController: AppThemeController
     let mainWindowViewModel: MainWindowViewModel
     let settingsWindowViewModel: SettingsWindowViewModel
@@ -32,7 +34,9 @@ final class AppEnvironment: ObservableObject {
         hotkeyHandler: CaptureHotkeyHandler,
         menuBarController: MenuBarController,
         historyStore: CaptureHistoryStore,
-        outputService: CaptureOutputService
+        outputService: CaptureOutputService,
+        ocrService: OCRService,
+        shareService: ShareService
     ) {
         self.windowTitle = windowTitle
         self.preferencesStore = preferencesStore
@@ -47,6 +51,8 @@ final class AppEnvironment: ObservableObject {
         self.menuBarController = menuBarController
         self.historyStore = historyStore
         self.outputService = outputService
+        self.ocrService = ocrService
+        self.shareService = shareService
         self.themeController = AppThemeController(preferencesStore: preferencesStore)
         self.mainWindowViewModel = MainWindowViewModel(
             permissionsService: permissionsService,
@@ -98,8 +104,11 @@ final class AppEnvironment: ObservableObject {
                 for: result,
                 document: document,
                 outputService: self.outputService,
+                ocrService: self.ocrService,
+                shareService: self.shareService,
                 defaultSaveDirectory: defaultDirectory,
-                imageFormat: self.preferencesStore.capturePreferences.imageFormat
+                imageFormat: self.preferencesStore.capturePreferences.imageFormat,
+                defaultOutputAction: self.preferencesStore.capturePreferences.defaultOutputAction
             )
             self.mainWindowViewModel.refresh()
         }
@@ -157,7 +166,9 @@ final class AppEnvironment: ObservableObject {
             hotkeyHandler: hotkeyHandler,
             menuBarController: menuBarController,
             historyStore: historyStore,
-            outputService: outputService
+            outputService: outputService,
+            ocrService: VisionOCRService(),
+            shareService: SystemShareService()
         )
     }
 
@@ -213,7 +224,9 @@ final class AppEnvironment: ObservableObject {
             hotkeyHandler: hotkeyHandler,
             menuBarController: menuBarController,
             historyStore: historyStore,
-            outputService: outputService
+            outputService: outputService,
+            ocrService: VisionOCRService(),
+            shareService: SystemShareService()
         )
     }
 }

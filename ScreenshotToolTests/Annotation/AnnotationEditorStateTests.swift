@@ -35,6 +35,21 @@ final class AnnotationEditorStateTests: XCTestCase {
     }
 
     @MainActor
+    func testCommitDragCreatesEllipseAnnotationForEllipseTool() {
+        let document = AnnotationDocument()
+        let state = AnnotationEditorState(document: document)
+        state.selectedTool = .ellipse
+        state.strokeColorHex = "#123456"
+        state.lineWidth = 5
+
+        state.commitDrag(from: CGPoint(x: 12, y: 18), to: CGPoint(x: 42, y: 54))
+
+        XCTAssertEqual(document.items, [
+            .ellipse(CGRect(x: 12, y: 18, width: 30, height: 36), "#123456", 5)
+        ])
+    }
+
+    @MainActor
     func testCommitPenCreatesPenAnnotation() {
         let document = AnnotationDocument()
         let state = AnnotationEditorState(document: document)

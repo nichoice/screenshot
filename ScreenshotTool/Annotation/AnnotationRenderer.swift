@@ -29,6 +29,10 @@ struct AnnotationRenderer {
                 context.setStrokeColor(Self.color(hex).cgColor)
                 context.setLineWidth(lineWidth)
                 context.stroke(rect)
+            case let .ellipse(rect, hex, lineWidth):
+                context.setStrokeColor(Self.color(hex).cgColor)
+                context.setLineWidth(lineWidth)
+                context.strokeEllipse(in: rect)
             case let .arrow(start, end, hex, lineWidth):
                 context.setStrokeColor(Self.color(hex).cgColor)
                 context.setFillColor(Self.color(hex).cgColor)

@@ -12,8 +12,9 @@ final class CaptureCoordinatorTests: XCTestCase {
 
         try await coordinator.completeSelection()
 
-        XCTAssertEqual(service.capturedRects, [CGRect(x: 10, y: 10, width: 100, height: 50)])
+        XCTAssertEqual(service.capturedRects, [CGRect(x: 10, y: 10, width: 100, height: 50), .infinite])
         XCTAssertEqual(coordinator.lastResult?.selectionRect, CGRect(x: 10, y: 10, width: 100, height: 50))
+        XCTAssertNotNil(coordinator.lastResult?.fullImage)
         XCTAssertFalse(coordinator.isCapturing)
     }
 }

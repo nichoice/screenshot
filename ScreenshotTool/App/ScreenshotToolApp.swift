@@ -4,10 +4,12 @@ import SwiftUI
 struct ScreenshotToolApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var environment = AppEnvironment.bootstrap()
+    @StateObject private var themeController: AppThemeController
 
     init() {
         let environment = AppEnvironment.bootstrap()
         _environment = StateObject(wrappedValue: environment)
+        _themeController = StateObject(wrappedValue: environment.themeController)
         appDelegate.environment = environment
     }
 
@@ -18,11 +20,11 @@ struct ScreenshotToolApp: App {
                 settingsViewModel: environment.settingsWindowViewModel,
                 windowRouter: environment.windowRouter
             )
-            .preferredColorScheme(environment.themeController.preferredColorScheme)
+            .preferredColorScheme(themeController.preferredColorScheme)
         }
         Window("Settings", id: "settings") {
             SettingsWindowView(viewModel: environment.settingsWindowViewModel)
-                .preferredColorScheme(environment.themeController.preferredColorScheme)
+                .preferredColorScheme(themeController.preferredColorScheme)
         }
     }
 }

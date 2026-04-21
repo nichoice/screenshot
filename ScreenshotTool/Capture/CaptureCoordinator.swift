@@ -39,7 +39,8 @@ final class CaptureCoordinator: ObservableObject {
 
         let rect = selection.normalizedRect
         let image = try screenCaptureService.capture(rect: rect)
-        let result = CaptureResult(image: image, selectionRect: rect, capturedAt: Date())
+        let fullImage = try screenCaptureService.capture(rect: .infinite)
+        let result = CaptureResult(fullImage: fullImage, image: image, selectionRect: rect, capturedAt: Date())
 
         lastResult = result
         currentSelection = nil

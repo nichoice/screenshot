@@ -10,6 +10,7 @@ final class AnnotationEditorState: ObservableObject {
     @Published var lineWidth: Double = 4
     @Published var fontSize: Double = 16
     @Published var textValue: String = "Text"
+    @Published var previewOffset: CGPoint = .zero
 
     init(document: AnnotationDocument) {
         self.document = document
@@ -19,6 +20,8 @@ final class AnnotationEditorState: ObservableObject {
         switch selectedTool {
         case .rectangle:
             document.add(.rectangle(normalizedRect(from: start, to: end), strokeColorHex, lineWidth))
+        case .ellipse:
+            document.add(.ellipse(normalizedRect(from: start, to: end), strokeColorHex, lineWidth))
         case .arrow:
             document.add(.arrow(start, end, strokeColorHex, lineWidth))
         case .blur:
@@ -51,15 +54,23 @@ final class AnnotationEditorState: ObservableObject {
         case .rectangle:
             guard let start, let end else { return nil }
             return .rectangle(normalizedRect(from: start, to: end), strokeColorHex, lineWidth)
+                .offsetBy(dx: previewOffset.x, dy: previewOffset.y)
+        case .ellipse:
+            guard let start, let end else { return nil }
+            return .ellipse(normalizedRect(from: start, to: end), strokeColorHex, lineWidth)
+                .offsetBy(dx: previewOffset.x, dy: previewOffset.y)
         case .arrow:
             guard let start, let end else { return nil }
             return .arrow(start, end, strokeColorHex, lineWidth)
+                .offsetBy(dx: previewOffset.x, dy: previewOffset.y)
         case .blur:
             guard let start, let end else { return nil }
             return .blur(normalizedRect(from: start, to: end), max(4, lineWidth * 2))
+                .offsetBy(dx: previewOffset.x, dy: previewOffset.y)
         case .pen:
             guard !path.isEmpty else { return nil }
             return .pen(path, strokeColorHex, lineWidth)
+                .offsetBy(dx: previewOffset.x, dy: previewOffset.y)
         case .text:
             return nil
         }
