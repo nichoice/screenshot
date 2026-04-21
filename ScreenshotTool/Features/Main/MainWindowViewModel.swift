@@ -39,4 +39,8 @@ final class MainWindowViewModel: ObservableObject {
     var shortcutSummary: String {
         "Command + Shift + 4"
     }
+
+    var primarySectionTitle: String {
+        "通用"
+    }
 }

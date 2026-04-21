@@ -19,6 +19,22 @@ final class MainWindowViewModelTests: XCTestCase {
     }
 
     @MainActor
+    func testMainWindowPrimarySectionDefaultsToGeneral() {
+        let permissionsService = LocalFakePermissionsService()
+        let router = WindowRouter()
+        let historyURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
+        let historyStore = CaptureHistoryStore(fileURL: historyURL, limit: 5)
+
+        let viewModel = MainWindowViewModel(
+            permissionsService: permissionsService,
+            windowRouter: router,
+            historyStore: historyStore
+        )
+
+        XCTAssertEqual(viewModel.primarySectionTitle, "通用")
+    }
+
+    @MainActor
     func testRefreshPullsLatestHistoryItems() throws {
         let permissionsService = LocalFakePermissionsService()
         let router = WindowRouter()

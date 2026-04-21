@@ -2,6 +2,12 @@ import SwiftUI
 
 struct SettingsWindowView: View {
     @ObservedObject var viewModel: SettingsWindowViewModel
+    private let leadingContent: AnyView?
+
+    init(viewModel: SettingsWindowViewModel, leadingContent: AnyView? = nil) {
+        self.viewModel = viewModel
+        self.leadingContent = leadingContent
+    }
 
     var body: some View {
         NavigationSplitView {
@@ -27,6 +33,10 @@ struct SettingsWindowView: View {
                             Text(viewModel.selectedPageDescription)
                                 .foregroundStyle(.secondary)
                         }
+                    }
+
+                    if let leadingContent {
+                        leadingContent
                     }
 
                     pageView(for: viewModel.selectedSidebarItemID)

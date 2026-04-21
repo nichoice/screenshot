@@ -14,7 +14,8 @@ struct ScreenshotToolApp: App {
     var body: some Scene {
         WindowGroup(environment.windowTitle) {
             MainWindowRootView(
-                viewModel: environment.mainWindowViewModel,
+                mainViewModel: environment.mainWindowViewModel,
+                settingsViewModel: environment.settingsWindowViewModel,
                 windowRouter: environment.windowRouter
             )
         }
