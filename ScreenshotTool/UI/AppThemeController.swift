@@ -1,5 +1,6 @@
 import Combine
 import Foundation
+import AppKit
 import SwiftUI
 
 @MainActor
@@ -44,5 +45,20 @@ final class AppThemeController: ObservableObject {
 
     var preferredColorScheme: ColorScheme? {
         colorSchemeOverride(for: themePreference)
+    }
+
+    func appAppearanceName(for preference: AppThemePreference) -> NSAppearance.Name? {
+        switch preference {
+        case .light:
+            .aqua
+        case .dark:
+            .darkAqua
+        case .followSystem:
+            nil
+        }
+    }
+
+    var preferredAppAppearanceName: NSAppearance.Name? {
+        appAppearanceName(for: themePreference)
     }
 }

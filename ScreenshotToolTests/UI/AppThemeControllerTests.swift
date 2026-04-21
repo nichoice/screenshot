@@ -1,4 +1,5 @@
 import XCTest
+import AppKit
 @testable import ScreenshotTool
 
 final class AppThemeControllerTests: XCTestCase {
@@ -34,5 +35,13 @@ final class AppThemeControllerTests: XCTestCase {
         store.updateApp { $0.themePreference = .dark }
 
         XCTAssertEqual(controller.preferredColorScheme, .dark)
+    }
+
+    @MainActor
+    func testAppAppearanceNameUsesDarkAquaForDarkTheme() {
+        let controller = AppThemeController()
+
+        XCTAssertEqual(controller.appAppearanceName(for: .dark), .darkAqua)
+        XCTAssertNil(controller.appAppearanceName(for: .followSystem))
     }
 }
