@@ -66,8 +66,28 @@ final class SettingsWindowViewModel: ObservableObject {
         capturePreferences = preferencesStore.capturePreferences
     }
 
+    func setImageFormat(_ format: CaptureImageFormat) {
+        preferencesStore.updateCapture { $0.imageFormat = format }
+        capturePreferences = preferencesStore.capturePreferences
+    }
+
     func setAnnotationLineWidth(_ width: Double) {
         preferencesStore.updateAnnotation { $0.defaultLineWidth = width }
+        annotationPreferences = preferencesStore.annotationPreferences
+    }
+
+    func setAnnotationFontSize(_ size: Double) {
+        preferencesStore.updateAnnotation { $0.defaultFontSize = size }
+        annotationPreferences = preferencesStore.annotationPreferences
+    }
+
+    func setRememberLastTool(_ enabled: Bool) {
+        preferencesStore.updateAnnotation { $0.rememberLastTool = enabled }
+        annotationPreferences = preferencesStore.annotationPreferences
+    }
+
+    func setPinWindowsFloatOnTop(_ enabled: Bool) {
+        preferencesStore.updateAnnotation { $0.pinWindowsFloatOnTop = enabled }
         annotationPreferences = preferencesStore.annotationPreferences
     }
 
@@ -100,6 +120,13 @@ final class SettingsWindowViewModel: ObservableObject {
 
     func removeRule(id: UUID) throws {
         try rulesStore.remove(id: id)
+        rules = rulesStore.rules
+    }
+
+    func setRuleEnabled(id: UUID, enabled: Bool) throws {
+        guard var rule = rules.first(where: { $0.id == id }) else { return }
+        rule.isEnabled = enabled
+        try rulesStore.upsert(rule)
         rules = rulesStore.rules
     }
 
