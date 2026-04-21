@@ -15,6 +15,7 @@ final class AppEnvironment: ObservableObject {
     let menuBarController: MenuBarController
     let historyStore: CaptureHistoryStore
     let outputService: CaptureOutputService
+    let themeController: AppThemeController
     let mainWindowViewModel: MainWindowViewModel
     let settingsWindowViewModel: SettingsWindowViewModel
 
@@ -46,6 +47,7 @@ final class AppEnvironment: ObservableObject {
         self.menuBarController = menuBarController
         self.historyStore = historyStore
         self.outputService = outputService
+        self.themeController = AppThemeController(preferencesStore: preferencesStore)
         self.mainWindowViewModel = MainWindowViewModel(
             permissionsService: permissionsService,
             windowRouter: windowRouter,

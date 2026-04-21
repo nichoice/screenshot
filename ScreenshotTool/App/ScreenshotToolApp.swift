@@ -18,9 +18,11 @@ struct ScreenshotToolApp: App {
                 settingsViewModel: environment.settingsWindowViewModel,
                 windowRouter: environment.windowRouter
             )
+            .preferredColorScheme(environment.themeController.preferredColorScheme)
         }
         Window("Settings", id: "settings") {
             SettingsWindowView(viewModel: environment.settingsWindowViewModel)
+                .preferredColorScheme(environment.themeController.preferredColorScheme)
         }
     }
 }
