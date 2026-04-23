@@ -20,6 +20,8 @@ final class SystemShareService: ShareService {
 @MainActor
 final class WindowRouter: ObservableObject {
     private var overlayWindows: [CaptureOverlayWindow] = []
+    private var captureCancelEventMonitor: Any?
+    private var globalCaptureCancelEventMonitor: Any?
     private let floatingToolbarController = FloatingToolbarController()
     private let editorWindowController = EditorWindowController()
     private let pinWindowController = PinWindowController()
@@ -43,18 +45,52 @@ final class WindowRouter: ObservableObject {
         onCancelled: @escaping () -> Void
     ) {
         hideCaptureOverlay()
+        NSApp.activate(ignoringOtherApps: true)
+        captureCancelEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            if event.keyCode == 53 {
+                onCancelled()
+                return nil
+            }
+
+            return event
+        }
+        globalCaptureCancelEventMonitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { event in
+            guard event.keyCode == 53 else { return }
+            Task { @MainActor in
+                onCancelled()
+            }
+        }
         overlayWindows = NSScreen.screens.map { screen in
-            let view = CaptureOverlayView(frame: screen.frame)
-            view.onSelectionChanged = onSelectionChanged
+            let view = CaptureOverlayView(
+                frame: CGRect(origin: .zero, size: screen.frame.size),
+                screenFrame: screen.frame
+            )
+            view.onSelectionChanged = { start, end in
+                onSelectionChanged(
+                    CaptureCoordinateConverter.localPointToGlobal(start, screenFrame: screen.frame),
+                    CaptureCoordinateConverter.localPointToGlobal(end, screenFrame: screen.frame)
+                )
+            }
             view.onSelectionCompleted = onSelectionCompleted
             view.onCancelled = onCancelled
             let window = CaptureOverlayWindow(contentView: view, frame: screen.frame)
+            window.onCancelled = onCancelled
             window.makeKeyAndOrderFront(nil)
+            window.makeFirstResponder(view)
+            window.makeKey()
             return window
         }
     }
 
     func hideCaptureOverlay() {
+        if let captureCancelEventMonitor {
+            NSEvent.removeMonitor(captureCancelEventMonitor)
+            self.captureCancelEventMonitor = nil
+        }
+        if let globalCaptureCancelEventMonitor {
+            NSEvent.removeMonitor(globalCaptureCancelEventMonitor)
+            self.globalCaptureCancelEventMonitor = nil
+        }
         overlayWindows.forEach { $0.orderOut(nil) }
         overlayWindows.removeAll()
     }

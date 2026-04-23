@@ -22,6 +22,7 @@ final class AppPreferencesStore: ObservableObject {
         self.capturePreferences = Self.load(CapturePreferences.self, key: .capture, from: userDefaults) ?? CapturePreferences()
         self.annotationPreferences = Self.load(AnnotationPreferences.self, key: .annotation, from: userDefaults) ?? AnnotationPreferences()
         self.inputMethodPreferences = Self.load(InputMethodPreferences.self, key: .inputMethod, from: userDefaults) ?? InputMethodPreferences()
+        migrateLegacyCaptureHotkeyIfNeeded()
     }
 
     func updateApp(_ mutate: (inout AppPreferences) -> Void) {
@@ -47,6 +48,13 @@ final class AppPreferencesStore: ObservableObject {
     private func save<T: Encodable>(_ value: T, key: Key) {
         let data = try! encoder.encode(value)
         userDefaults.set(data, forKey: key.rawValue)
+    }
+
+    private func migrateLegacyCaptureHotkeyIfNeeded() {
+        let legacyDefaultCapture = GlobalHotkey(keyCode: 23, modifiers: [.command, .shift])
+        guard capturePreferences.hotkey == legacyDefaultCapture else { return }
+        capturePreferences.hotkey = .defaultCapture
+        save(capturePreferences, key: .capture)
     }
 
     private static func load<T: Decodable>(_ type: T.Type, key: Key, from defaults: UserDefaults) -> T? {

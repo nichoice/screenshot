@@ -1,3 +1,4 @@
+import Combine
 import CoreGraphics
 import XCTest
 @testable import ScreenshotTool
@@ -131,6 +132,32 @@ final class InlineCaptureEditorStateTests: XCTestCase {
     }
 
     @MainActor
+    func testDocumentMutationsPublishAfterUpdatedAnnotationItemsAreAvailable() {
+        let state = InlineCaptureEditorState(
+            result: CaptureResult(
+                fullImage: makeImage(width: 300, height: 200),
+                image: makeImage(width: 100, height: 80),
+                selectionRect: CGRect(x: 50, y: 40, width: 100, height: 80),
+                capturedAt: Date()
+            ),
+            screenFrame: CGRect(x: 0, y: 0, width: 300, height: 200),
+            document: AnnotationDocument()
+        )
+        let expectation = expectation(description: "state publishes updated annotation items")
+        var observedCounts: [Int] = []
+        let cancellable = state.objectWillChange.sink {
+            observedCounts.append(state.localAnnotationItems.count)
+            expectation.fulfill()
+        }
+
+        state.document.add(.rectangle(CGRect(x: 55, y: 45, width: 30, height: 20), "#FF3B30", 4))
+
+        wait(for: [expectation], timeout: 1)
+        withExtendedLifetime(cancellable) {}
+        XCTAssertEqual(observedCounts, [1])
+    }
+
+    @MainActor
     func testCommitEmptyTextDraftCancelsWithoutAddingAnnotation() {
         let state = InlineCaptureEditorState(
             result: CaptureResult(
@@ -169,6 +196,101 @@ final class InlineCaptureEditorStateTests: XCTestCase {
 
         XCTAssertEqual(state.document.items, [
             .text("🙂", CGPoint(x: 100, y: 80), "#FF3B30", 24)
+        ])
+    }
+
+    @MainActor
+    func testLocalPointToGlobalIncludesScreenOrigin() {
+        let state = InlineCaptureEditorState(
+            result: CaptureResult(
+                fullImage: makeImage(width: 500, height: 320),
+                image: makeImage(width: 100, height: 80),
+                selectionRect: CGRect(x: 460, y: 170, width: 100, height: 80),
+                capturedAt: Date()
+            ),
+            screenFrame: CGRect(x: 400, y: 120, width: 700, height: 520),
+            document: AnnotationDocument()
+        )
+
+        let globalPoint = state.localPointToGlobal(CGPoint(x: 12, y: 18))
+
+        XCTAssertEqual(globalPoint, CGPoint(x: 472, y: 188))
+    }
+
+    @MainActor
+    func testDisplaySelectionRectConvertsAppKitSelectionIntoOnScreenEditorPosition() {
+        let state = InlineCaptureEditorState(
+            result: CaptureResult(
+                fullImage: makeImage(width: 300, height: 200),
+                image: makeImage(width: 100, height: 80),
+                selectionRect: CGRect(x: 50, y: 40, width: 100, height: 80),
+                capturedAt: Date()
+            ),
+            screenFrame: CGRect(x: 0, y: 0, width: 300, height: 200),
+            document: AnnotationDocument()
+        )
+
+        XCTAssertEqual(state.displaySelectionRect, CGRect(x: 50, y: 80, width: 100, height: 80))
+    }
+
+    @MainActor
+    func testDisplayTextDraftCanvasPointTracksClickedTextLocationInEditorCoordinates() {
+        let state = InlineCaptureEditorState(
+            result: CaptureResult(
+                fullImage: makeImage(width: 300, height: 200),
+                image: makeImage(width: 100, height: 80),
+                selectionRect: CGRect(x: 50, y: 40, width: 100, height: 80),
+                capturedAt: Date()
+            ),
+            screenFrame: CGRect(x: 0, y: 0, width: 300, height: 200),
+            document: AnnotationDocument()
+        )
+
+        state.activateTool(.text)
+        state.beginTextEntry(atLocalPoint: CGPoint(x: 12, y: 24))
+
+        XCTAssertEqual(state.displayTextDraftCanvasPoint, CGPoint(x: 12, y: 56))
+    }
+
+    @MainActor
+    func testMoveDisplaySelectionUpdatesGlobalSelectionRectWithoutLosingOriginalPlacement() {
+        let state = InlineCaptureEditorState(
+            result: CaptureResult(
+                fullImage: makeImage(width: 500, height: 320),
+                image: makeImage(width: 100, height: 80),
+                selectionRect: CGRect(x: 460, y: 170, width: 100, height: 80),
+                capturedAt: Date()
+            ),
+            screenFrame: CGRect(x: 400, y: 120, width: 700, height: 520),
+            document: AnnotationDocument()
+        )
+
+        state.moveDisplaySelection(
+            translation: CGSize(width: 20, height: 30),
+            initialRect: state.displaySelectionRect
+        )
+
+        XCTAssertEqual(state.displaySelectionRect, CGRect(x: 80, y: 420, width: 100, height: 80))
+        XCTAssertEqual(state.globalSelectionRect, CGRect(x: 480, y: 140, width: 100, height: 80))
+    }
+
+    @MainActor
+    func testLocalAnnotationItemsUseGlobalSelectionOrigin() {
+        let document = AnnotationDocument()
+        document.add(.text("Pinned", CGPoint(x: 470, y: 190), "#FF3B30", 16))
+        let state = InlineCaptureEditorState(
+            result: CaptureResult(
+                fullImage: makeImage(width: 500, height: 320),
+                image: makeImage(width: 100, height: 80),
+                selectionRect: CGRect(x: 460, y: 170, width: 100, height: 80),
+                capturedAt: Date()
+            ),
+            screenFrame: CGRect(x: 400, y: 120, width: 700, height: 520),
+            document: document
+        )
+
+        XCTAssertEqual(state.localAnnotationItems, [
+            .text("Pinned", CGPoint(x: 10, y: 20), "#FF3B30", 16)
         ])
     }
 

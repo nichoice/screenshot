@@ -1,26 +1,108 @@
 import AppKit
 
+protocol CaptureWindowRectProviding {
+    func appKitWindowRect(containing globalPoint: CGPoint) -> CGRect?
+}
+
+struct WindowListCaptureWindowProvider: CaptureWindowRectProviding {
+    let excludedOwnerPID: pid_t
+
+    init(excludedOwnerPID: pid_t = getpid()) {
+        self.excludedOwnerPID = excludedOwnerPID
+    }
+
+    func appKitWindowRect(containing globalPoint: CGPoint) -> CGRect? {
+        guard let screenFrame = NSScreen.screens.first(where: { $0.frame.contains(globalPoint) })?.frame ?? NSScreen.main?.frame,
+              let windowInfo = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] else {
+            return nil
+        }
+
+        let cgPoint = CaptureCoordinateConverter.appKitPointToCGWindowPoint(globalPoint, screenFrame: screenFrame)
+
+        for info in windowInfo {
+            guard let ownerPID = (info[kCGWindowOwnerPID as String] as? NSNumber)?.int32Value,
+                  ownerPID != excludedOwnerPID else {
+                continue
+            }
+
+            let layer = (info[kCGWindowLayer as String] as? NSNumber)?.intValue ?? 0
+            let alpha = (info[kCGWindowAlpha as String] as? NSNumber)?.doubleValue ?? 1
+            guard layer == 0, alpha > 0.01 else {
+                continue
+            }
+
+            guard let boundsDictionary = info[kCGWindowBounds as String] as? [String: Any],
+                  let cgWindowRect = CGRect(dictionaryRepresentation: boundsDictionary as CFDictionary),
+                  cgWindowRect.width >= 40,
+                  cgWindowRect.height >= 40,
+                  cgWindowRect.contains(cgPoint) else {
+                continue
+            }
+
+            let appKitRect = CaptureCoordinateConverter.cgWindowRectToAppKitRect(cgWindowRect, screenFrame: screenFrame)
+            if appKitRect.contains(globalPoint) {
+                return appKitRect
+            }
+        }
+
+        return nil
+    }
+}
+
 final class CaptureOverlayView: NSView {
     var onSelectionChanged: ((CGPoint, CGPoint) -> Void)?
     var onSelectionCompleted: (() -> Void)?
     var onCancelled: (() -> Void)?
 
-    private var dragStart: CGPoint?
-    private var dragCurrent: CGPoint?
+    private let screenFrame: CGRect
+    private let windowRectProvider: CaptureWindowRectProviding
+    private var interactionState = CaptureOverlayInteractionState()
+    private var trackingArea: NSTrackingArea?
 
     override var acceptsFirstResponder: Bool {
         true
     }
 
-    override init(frame frameRect: NSRect) {
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        true
+    }
+
+    init(
+        frame frameRect: NSRect,
+        screenFrame: CGRect,
+        windowRectProvider: CaptureWindowRectProviding = WindowListCaptureWindowProvider()
+    ) {
+        self.screenFrame = screenFrame
+        self.windowRectProvider = windowRectProvider
         super.init(frame: frameRect)
         wantsLayer = true
         layer?.contentsScale = NSScreen.main?.backingScaleFactor ?? 2
+        interactionState.availableRect = bounds
     }
 
     required init?(coder: NSCoder) {
+        self.screenFrame = .zero
+        self.windowRectProvider = WindowListCaptureWindowProvider()
         super.init(coder: coder)
         wantsLayer = true
+    }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        interactionState.availableRect = bounds
+
+        if let trackingArea {
+            removeTrackingArea(trackingArea)
+        }
+
+        let trackingArea = NSTrackingArea(
+            rect: bounds,
+            options: [.activeAlways, .inVisibleRect, .mouseMoved, .mouseEnteredAndExited],
+            owner: self,
+            userInfo: nil
+        )
+        addTrackingArea(trackingArea)
+        self.trackingArea = trackingArea
     }
 
     override func draw(_ dirtyRect: NSRect) {
@@ -28,53 +110,81 @@ final class CaptureOverlayView: NSView {
 
         drawDimmedBackdrop()
 
-        guard let selectionRect else {
-            drawStartHint()
+        if let selectionRect = interactionState.selectionRect {
+            clearSelectionWindow(selectionRect)
+            drawSelectionFrame(selectionRect)
+            drawSelectionHandles(selectionRect)
+            drawSelectionSizeLabel(selectionRect)
+            drawSelectionHint(selectionRect)
             return
         }
 
-        clearSelectionWindow(selectionRect)
-        drawSelectionFrame(selectionRect)
-        drawSelectionHandles(selectionRect)
-        drawSelectionSizeLabel(selectionRect)
+        if let hoveredWindowRect = interactionState.hoveredWindowRect {
+            clearSelectionWindow(hoveredWindowRect)
+            drawHoveredWindowFrame(hoveredWindowRect)
+            drawWindowHoverHint(hoveredWindowRect)
+            return
+        }
+
+        drawStartHint()
     }
 
     override func mouseDown(with event: NSEvent) {
-        dragStart = convert(event.locationInWindow, from: nil)
-        dragCurrent = dragStart
-        if let dragStart {
-            onSelectionChanged?(dragStart, dragStart)
-        }
+        let point = convert(event.locationInWindow, from: nil)
+        updateHoveredWindow(forLocalPoint: point)
+        interactionState.handleMouseDown(at: point)
         needsDisplay = true
     }
 
     override func mouseDragged(with event: NSEvent) {
-        guard let dragStart else { return }
-        let current = convert(event.locationInWindow, from: nil)
-        dragCurrent = current
-        onSelectionChanged?(dragStart, current)
+        let point = convert(event.locationInWindow, from: nil)
+        apply(interactionState.handleMouseDragged(to: point))
         needsDisplay = true
     }
 
     override func mouseUp(with event: NSEvent) {
-        onSelectionCompleted?()
-        dragStart = nil
-        dragCurrent = nil
+        let point = convert(event.locationInWindow, from: nil)
+        apply(interactionState.handleMouseUp(at: point))
+        needsDisplay = true
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        updateHoveredWindow(forLocalPoint: convert(event.locationInWindow, from: nil))
+        needsDisplay = true
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        interactionState.hoveredWindowRect = nil
         needsDisplay = true
     }
 
     override func keyDown(with event: NSEvent) {
         if event.keyCode == 53 {
+            interactionState.cancel()
             onCancelled?()
         }
     }
 }
 
 private extension CaptureOverlayView {
-    var selectionRect: CGRect? {
-        guard let dragStart, let dragCurrent else { return nil }
-        let rect = CaptureSelection(start: dragStart, end: dragCurrent).normalizedRect
-        return rect.width >= 1 || rect.height >= 1 ? rect : nil
+    func apply(_ actions: [CaptureOverlayInteractionAction]) {
+        for action in actions {
+            switch action {
+            case let .selectionUpdated(rect):
+                onSelectionChanged?(rect.origin, CGPoint(x: rect.maxX, y: rect.maxY))
+            case .selectionConfirmed:
+                onSelectionCompleted?()
+            }
+        }
+    }
+
+    func updateHoveredWindow(forLocalPoint point: CGPoint) {
+        let globalPoint = CaptureCoordinateConverter.localPointToGlobal(point, screenFrame: screenFrame)
+        if let globalRect = windowRectProvider.appKitWindowRect(containing: globalPoint) {
+            interactionState.hoveredWindowRect = CaptureCoordinateConverter.globalRectToLocal(globalRect, screenFrame: screenFrame)
+        } else {
+            interactionState.hoveredWindowRect = nil
+        }
     }
 
     func drawDimmedBackdrop() {
@@ -83,7 +193,7 @@ private extension CaptureOverlayView {
     }
 
     func drawStartHint() {
-        let message = "拖拽选择截图区域，按 Esc 取消"
+        let message = "按住拖拽，松手立即进入编辑；单击窗口立即吸附编辑，按 Esc 取消"
         let attributes: [NSAttributedString.Key: Any] = [
             .font: NSFont.systemFont(ofSize: 18, weight: .semibold),
             .foregroundColor: NSColor.white.withAlphaComponent(0.92),
@@ -96,6 +206,39 @@ private extension CaptureOverlayView {
             y: bounds.midY - size.height / 2
         )
         attributed.draw(at: origin)
+    }
+
+    func drawSelectionHint(_ rect: CGRect) {
+        drawHint("松手完成截图", near: rect)
+    }
+
+    func drawWindowHoverHint(_ rect: CGRect) {
+        drawHint("单击窗口立即编辑", near: rect)
+    }
+
+    func drawHint(_ message: String, near rect: CGRect) {
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 12, weight: .semibold),
+            .foregroundColor: NSColor.white,
+            .shadow: textShadow
+        ]
+        let attributed = NSAttributedString(string: message, attributes: attributes)
+        let textSize = attributed.size()
+        let labelRect = CGRect(
+            x: rect.maxX - textSize.width - 18,
+            y: min(bounds.maxY - textSize.height - 18, rect.maxY + 12),
+            width: textSize.width + 18,
+            height: textSize.height + 10
+        )
+
+        let background = NSBezierPath(roundedRect: labelRect, xRadius: 8, yRadius: 8)
+        NSColor.black.withAlphaComponent(0.72).setFill()
+        background.fill()
+        NSColor.white.withAlphaComponent(0.18).setStroke()
+        background.lineWidth = 1
+        background.stroke()
+
+        attributed.draw(at: CGPoint(x: labelRect.minX + 9, y: labelRect.minY + 5))
     }
 
     func clearSelectionWindow(_ rect: CGRect) {
@@ -115,6 +258,18 @@ private extension CaptureOverlayView {
         drawStroke(rect.insetBy(dx: -2.5, dy: -2.5), color: secondary.withAlphaComponent(0.78), width: 5)
         drawStroke(rect.insetBy(dx: -0.5, dy: -0.5), color: primary.withAlphaComponent(0.98), width: 2)
         drawStroke(rect.insetBy(dx: 2, dy: 2), color: accent.withAlphaComponent(0.9), width: 1.5)
+    }
+
+    func drawHoveredWindowFrame(_ rect: CGRect) {
+        let shadowRect = rect.insetBy(dx: -3, dy: -3)
+        drawStroke(shadowRect, color: NSColor.black.withAlphaComponent(0.65), width: 6)
+
+        let path = NSBezierPath(rect: rect.insetBy(dx: 0.5, dy: 0.5))
+        let dashPattern: [CGFloat] = [10, 6]
+        path.setLineDash(dashPattern, count: dashPattern.count, phase: 0)
+        path.lineWidth = 2
+        NSColor.systemYellow.withAlphaComponent(0.96).setStroke()
+        path.stroke()
     }
 
     func drawSelectionHandles(_ rect: CGRect) {

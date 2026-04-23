@@ -52,8 +52,8 @@ private struct MainDashboardCard: View {
             ) {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(spacing: 24) {
-                        statusBlock("屏幕录制", value: String(describing: viewModel.permissions.screenRecording))
-                        statusBlock("辅助功能", value: String(describing: viewModel.permissions.accessibility))
+                        statusBlock("屏幕录制", value: viewModel.permissions.screenRecording.displayName)
+                        statusBlock("辅助功能", value: viewModel.permissions.accessibility.displayName)
                         statusBlock("截图快捷键", value: viewModel.shortcutSummary)
                     }
 

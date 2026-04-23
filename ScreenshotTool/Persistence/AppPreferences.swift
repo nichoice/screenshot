@@ -11,7 +11,7 @@ struct GlobalHotkey: Codable, Equatable {
     var keyCode: UInt32
     var modifiers: [HotkeyModifier]
 
-    static let defaultCapture = GlobalHotkey(keyCode: 23, modifiers: [.command, .shift])
+    static let defaultCapture = GlobalHotkey(keyCode: 21, modifiers: [.command, .shift])
 }
 
 enum CaptureOutputAction: String, Codable, CaseIterable {

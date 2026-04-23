@@ -83,6 +83,31 @@ final class SettingsWindowViewModelTests: XCTestCase {
     }
 
     @MainActor
+    func testSetPlayCaptureSoundPersistsSelection() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            )
+        )
+
+        viewModel.setPlayCaptureSound(true)
+
+        XCTAssertTrue(preferencesStore.capturePreferences.playCaptureSound)
+    }
+
+    @MainActor
     func testToggleRuleEnabledPersistsUpdatedRule() throws {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)
@@ -117,6 +142,88 @@ final class SettingsWindowViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.rules.first?.isEnabled, false)
         XCTAssertEqual(InputMethodRulesStore(fileURL: rulesURL).rules.first?.isEnabled, false)
     }
+
+    @MainActor
+    func testRefreshPermissionsPullsLatestSnapshot() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        let permissionsService = FakePermissionsService()
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: permissionsService,
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            )
+        )
+
+        permissionsService.snapshot = PermissionsSnapshot(screenRecording: .granted, accessibility: .denied)
+        viewModel.refreshPermissions()
+
+        XCTAssertEqual(viewModel.permissionSnapshot.screenRecording, .granted)
+        XCTAssertEqual(viewModel.permissionSnapshot.accessibility, .denied)
+    }
+
+    @MainActor
+    func testOpenScreenRecordingSettingsRequestsAccessBeforeOpeningSettings() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        let permissionsService = FakePermissionsService()
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: permissionsService,
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            )
+        )
+
+        viewModel.openScreenRecordingSettings()
+
+        XCTAssertEqual(permissionsService.requestScreenRecordingAccessIfNeededCount, 1)
+        XCTAssertEqual(permissionsService.openScreenRecordingSettingsCount, 1)
+    }
+
+    @MainActor
+    func testSetMenuBarIconVisibleUpdatesControllerImmediately() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        let menuBarController = FakeMenuBarController()
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            ),
+            menuBarController: menuBarController
+        )
+
+        viewModel.setMenuBarIconVisible(false)
+
+        XCTAssertEqual(menuBarController.visibleValues, [false])
+    }
 }
 
 private final class FakeLoginItemService: LoginItemService {
@@ -131,12 +238,23 @@ private final class FakeLoginItemService: LoginItemService {
     }
 }
 
-private struct FakePermissionsService: PermissionsService {
+private final class FakePermissionsService: PermissionsService {
+    var snapshot = PermissionsSnapshot(screenRecording: .unknown, accessibility: .unknown)
+    var requestScreenRecordingAccessIfNeededCount = 0
+    var openScreenRecordingSettingsCount = 0
+
     func currentSnapshot() -> PermissionsSnapshot {
-        PermissionsSnapshot(screenRecording: .unknown, accessibility: .unknown)
+        snapshot
     }
 
-    func openScreenRecordingSettings() {}
+    func requestScreenRecordingAccessIfNeeded() -> Bool {
+        requestScreenRecordingAccessIfNeededCount += 1
+        return snapshot.screenRecording == .granted
+    }
+
+    func openScreenRecordingSettings() {
+        openScreenRecordingSettingsCount += 1
+    }
     func openAccessibilitySettings() {}
 }
 
@@ -152,5 +270,14 @@ private final class FakeSettingsInputSourceService: InputSourceService {
     @discardableResult
     func selectInputSource(id: String) -> Bool {
         true
+    }
+}
+
+@MainActor
+private final class FakeMenuBarController: MenuBarVisibilityControlling {
+    var visibleValues: [Bool] = []
+
+    func setVisible(_ visible: Bool) {
+        visibleValues.append(visible)
     }
 }

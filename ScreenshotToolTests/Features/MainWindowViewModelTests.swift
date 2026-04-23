@@ -82,6 +82,10 @@ private struct LocalFakePermissionsService: PermissionsService {
         PermissionsSnapshot(screenRecording: .unknown, accessibility: .unknown)
     }
 
+    func requestScreenRecordingAccessIfNeeded() -> Bool {
+        true
+    }
+
     func openScreenRecordingSettings() {}
     func openAccessibilitySettings() {}
 }

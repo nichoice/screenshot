@@ -17,6 +17,7 @@ final class AppEnvironment: ObservableObject {
     let outputService: CaptureOutputService
     let ocrService: OCRService
     let shareService: ShareService
+    let captureSoundPlayer: CaptureSoundPlaying
     let themeController: AppThemeController
     let mainWindowViewModel: MainWindowViewModel
     let settingsWindowViewModel: SettingsWindowViewModel
@@ -36,7 +37,8 @@ final class AppEnvironment: ObservableObject {
         historyStore: CaptureHistoryStore,
         outputService: CaptureOutputService,
         ocrService: OCRService,
-        shareService: ShareService
+        shareService: ShareService,
+        captureSoundPlayer: CaptureSoundPlaying
     ) {
         self.windowTitle = windowTitle
         self.preferencesStore = preferencesStore
@@ -53,6 +55,7 @@ final class AppEnvironment: ObservableObject {
         self.outputService = outputService
         self.ocrService = ocrService
         self.shareService = shareService
+        self.captureSoundPlayer = captureSoundPlayer
         self.themeController = AppThemeController(preferencesStore: preferencesStore)
         self.mainWindowViewModel = MainWindowViewModel(
             permissionsService: permissionsService,
@@ -68,7 +71,8 @@ final class AppEnvironment: ObservableObject {
             inputSourceService: inputSourceService,
             permissionsService: permissionsService,
             loginItemService: loginItemService,
-            inputMethodManager: inputMethodManager
+            inputMethodManager: inputMethodManager,
+            menuBarController: menuBarController
         )
     }
 
@@ -76,8 +80,15 @@ final class AppEnvironment: ObservableObject {
         inputMethodManager.startObserving()
         try? hotkeyHandler.start()
         menuBarController.setVisible(preferencesStore.appPreferences.showsMenuBarIcon)
-        captureCoordinator.onCaptureStarted = { [weak windowRouter, weak captureCoordinator] in
-            guard let coordinator = captureCoordinator else { return }
+        captureCoordinator.onCaptureStarted = { [weak self, weak windowRouter, weak captureCoordinator] in
+            guard let self, let coordinator = captureCoordinator else { return }
+            guard self.permissionsService.requestScreenRecordingAccessIfNeeded() else {
+                coordinator.cancelCapture()
+                self.permissionsService.openScreenRecordingSettings()
+                return
+            }
+
+            coordinator.prepareFullDesktopCaptureIfNeeded()
             windowRouter?.showCaptureOverlay(
                 onSelectionChanged: { start, end in
                     coordinator.updateSelection(start: start, end: end)
@@ -97,7 +108,9 @@ final class AppEnvironment: ObservableObject {
         }
         captureCoordinator.onCaptureCompleted = { [weak self, weak windowRouter] result in
             guard let self else { return }
-            windowRouter?.hideCaptureOverlay()
+            if self.preferencesStore.capturePreferences.playCaptureSound {
+                self.captureSoundPlayer.playCaptureSound()
+            }
             let document = AnnotationDocument()
             let defaultDirectory = URL(fileURLWithPath: self.preferencesStore.capturePreferences.defaultSaveDirectoryPath ?? FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)[0].appendingPathComponent("ScreenshotTool").path)
             windowRouter?.presentFloatingToolbar(
@@ -168,7 +181,8 @@ final class AppEnvironment: ObservableObject {
             historyStore: historyStore,
             outputService: outputService,
             ocrService: VisionOCRService(),
-            shareService: SystemShareService()
+            shareService: SystemShareService(),
+            captureSoundPlayer: SystemCaptureSoundPlayer()
         )
     }
 
@@ -226,7 +240,8 @@ final class AppEnvironment: ObservableObject {
             historyStore: historyStore,
             outputService: outputService,
             ocrService: VisionOCRService(),
-            shareService: SystemShareService()
+            shareService: SystemShareService(),
+            captureSoundPlayer: SystemCaptureSoundPlayer()
         )
     }
 }

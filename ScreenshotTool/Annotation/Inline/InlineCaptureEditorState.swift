@@ -1,9 +1,12 @@
+import AppKit
+import Combine
 import CoreGraphics
 import Foundation
 
 struct InlineTextDraft: Equatable {
     var text: String
     let globalPoint: CGPoint
+    let localPoint: CGPoint
 }
 
 struct InlineFeedbackBanner: Equatable, Identifiable {
@@ -41,6 +44,7 @@ final class InlineCaptureEditorState: ObservableObject {
     @Published private var busyActions: [InlineAnnotationToolbarItem: InlineBusyToken] = [:]
 
     private let minimumSelectionSize: CGFloat = 48
+    private var cancellables: Set<AnyCancellable> = []
 
     init(result: CaptureResult, screenFrame: CGRect, document: AnnotationDocument) {
         self.result = result
@@ -48,6 +52,11 @@ final class InlineCaptureEditorState: ObservableObject {
         self.document = document
         self.editorState = AnnotationEditorState(document: document)
         self.selectionRect = result.selectionRect.offsetBy(dx: -screenFrame.minX, dy: -screenFrame.minY)
+        document.objectWillChange
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     var availableRect: CGRect {
@@ -58,6 +67,27 @@ final class InlineCaptureEditorState: ObservableObject {
         selectionRect.offsetBy(dx: screenFrame.minX, dy: screenFrame.minY)
     }
 
+    var displaySelectionRect: CGRect {
+        CaptureCoordinateConverter.localAppKitRectToDisplay(selectionRect, containerHeight: availableRect.height)
+    }
+
+    var desktopRect: CGRect {
+        let rect = NSScreen.screens.reduce(into: CGRect.null) { partial, screen in
+            partial = partial.union(screen.frame)
+        }
+        return rect.isNull ? screenFrame : rect
+    }
+
+    var annotationScaleX: CGFloat {
+        guard displaySelectionRect.width > 0 else { return 1 }
+        return CGFloat(result.image.width) / displaySelectionRect.width
+    }
+
+    var annotationScaleY: CGFloat {
+        guard displaySelectionRect.height > 0 else { return 1 }
+        return CGFloat(result.image.height) / displaySelectionRect.height
+    }
+
     var toolbarPlacement: CGRect {
         FloatingToolbarPlacement.resolve(
             selectionRect: selectionRect,
@@ -66,15 +96,32 @@ final class InlineCaptureEditorState: ObservableObject {
         )
     }
 
+    var displayToolbarPlacement: CGRect {
+        FloatingToolbarPlacement.resolve(
+            selectionRect: displaySelectionRect,
+            availableRect: availableRect,
+            toolbarSize: CGSize(width: 720, height: 56)
+        )
+    }
+
     var localAnnotationItems: [AnnotationItem] {
-        document.items.map { $0.offsetBy(dx: -selectionRect.minX, dy: -selectionRect.minY) }
+        document.items.map { $0.offsetBy(dx: -globalSelectionRect.minX, dy: -globalSelectionRect.minY) }
+    }
+
+    var displayTextDraftCanvasPoint: CGPoint? {
+        guard let draft = textDraft else { return nil }
+
+        return CGPoint(
+            x: draft.localPoint.x / annotationScaleX,
+            y: displaySelectionRect.height - (draft.localPoint.y / annotationScaleY)
+        )
     }
 
     func currentCroppedImage() -> CGImage? {
         CaptureImageCropper.crop(
             image: result.fullImage,
-            imageBounds: availableRect,
-            selectionRect: selectionRect
+            imageBounds: desktopRect,
+            selectionRect: globalSelectionRect
         )
     }
 
@@ -82,8 +129,8 @@ final class InlineCaptureEditorState: ObservableObject {
         let renderedFullImage = AnnotationRenderer().render(baseImage: result.fullImage, items: document.items)
         guard let cropped = CaptureImageCropper.crop(
             image: renderedFullImage,
-            imageBounds: availableRect,
-            selectionRect: selectionRect
+            imageBounds: desktopRect,
+            selectionRect: globalSelectionRect
         ) else {
             return nil
         }
@@ -97,7 +144,7 @@ final class InlineCaptureEditorState: ObservableObject {
     }
 
     func localPointToGlobal(_ point: CGPoint) -> CGPoint {
-        CGPoint(x: point.x + selectionRect.minX, y: point.y + selectionRect.minY)
+        CGPoint(x: point.x + globalSelectionRect.minX, y: point.y + globalSelectionRect.minY)
     }
 
     func localPathToGlobal(_ points: [CGPoint]) -> [CGPoint] {
@@ -131,9 +178,20 @@ final class InlineCaptureEditorState: ObservableObject {
         selectionRect = CGRect(x: clampedX, y: clampedY, width: width, height: height)
     }
 
+    func moveDisplaySelection(translation: CGSize, initialRect: CGRect) {
+        let initialRectInAppKit = CaptureCoordinateConverter.localDisplayRectToAppKit(
+            initialRect,
+            containerHeight: availableRect.height
+        )
+        moveSelection(
+            translation: CGSize(width: translation.width, height: -translation.height),
+            initialRect: initialRectInAppKit
+        )
+    }
+
     func beginTextEntry(atLocalPoint point: CGPoint) {
         guard editorState.selectedTool == .text else { return }
-        textDraft = InlineTextDraft(text: "", globalPoint: localPointToGlobal(point))
+        textDraft = InlineTextDraft(text: "", globalPoint: localPointToGlobal(point), localPoint: point)
     }
 
     func updateTextDraft(_ text: String) {
@@ -264,25 +322,37 @@ final class InlineCaptureEditorState: ObservableObject {
         selectionRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
 
+    func resizeDisplaySelection(using handle: InlineSelectionHandle, translation: CGSize, initialRect: CGRect) {
+        let initialRectInAppKit = CaptureCoordinateConverter.localDisplayRectToAppKit(
+            initialRect,
+            containerHeight: availableRect.height
+        )
+        resizeSelection(
+            using: handle,
+            translation: CGSize(width: translation.width, height: -translation.height),
+            initialRect: initialRectInAppKit
+        )
+    }
+
     func handleFrame(for handle: InlineSelectionHandle, canvasSize: CGSize) -> CGRect {
         let point: CGPoint
         switch handle {
         case .topLeading:
-            point = CGPoint(x: 0, y: canvasSize.height)
+            point = CGPoint(x: 0, y: 0)
         case .top:
-            point = CGPoint(x: canvasSize.width / 2, y: canvasSize.height)
+            point = CGPoint(x: canvasSize.width / 2, y: 0)
         case .topTrailing:
-            point = CGPoint(x: canvasSize.width, y: canvasSize.height)
+            point = CGPoint(x: canvasSize.width, y: 0)
         case .leading:
             point = CGPoint(x: 0, y: canvasSize.height / 2)
         case .trailing:
             point = CGPoint(x: canvasSize.width, y: canvasSize.height / 2)
         case .bottomLeading:
-            point = CGPoint(x: 0, y: 0)
+            point = CGPoint(x: 0, y: canvasSize.height)
         case .bottom:
-            point = CGPoint(x: canvasSize.width / 2, y: 0)
+            point = CGPoint(x: canvasSize.width / 2, y: canvasSize.height)
         case .bottomTrailing:
-            point = CGPoint(x: canvasSize.width, y: 0)
+            point = CGPoint(x: canvasSize.width, y: canvasSize.height)
         }
 
         return CGRect(x: point.x - 8, y: point.y - 8, width: 16, height: 16)

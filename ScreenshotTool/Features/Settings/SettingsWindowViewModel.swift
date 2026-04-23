@@ -10,6 +10,7 @@ final class SettingsWindowViewModel: ObservableObject {
     private let permissionsService: PermissionsService
     private let loginItemService: LoginItemService
     private let inputMethodManager: InputMethodManager
+    private let menuBarController: MenuBarVisibilityControlling?
 
     @Published private(set) var appPreferences: AppPreferences
     @Published private(set) var capturePreferences: CapturePreferences
@@ -26,7 +27,8 @@ final class SettingsWindowViewModel: ObservableObject {
         inputSourceService: InputSourceService,
         permissionsService: PermissionsService,
         loginItemService: LoginItemService,
-        inputMethodManager: InputMethodManager
+        inputMethodManager: InputMethodManager,
+        menuBarController: MenuBarVisibilityControlling? = nil
     ) {
         self.sidebarItems = SettingsSidebarItem.defaultItems
         self.preferencesStore = preferencesStore
@@ -35,6 +37,7 @@ final class SettingsWindowViewModel: ObservableObject {
         self.permissionsService = permissionsService
         self.loginItemService = loginItemService
         self.inputMethodManager = inputMethodManager
+        self.menuBarController = menuBarController
         self.appPreferences = preferencesStore.appPreferences
         self.capturePreferences = preferencesStore.capturePreferences
         self.annotationPreferences = preferencesStore.annotationPreferences
@@ -54,6 +57,7 @@ final class SettingsWindowViewModel: ObservableObject {
     func setMenuBarIconVisible(_ enabled: Bool) {
         preferencesStore.updateApp { $0.showsMenuBarIcon = enabled }
         appPreferences = preferencesStore.appPreferences
+        menuBarController?.setVisible(enabled)
     }
 
     func setStayResident(_ enabled: Bool) {
@@ -68,6 +72,11 @@ final class SettingsWindowViewModel: ObservableObject {
 
     func setImageFormat(_ format: CaptureImageFormat) {
         preferencesStore.updateCapture { $0.imageFormat = format }
+        capturePreferences = preferencesStore.capturePreferences
+    }
+
+    func setPlayCaptureSound(_ enabled: Bool) {
+        preferencesStore.updateCapture { $0.playCaptureSound = enabled }
         capturePreferences = preferencesStore.capturePreferences
     }
 
@@ -104,6 +113,19 @@ final class SettingsWindowViewModel: ObservableObject {
     func setThemePreference(_ preference: AppThemePreference) {
         preferencesStore.updateApp { $0.themePreference = preference }
         appPreferences = preferencesStore.appPreferences
+    }
+
+    func refreshPermissions() {
+        permissionSnapshot = permissionsService.currentSnapshot()
+    }
+
+    func openScreenRecordingSettings() {
+        _ = permissionsService.requestScreenRecordingAccessIfNeeded()
+        permissionsService.openScreenRecordingSettings()
+    }
+
+    func openAccessibilitySettings() {
+        permissionsService.openAccessibilitySettings()
     }
 
     func addRule(bundleIdentifier: String, appName: String, inputSourceID: String) throws {

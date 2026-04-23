@@ -4,6 +4,8 @@ struct InlineAnnotationEditorView: View {
     @ObservedObject var state: InlineCaptureEditorState
     @FocusState private var isTextEditorFocused: Bool
     @State private var feedbackDismissTask: Task<Void, Never>?
+    @State private var selectionInteractionArmTask: Task<Void, Never>?
+    @State private var isSelectionInteractionArmed = false
     let onCopy: () -> Void
     let onSave: () -> Void
     let onPin: () -> Void
@@ -18,6 +20,7 @@ struct InlineAnnotationEditorView: View {
 
     var body: some View {
         let croppedImage = state.currentCroppedImage() ?? state.result.image
+        let displaySelectionRect = state.displaySelectionRect
         let displaySize = fittedCanvasSize
         let scale = displaySize.width > 0 ? CGFloat(croppedImage.width) / displaySize.width : 1
 
@@ -26,8 +29,8 @@ struct InlineAnnotationEditorView: View {
                 .overlay(
                     Rectangle()
                         .fill(Color.clear)
-                        .frame(width: state.selectionRect.width, height: state.selectionRect.height)
-                        .position(x: state.selectionRect.midX, y: state.selectionRect.midY)
+                        .frame(width: displaySelectionRect.width, height: displaySelectionRect.height)
+                        .position(x: displaySelectionRect.midX, y: displaySelectionRect.midY)
                         .blendMode(.destinationOut)
                 )
                 .compositingGroup()
@@ -47,7 +50,7 @@ struct InlineAnnotationEditorView: View {
                 displayItems: state.localAnnotationItems
             )
             .frame(width: displaySize.width, height: displaySize.height)
-            .position(x: state.selectionRect.midX, y: state.selectionRect.midY)
+            .position(x: displaySelectionRect.midX, y: displaySelectionRect.midY)
             .contentShape(Rectangle())
             .gesture(selectionMoveGesture)
             .overlay(
@@ -55,21 +58,22 @@ struct InlineAnnotationEditorView: View {
                     .stroke(Color.green.opacity(0.95), lineWidth: 2)
             )
             .overlay(selectionHandles, alignment: .topLeading)
+            .overlay(alignment: .topLeading) {
+                if let textDraft = state.textDraft {
+                    inlineTextEditor(draft: textDraft)
+                }
+            }
 
-            Text("\(Int(state.selectionRect.width.rounded())) x \(Int(state.selectionRect.height.rounded()))")
+            Text("\(Int(displaySelectionRect.width.rounded())) x \(Int(displaySelectionRect.height.rounded()))")
                 .font(.system(size: 12, weight: .semibold, design: .monospaced))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(Color.black.opacity(0.78), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .position(
-                    x: state.selectionRect.minX + 54,
-                    y: max(18, state.selectionRect.minY - 18)
+                    x: displaySelectionRect.minX + 54,
+                    y: max(18, displaySelectionRect.minY - 18)
                 )
-
-            if let textDraft = state.textDraft {
-                inlineTextEditor(draft: textDraft)
-            }
 
             if let feedbackBanner = state.feedbackBanner {
                 feedbackToast(feedbackBanner.message)
@@ -88,10 +92,21 @@ struct InlineAnnotationEditorView: View {
                 onCancel: onCancel,
                 onConfirm: onConfirm
             )
-            .position(x: state.toolbarPlacement.midX, y: state.toolbarPlacement.midY)
+            .position(x: state.displayToolbarPlacement.midX, y: state.displayToolbarPlacement.midY)
         }
         .frame(width: state.availableRect.width, height: state.availableRect.height, alignment: .topLeading)
         .ignoresSafeArea()
+        .onAppear {
+            selectionInteractionArmTask?.cancel()
+            isSelectionInteractionArmed = false
+            selectionInteractionArmTask = Task { @MainActor in
+                try? await Task.sleep(for: .milliseconds(160))
+                isSelectionInteractionArmed = true
+            }
+        }
+        .onDisappear {
+            selectionInteractionArmTask?.cancel()
+        }
         .onChange(of: state.textDraft != nil) { _, isPresenting in
             isTextEditorFocused = isPresenting
         }
@@ -109,10 +124,10 @@ struct InlineAnnotationEditorView: View {
     }
 
     private var fittedCanvasSize: CGSize {
-        let width = state.selectionRect.width
-        let height = state.selectionRect.height
+        let width = state.displaySelectionRect.width
+        let height = state.displaySelectionRect.height
         guard state.result.fullImage.width > 0, state.result.fullImage.height > 0, width > 0, height > 0 else {
-            return CGSize(width: state.selectionRect.width, height: state.selectionRect.height)
+            return CGSize(width: state.displaySelectionRect.width, height: state.displaySelectionRect.height)
         }
         return CGSize(width: width, height: height)
     }
@@ -124,20 +139,21 @@ struct InlineAnnotationEditorView: View {
                 SelectionHandleView(
                     frame: frame,
                     handle: handle,
-                    state: state
+                    state: state,
+                    isInteractionArmed: isSelectionInteractionArmed
                 )
             }
         }
     }
 
     private var selectionMoveGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
+        DragGesture(minimumDistance: 4)
             .onChanged { value in
-                guard state.isSelectionModeActive else { return }
+                guard state.isSelectionModeActive, isSelectionInteractionArmed else { return }
                 if selectionDragOrigin == .zero {
-                    selectionDragOrigin = state.selectionRect
+                    selectionDragOrigin = state.displaySelectionRect
                 }
-                state.moveSelection(translation: value.translation, initialRect: selectionDragOrigin)
+                state.moveDisplaySelection(translation: value.translation, initialRect: selectionDragOrigin)
             }
             .onEnded { _ in
                 selectionDragOrigin = .zero
@@ -146,46 +162,45 @@ struct InlineAnnotationEditorView: View {
 
     @ViewBuilder
     private func inlineTextEditor(draft: InlineTextDraft) -> some View {
-        let localPoint = CGPoint(
-            x: draft.globalPoint.x - state.selectionRect.minX,
-            y: draft.globalPoint.y - state.selectionRect.minY
-        )
-        TextField("输入文字", text: Binding(
-            get: { state.textDraft?.text ?? "" },
-            set: { state.updateTextDraft($0) }
-        ))
-        .textFieldStyle(.plain)
-        .font(.system(size: max(14, state.editorState.fontSize), weight: .medium))
-        .foregroundStyle(Color(nsColor: AnnotationRenderer.nsColor(state.editorState.strokeColorHex)))
-        .padding(.horizontal, 10)
-        .padding(.vertical, 7)
-        .frame(width: 180, alignment: .leading)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .strokeBorder(Color.white.opacity(0.28), lineWidth: 1)
-        )
-        .position(
-            x: state.selectionRect.minX + min(localPoint.x + 90, max(90, state.selectionRect.width - 90)),
-            y: state.selectionRect.minY + max(18, min(localPoint.y, state.selectionRect.height - 18))
-        )
-        .focused($isTextEditorFocused)
-        .onSubmit {
-            state.commitTextEntry()
-        }
-        .onExitCommand {
-            state.cancelTextEntry()
+        if let displayPoint = state.displayTextDraftCanvasPoint {
+            TextField("", text: Binding(
+                get: { state.textDraft?.text ?? "" },
+                set: { state.updateTextDraft($0) }
+            ), prompt: Text("输入文字")
+                .foregroundStyle(Color.white.opacity(0.45))
+            )
+            .textFieldStyle(.plain)
+            .font(.system(size: max(14, state.editorState.fontSize), weight: .medium))
+            .foregroundStyle(Color(nsColor: AnnotationRenderer.nsColor(state.editorState.strokeColorHex)))
+            .tint(Color(nsColor: AnnotationRenderer.nsColor(state.editorState.strokeColorHex)))
+            .shadow(color: .black.opacity(0.55), radius: 3, x: 0, y: 1)
+            .fixedSize(horizontal: true, vertical: false)
+            .position(
+                x: min(max(24, displayPoint.x), max(24, state.displaySelectionRect.width - 24)),
+                y: min(
+                    max(max(18, state.editorState.fontSize), displayPoint.y),
+                    max(max(18, state.editorState.fontSize), state.displaySelectionRect.height - 12)
+                )
+            )
+            .focused($isTextEditorFocused)
+            .onSubmit {
+                state.commitTextEntry()
+            }
+            .onExitCommand {
+                state.cancelTextEntry()
+            }
         }
     }
 
     private func feedbackToast(_ message: String) -> some View {
-        Text(message)
+        let displaySelectionRect = state.displaySelectionRect
+        return Text(message)
             .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(.white)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(Color.black.opacity(0.78), in: Capsule())
-            .position(x: state.selectionRect.midX, y: max(28, state.selectionRect.minY - 44))
+            .position(x: displaySelectionRect.midX, y: max(28, displaySelectionRect.minY - 44))
             .transition(.opacity.combined(with: .scale(scale: 0.96)))
     }
 }
@@ -194,6 +209,7 @@ private struct SelectionHandleView: View {
     let frame: CGRect
     let handle: InlineSelectionHandle
     @ObservedObject var state: InlineCaptureEditorState
+    let isInteractionArmed: Bool
     @State private var initialRect: CGRect = .zero
 
     var body: some View {
@@ -205,11 +221,11 @@ private struct SelectionHandleView: View {
             .gesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { value in
-                        guard state.isSelectionModeActive else { return }
+                        guard state.isSelectionModeActive, isInteractionArmed else { return }
                         if initialRect == .zero {
-                            initialRect = state.selectionRect
+                            initialRect = state.displaySelectionRect
                         }
-                        state.resizeSelection(using: handle, translation: value.translation, initialRect: initialRect)
+                        state.resizeDisplaySelection(using: handle, translation: value.translation, initialRect: initialRect)
                     }
                     .onEnded { _ in
                         initialRect = .zero

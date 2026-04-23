@@ -31,6 +31,14 @@ struct ScreenshotSettingsView: View {
                         Text("JPEG").tag(CaptureImageFormat.jpeg)
                     }
                     .pickerStyle(.segmented)
+
+                    Toggle(
+                        "播放截图提示音",
+                        isOn: Binding(
+                            get: { viewModel.capturePreferences.playCaptureSound },
+                            set: viewModel.setPlayCaptureSound
+                        )
+                    )
                 }
             }
 
@@ -42,6 +50,7 @@ struct ScreenshotSettingsView: View {
                     infoRow("默认保存目录", value: viewModel.capturePreferences.defaultSaveDirectoryPath ?? "系统图片目录 / ScreenshotTool")
                     infoRow("完成后动作", value: outputSummary(viewModel.capturePreferences.defaultOutputAction))
                     infoRow("文件格式", value: viewModel.capturePreferences.imageFormat == .png ? "PNG 无损" : "JPEG 压缩")
+                    infoRow("提示音", value: viewModel.capturePreferences.playCaptureSound ? "完成截图后播放系统提示音" : "静音")
                 }
             }
         }

@@ -2,7 +2,12 @@ import AppKit
 import Foundation
 
 @MainActor
-final class MenuBarController {
+protocol MenuBarVisibilityControlling: AnyObject {
+    func setVisible(_ visible: Bool)
+}
+
+@MainActor
+final class MenuBarController: MenuBarVisibilityControlling {
     private var statusItem: NSStatusItem?
     private let openSettings: () -> Void
     private let startCapture: () -> Void
