@@ -1,4 +1,5 @@
 import Foundation
+import MacShotCore
 
 @MainActor
 final class AppEnvironment: ObservableObject {
@@ -242,6 +243,18 @@ final class AppEnvironment: ObservableObject {
             ocrService: VisionOCRService(),
             shareService: SystemShareService(),
             captureSoundPlayer: SystemCaptureSoundPlayer()
+        )
+    }
+}
+
+private extension AppEnvironment {
+    var macShotPreferences: MacShotPreferences {
+        MacShotPreferences(
+            defaultColorHex: preferencesStore.annotationPreferences.defaultColorHex,
+            defaultLineWidth: preferencesStore.annotationPreferences.defaultLineWidth,
+            defaultFontSize: preferencesStore.annotationPreferences.defaultFontSize,
+            rememberLastTool: preferencesStore.annotationPreferences.rememberLastTool,
+            includeCursor: preferencesStore.capturePreferences.includeCursor
         )
     }
 }

@@ -40,6 +40,7 @@
 		42CDEFC55691481C62051D85 /* HotkeyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0709FE120819E6EFE3E58134 /* HotkeyService.swift */; };
 		43FA20C7CC4E6055F80F2684 /* MainWindowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96DA0C41E39F7C2E831D19A /* MainWindowViewModel.swift */; };
 		44695E5BF06CBB6BF24DE3BF /* TISInputSourceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 953DE59AE9FB1F6A2EA40C05 /* TISInputSourceService.swift */; };
+		4676F9A9E109DFD947CB4D17 /* MacShotPreferencesAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B7E932584E099F0D7325792 /* MacShotPreferencesAdapter.swift */; };
 		480126BD49631F125240585C /* CaptureSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFB6630DF2ACEDF5434D646 /* CaptureSoundPlayer.swift */; };
 		4A50952BBFB2883E1075D601 /* InputMethodManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4757A6711307DDE37432023 /* InputMethodManagerTests.swift */; };
 		4A701069C404091F5C82289F /* CaptureOverlayWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE576B1171E3A640B84E6A6B /* CaptureOverlayWindow.swift */; };
@@ -67,6 +68,7 @@
 		88520724B029DF0BFC8B1DB2 /* CaptureOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2B08ED1CE845DE7129DD804 /* CaptureOverlayView.swift */; };
 		8C30AC932457E4403FE12C83 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */; };
 		8D09F5376590CC308EDBBBFB /* AppPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0982BB33903D7890904B2D09 /* AppPreferences.swift */; };
+		8D3BB1BE02F857D294AC30BA /* MacShotPreferencesAdapterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B32CB76D5CD5C1511B477578 /* MacShotPreferencesAdapterTests.swift */; };
 		92746629D33C4724D409128C /* DefaultPermissionsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 801740C8329456E214F8C2A8 /* DefaultPermissionsServiceTests.swift */; };
 		9448C7F961B14D11BB19CB09 /* CaptureOverlayWindowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 919B1755975FAE4C800D210B /* CaptureOverlayWindowTests.swift */; };
 		94A0950222A05AC78DF40890 /* CaptureHistoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01F7243F9512E1DAECDBBD55 /* CaptureHistoryStore.swift */; };
@@ -195,6 +197,7 @@
 		40A00D500EB025447C645BCD /* MacShotCoreLicenseNoticeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShotCoreLicenseNoticeTests.swift; sourceTree = "<group>"; };
 		40F31A64695939EDBB5E181B /* InputMethodRulesStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputMethodRulesStoreTests.swift; sourceTree = "<group>"; };
 		476E283274F36F553FAADC71 /* AnnotationItemTransformTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationItemTransformTests.swift; sourceTree = "<group>"; };
+		4B7E932584E099F0D7325792 /* MacShotPreferencesAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShotPreferencesAdapter.swift; sourceTree = "<group>"; };
 		4C3680606638862FB898B69A /* CaptureCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureCoordinator.swift; sourceTree = "<group>"; };
 		4F1837A703DFDF73B5DCFACD /* CaptureImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureImageCropper.swift; sourceTree = "<group>"; };
 		509C3273934E24EACB0C129A /* MacShotCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacShotCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -236,6 +239,7 @@
 		A96DA0C41E39F7C2E831D19A /* MainWindowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowViewModel.swift; sourceTree = "<group>"; };
 		B162CD12E8B44902077278F1 /* InputSourceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputSourceService.swift; sourceTree = "<group>"; };
 		B19868BBE662767510679B0E /* SettingsWindowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowViewModel.swift; sourceTree = "<group>"; };
+		B32CB76D5CD5C1511B477578 /* MacShotPreferencesAdapterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShotPreferencesAdapterTests.swift; sourceTree = "<group>"; };
 		B333CE380A760D6FC76985D2 /* MacShotPreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShotPreferences.swift; sourceTree = "<group>"; };
 		B34CAAC16EA2433255151D4E /* AnnotationTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationTool.swift; sourceTree = "<group>"; };
 		B4E43181286B8C929F7B5A4F /* AnnotationEditorStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationEditorStateTests.swift; sourceTree = "<group>"; };
@@ -511,6 +515,7 @@
 				D61C7133D138D4641AC2CC9B /* MacShotCaptureResult.swift */,
 				DC311CD68CD660D0D4B48ED2 /* MacShotCaptureSession.swift */,
 				B333CE380A760D6FC76985D2 /* MacShotPreferences.swift */,
+				4B7E932584E099F0D7325792 /* MacShotPreferencesAdapter.swift */,
 				A57235B91FAD8671C89DD2E6 /* NOTICE.md */,
 				0B3933EB710FC1C2F7F064C4 /* Support */,
 			);
@@ -643,6 +648,7 @@
 			children = (
 				3D7E497DBAB4D76207671965 /* MacShotCaptureSessionTests.swift */,
 				40A00D500EB025447C645BCD /* MacShotCoreLicenseNoticeTests.swift */,
+				B32CB76D5CD5C1511B477578 /* MacShotPreferencesAdapterTests.swift */,
 			);
 			path = MacShotCoreTests;
 			sourceTree = "<group>";
@@ -887,6 +893,7 @@
 				080DBE8C0539D905C64F8D41 /* MacShotCaptureSession.swift in Sources */,
 				0F244C10A621C47F094AE877 /* MacShotCoreLicenseNotice.swift in Sources */,
 				1EE9538EEC249C82479D7340 /* MacShotPreferences.swift in Sources */,
+				4676F9A9E109DFD947CB4D17 /* MacShotPreferencesAdapter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -931,6 +938,7 @@
 			files = (
 				70B32B96CA7E551D225F95A6 /* MacShotCaptureSessionTests.swift in Sources */,
 				FE816C19EE8C84D11D6A1235 /* MacShotCoreLicenseNoticeTests.swift in Sources */,
+				8D3BB1BE02F857D294AC30BA /* MacShotPreferencesAdapterTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
