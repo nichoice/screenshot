@@ -99,6 +99,56 @@ final class CaptureOutputServiceTests: XCTestCase {
         XCTAssertEqual(historyStore.items.first?.id, item.id)
     }
 
+    func testCopyRenderedImageWritesHistoryAndClipboard() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(#function)
+        try? FileManager.default.removeItem(at: directory)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        let historyStore = CaptureHistoryStore(fileURL: directory.appendingPathComponent("history.json"), limit: 10)
+        let clipboard = FakeClipboardService()
+        let service = CaptureOutputService(
+            renderer: AnnotationRenderer(),
+            clipboardService: clipboard,
+            historyStore: historyStore,
+            cacheDirectory: directory
+        )
+
+        let item = try service.copyRenderedImage(makeImage(), capturedAt: Date(timeIntervalSince1970: 123))
+
+        XCTAssertEqual(clipboard.copyCount, 1)
+        XCTAssertTrue(item.didCopyToClipboard)
+        XCTAssertNil(item.savedFilePath)
+        XCTAssertEqual(historyStore.items.first?.id, item.id)
+    }
+
+    func testSaveRenderedImageWritesFileAndHistory() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(#function)
+        let saveDirectory = directory.appendingPathComponent("saved")
+        try? FileManager.default.removeItem(at: directory)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        let historyStore = CaptureHistoryStore(fileURL: directory.appendingPathComponent("history.json"), limit: 10)
+        let clipboard = FakeClipboardService()
+        let service = CaptureOutputService(
+            renderer: AnnotationRenderer(),
+            clipboardService: clipboard,
+            historyStore: historyStore,
+            cacheDirectory: directory
+        )
+
+        let item = try service.saveRenderedImage(
+            makeImage(),
+            capturedAt: Date(timeIntervalSince1970: 123),
+            format: .png,
+            directory: saveDirectory
+        )
+
+        XCTAssertNotNil(item.savedFilePath)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: item.savedFilePath!))
+        XCTAssertEqual(clipboard.copyCount, 0)
+        XCTAssertEqual(historyStore.items.first?.id, item.id)
+    }
+
     func testCopyRecognizedTextWritesStringToClipboard() {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(#function)
         let historyStore = CaptureHistoryStore(fileURL: directory.appendingPathComponent("history.json"), limit: 10)

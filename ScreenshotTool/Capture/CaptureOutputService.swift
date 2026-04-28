@@ -22,11 +22,25 @@ final class CaptureOutputService {
 
     func copy(result: CaptureResult, document: AnnotationDocument) throws -> CaptureHistoryItem {
         let rendered = renderer.render(baseImage: result.image, items: document.items)
-        clipboardService.copy(image: rendered)
-        let previewURL = try writePreview(rendered)
+        return try copyRenderedImage(rendered, capturedAt: result.capturedAt)
+    }
+
+    func save(result: CaptureResult, document: AnnotationDocument, format: CaptureImageFormat, directory: URL) throws -> CaptureHistoryItem {
+        let rendered = renderer.render(baseImage: result.image, items: document.items)
+        return try saveRenderedImage(rendered, capturedAt: result.capturedAt, format: format, directory: directory)
+    }
+
+    func prepareShareItem(result: CaptureResult, document: AnnotationDocument, format: CaptureImageFormat, directory: URL) throws -> CaptureHistoryItem {
+        let rendered = renderer.render(baseImage: result.image, items: document.items)
+        return try saveRenderedImage(rendered, capturedAt: result.capturedAt, format: format, directory: directory)
+    }
+
+    func copyRenderedImage(_ image: CGImage, capturedAt: Date) throws -> CaptureHistoryItem {
+        clipboardService.copy(image: image)
+        let previewURL = try writePreview(image)
         let item = CaptureHistoryItem(
             id: UUID(),
-            createdAt: result.capturedAt,
+            createdAt: capturedAt,
             previewFilePath: previewURL.path,
             savedFilePath: nil,
             didCopyToClipboard: true
@@ -35,29 +49,17 @@ final class CaptureOutputService {
         return item
     }
 
-    func save(result: CaptureResult, document: AnnotationDocument, format: CaptureImageFormat, directory: URL) throws -> CaptureHistoryItem {
-        let rendered = renderer.render(baseImage: result.image, items: document.items)
-        let savedURL = try writeRenderedImage(rendered, format: format, directory: directory)
-
-        let previewURL = try writePreview(rendered)
+    func saveRenderedImage(
+        _ image: CGImage,
+        capturedAt: Date,
+        format: CaptureImageFormat,
+        directory: URL
+    ) throws -> CaptureHistoryItem {
+        let savedURL = try writeRenderedImage(image, format: format, directory: directory)
+        let previewURL = try writePreview(image)
         let item = CaptureHistoryItem(
             id: UUID(),
-            createdAt: result.capturedAt,
-            previewFilePath: previewURL.path,
-            savedFilePath: savedURL.path,
-            didCopyToClipboard: false
-        )
-        try historyStore.append(item)
-        return item
-    }
-
-    func prepareShareItem(result: CaptureResult, document: AnnotationDocument, format: CaptureImageFormat, directory: URL) throws -> CaptureHistoryItem {
-        let rendered = renderer.render(baseImage: result.image, items: document.items)
-        let savedURL = try writeRenderedImage(rendered, format: format, directory: directory)
-        let previewURL = try writePreview(rendered)
-        let item = CaptureHistoryItem(
-            id: UUID(),
-            createdAt: result.capturedAt,
+            createdAt: capturedAt,
             previewFilePath: previewURL.path,
             savedFilePath: savedURL.path,
             didCopyToClipboard: false
