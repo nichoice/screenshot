@@ -5,6 +5,17 @@ settings:
   base:
     SWIFT_VERSION: 5.10
 targets:
+  MacShotCore:
+    type: framework
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - MacShotCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nic.MacShotCore
+        PRODUCT_NAME: MacShotCore
+        GENERATE_INFOPLIST_FILE: YES
   ScreenshotTool:
     type: application
     platform: macOS
@@ -16,6 +27,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.nic.ScreenshotTool
         PRODUCT_NAME: ScreenshotTool
         GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: MacShotCore
   ScreenshotToolTests:
     type: bundle.unit-test
     platform: macOS
@@ -26,3 +39,25 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
     dependencies:
       - target: ScreenshotTool
+  MacShotCoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - MacShotCoreTests
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: MacShotCore
+schemes:
+  ScreenshotTool:
+    build:
+      targets:
+        ScreenshotTool: all
+        ScreenshotToolTests: [test]
+        MacShotCore: all
+        MacShotCoreTests: [test]
+    test:
+      targets:
+        - ScreenshotToolTests
+        - MacShotCoreTests
