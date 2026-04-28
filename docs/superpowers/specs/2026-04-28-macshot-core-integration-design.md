@@ -89,11 +89,11 @@ Existing code remains responsible for:
 
 ### MacShotCore
 
-New integrated source will live under:
+New integrated source will live in a dedicated framework target:
 
-`ScreenshotTool/MacShotCore`
+`MacShotCore`
 
-This folder will contain the `macshot` pieces required for screenshot capture and annotation. Files will be imported in a scoped way instead of copying the entire app.
+This target will contain the `macshot` pieces required for screenshot capture and annotation. Keeping it as a separate module avoids symbol collisions with existing Screenshot Tool types such as `Annotation`, `AnnotationTool`, and `PinWindowController`.
 
 Expected groups:
 
@@ -108,7 +108,7 @@ Expected groups:
 
 ### Bridge Layer
 
-The bridge layer prevents the rest of Screenshot Tool from depending on `macshot` internals directly.
+The bridge layer prevents the rest of Screenshot Tool from depending on `macshot` internals directly. The app target should import the `MacShotCore` module and call only a small public bridge API.
 
 Planned bridge objects:
 
@@ -157,7 +157,7 @@ The engine will call back into Screenshot Tool with:
 2. `macshot` produces the final composited `NSImage`.
 3. The bridge converts the result into the existing Screenshot Tool output path.
 4. `CaptureOutputService` applies current copy/save/history behavior.
-5. The app refreshes recent capture state and returns focus appropriately.
+5. The app refreshes recent capture state and returns focus to the previous frontmost app when possible.
 
 ### Cancel
 
@@ -213,9 +213,9 @@ The Xcode project should include only the imported core files and the bridge fil
 
 ### Phase 1: Compile-Time Core Import
 
-- Add `ScreenshotTool/MacShotCore`.
+- Add a `MacShotCore` framework target.
 - Import the minimum required `macshot` model, overlay, toolbar, tool, and capture files.
-- Rename or adapt conflicting symbols.
+- Keep conflicting symbols inside the `MacShotCore` module instead of renaming them inside the app target.
 - Add GPLv3 attribution and license files.
 - Build until the app target compiles.
 
@@ -298,4 +298,3 @@ Manual verification is required for desktop behavior:
 - Cancelling a capture leaves no stuck overlay or capture state.
 - `make test` passes for app-owned tests.
 - The app can be built and deployed to `/Applications/ScreenshotTool.app`.
-
