@@ -21,9 +21,14 @@ targets:
     platform: macOS
     deploymentTarget: "14.0"
     sources:
-      - ScreenshotTool
+      - path: ScreenshotTool
+        excludes:
+          - Resources/Artwork
+    resources:
+      - ScreenshotTool/Resources/Assets.xcassets
     settings:
       base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         PRODUCT_BUNDLE_IDENTIFIER: com.nic.ScreenshotTool
         PRODUCT_NAME: ScreenshotTool
         GENERATE_INFOPLIST_FILE: YES

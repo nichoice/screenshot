@@ -163,6 +163,7 @@
 		ED8267605BA4D148BCDF11F7 /* CaptureResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8518466CF6E59A57849B5212 /* CaptureResult.swift */; };
 		EED00C5D9FB9A1444A4B32CD /* MacShotFeatureShims.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2873454E9AAD682244ED1389 /* MacShotFeatureShims.swift */; };
 		F075E4B9559017879F3A1687 /* FilenameFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02C2E9C4C7DC00F31475BC7 /* FilenameFormatter.swift */; };
+		F8F73B4544D7B43F56C2893D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CC8DD632D853D664F05C1950 /* Assets.xcassets */; };
 		F91374FBC6EA94913840E674 /* PopoverHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB1E40C8C59BDAA797157B8 /* PopoverHelper.swift */; };
 		F9E41CF4F309E54F4AD058E8 /* SettingsWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */; };
 		FE816C19EE8C84D11D6A1235 /* MacShotCoreLicenseNoticeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40A00D500EB025447C645BCD /* MacShotCoreLicenseNoticeTests.swift */; };
@@ -344,6 +345,7 @@
 		C935F2D08A7BAE2917A1D62C /* ColorWheelRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorWheelRenderer.swift; sourceTree = "<group>"; };
 		CB0C674C6021B323A92DB8E4 /* AnnotationRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationRenderer.swift; sourceTree = "<group>"; };
 		CB9E0951F3AEF61164F5A5FD /* Annotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Annotation.swift; sourceTree = "<group>"; };
+		CC8DD632D853D664F05C1950 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CDDF8A7CABA66155459203BB /* InlineAnnotationToolbarModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineAnnotationToolbarModelTests.swift; sourceTree = "<group>"; };
 		CF0B2854C1C8AB6BCFE2B503 /* DiagnosticsSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticsSettingsView.swift; sourceTree = "<group>"; };
 		CF5A9F36FA63B29D9F34F367 /* CaptureSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSelection.swift; sourceTree = "<group>"; };
@@ -518,6 +520,7 @@
 				696B093FDAFCB5FB423DA827 /* Features */,
 				084315020693D6A87AAED674 /* InputMethod */,
 				ACCF4A6581F560E4A561F370 /* Persistence */,
+				29FEA2086D04AB3568BD617C /* Resources */,
 				9258095DFBAB2E57DE45CAAD /* Support */,
 				7CD25B71C521350B74516164 /* UI */,
 			);
@@ -531,6 +534,14 @@
 				0709FE120819E6EFE3E58134 /* HotkeyService.swift */,
 			);
 			path = Hotkeys;
+			sourceTree = "<group>";
+		};
+		29FEA2086D04AB3568BD617C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CC8DD632D853D664F05C1950 /* Assets.xcassets */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		2A71A488958F7757981DADB8 /* Support */ = {
@@ -903,6 +914,7 @@
 			buildConfigurationList = C48479B8CFC0E2E0A4433967 /* Build configuration list for PBXNativeTarget "ScreenshotTool" */;
 			buildPhases = (
 				7244A6A2D998C380A7DB1E08 /* Sources */,
+				F11F395E1141F0CC7FA25AA2 /* Resources */,
 				91DBBF525A3693B6390CA2E7 /* Frameworks */,
 				12D838CD9EDB25829EACE542 /* Embed Frameworks */,
 			);
@@ -1014,6 +1026,14 @@
 			files = (
 				A2E9F5BD039C4D86C0F70809 /* LICENSE.macshot-GPLv3.txt in Resources */,
 				A8B75B0B257F2DE8EB4F25B7 /* NOTICE.md in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F11F395E1141F0CC7FA25AA2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F8F73B4544D7B43F56C2893D /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
