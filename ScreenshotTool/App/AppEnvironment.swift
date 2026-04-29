@@ -159,51 +159,6 @@ final class AppEnvironment: ObservableObject {
         inputMethodManager.startObserving()
         try? hotkeyHandler.start()
         menuBarController.setVisible(preferencesStore.appPreferences.showsMenuBarIcon)
-        captureCoordinator.onCaptureStarted = { [weak self, weak windowRouter, weak captureCoordinator] in
-            guard let self, let coordinator = captureCoordinator else { return }
-            guard self.permissionsService.requestScreenRecordingAccessIfNeeded() else {
-                coordinator.cancelCapture()
-                self.permissionsService.openScreenRecordingSettings()
-                return
-            }
-
-            coordinator.prepareFullDesktopCaptureIfNeeded()
-            windowRouter?.showCaptureOverlay(
-                onSelectionChanged: { start, end in
-                    coordinator.updateSelection(start: start, end: end)
-                },
-                onSelectionCompleted: {
-                    Task { @MainActor in
-                        try? await coordinator.completeSelection()
-                    }
-                },
-                onCancelled: {
-                    coordinator.cancelCapture()
-                }
-            )
-        }
-        captureCoordinator.onCaptureCancelled = { [weak windowRouter] in
-            windowRouter?.hideCaptureOverlay()
-        }
-        captureCoordinator.onCaptureCompleted = { [weak self, weak windowRouter] result in
-            guard let self else { return }
-            if self.preferencesStore.capturePreferences.playCaptureSound {
-                self.captureSoundPlayer.playCaptureSound()
-            }
-            let document = AnnotationDocument()
-            let defaultDirectory = URL(fileURLWithPath: self.preferencesStore.capturePreferences.defaultSaveDirectoryPath ?? FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)[0].appendingPathComponent("ScreenshotTool").path)
-            windowRouter?.presentFloatingToolbar(
-                for: result,
-                document: document,
-                outputService: self.outputService,
-                ocrService: self.ocrService,
-                shareService: self.shareService,
-                defaultSaveDirectory: defaultDirectory,
-                imageFormat: self.preferencesStore.capturePreferences.imageFormat,
-                defaultOutputAction: self.preferencesStore.capturePreferences.defaultOutputAction
-            )
-            self.mainWindowViewModel.refresh()
-        }
     }
 
     static func bootstrap() -> AppEnvironment {

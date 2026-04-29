@@ -12,6 +12,15 @@ final class MacShotCaptureRoutingTests: XCTestCase {
 
         XCTAssertTrue(environment.macShotCaptureEngine.isCapturing)
     }
+
+    func testStartCaptureDoesNotMarkOldCoordinatorCapturing() {
+        let environment = makeEnvironment()
+
+        environment.startCapture()
+
+        XCTAssertFalse(environment.captureCoordinator.isCapturing)
+        XCTAssertTrue(environment.macShotCaptureEngine.isCapturing)
+    }
 }
 
 private extension MacShotCaptureRoutingTests {
