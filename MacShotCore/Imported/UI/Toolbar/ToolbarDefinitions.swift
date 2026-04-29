@@ -54,6 +54,14 @@ struct ToolbarButton {
     var hasContextMenu: Bool = false  // draw small corner triangle to indicate right-click options
 }
 
+enum MacShotCoreFeatureFlags {
+    static let recordingEnabled = false
+    static let scrollCaptureEnabled = false
+    static let uploadEnabled = false
+    static let beautifyEnabled = false
+    static let effectsEnabled = false
+}
+
 class ToolbarLayout {
 
     // Default theme colors (Flameshot purple style)
@@ -221,7 +229,7 @@ class ToolbarLayout {
                     tooltip: L("Invert Colors")))
         }
 
-        if !isRecording && actionEnabled(1013) {
+        if MacShotCoreFeatureFlags.effectsEnabled && !isRecording && actionEnabled(1013) {
             var effectsBtn = ToolbarButton(
                 action: .effects, sfSymbol: "slider.horizontal.3", tooltip: L("Adjust"))
             if effectsActive {
@@ -231,7 +239,7 @@ class ToolbarLayout {
             buttons.append(effectsBtn)
         }
 
-        if !isRecording && actionEnabled(1004) {
+        if MacShotCoreFeatureFlags.beautifyEnabled && !isRecording && actionEnabled(1004) {
             var beautifyBtn = ToolbarButton(
                 action: .beautify, sfSymbol: "sparkles", tooltip: L("Beautify"))
             if beautifyEnabled {
@@ -260,7 +268,7 @@ class ToolbarLayout {
         var buttons: [ToolbarButton] = []
 
         // Recording setup mode — show start button + toggles, then return early
-        if isRecording {
+        if MacShotCoreFeatureFlags.recordingEnabled && isRecording {
             var startBtn = ToolbarButton(
                 action: .startRecord, sfSymbol: "record.circle", tooltip: L("Start Recording"))
             startBtn.tintColor = .systemRed
@@ -384,7 +392,7 @@ class ToolbarLayout {
         }
 
         // Upload (tag 1001)
-        if actionEnabled(1001) {
+        if MacShotCoreFeatureFlags.uploadEnabled && actionEnabled(1001) {
             var uploadBtn = ToolbarButton(
                 action: .upload, sfSymbol: "icloud.and.arrow.up", tooltip: L("Upload"))
             uploadBtn.hasContextMenu = true
@@ -414,7 +422,7 @@ class ToolbarLayout {
         }
 
         // Scroll Capture (tag 1010) — hidden when recording or in editor mode
-        if !isRecording && !isEditorMode && actionEnabled(1010) {
+        if MacShotCoreFeatureFlags.scrollCaptureEnabled && !isRecording && !isEditorMode && actionEnabled(1010) {
             buttons.append(
                 ToolbarButton(
                     action: .scrollCapture, sfSymbol: "scroll",
@@ -422,7 +430,7 @@ class ToolbarLayout {
         }
 
         // Record (tag 1009) — hidden in editor mode. Right-click for options.
-        if !isEditorMode && actionEnabled(1009) {
+        if MacShotCoreFeatureFlags.recordingEnabled && !isEditorMode && actionEnabled(1009) {
             var recordBtn = ToolbarButton(
                 action: .record, sfSymbol: "video.fill", tooltip: L("Record"))
             recordBtn.tintColor = ToolbarLayout.iconColor

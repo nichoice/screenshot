@@ -86,6 +86,7 @@
 		70BFC8241912EC093A43822E /* InputMethodRuleMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E327B95961B8727444A3319 /* InputMethodRuleMatcher.swift */; };
 		756B90D826CE76D50617BC7E /* LoupeToolHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95552D54FC8F297ABBED864A /* LoupeToolHandler.swift */; };
 		788B091B50AE05B3F6B8B409 /* AnnotationDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD0A3C200CABC1020E59C81E /* AnnotationDocument.swift */; };
+		7F84ACFAC33F40273464CD33 /* MacShotToolbarPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22EB3365DB318993FBD4D2D8 /* MacShotToolbarPolicyTests.swift */; };
 		7FE0A169EB28F0BF491C2B5C /* AnnotationCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1646D8B2B6DB49CD772733B /* AnnotationCodable.swift */; };
 		80A48508CE3C2C530CE8F45C /* MainWindowRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3238B1D4082244B13FD4E2E1 /* MainWindowRootView.swift */; };
 		8139C2F1BCDDB69BBC29DB11 /* AnnotationItemTransformTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476E283274F36F553FAADC71 /* AnnotationItemTransformTests.swift */; };
@@ -239,6 +240,7 @@
 		2179CA99EBB488AF7DF6E1F9 /* ToolbarButtonView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolbarButtonView.swift; sourceTree = "<group>"; };
 		21A03562077B3A4A6ADBB667 /* CaptureHotkeyHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureHotkeyHandlerTests.swift; sourceTree = "<group>"; };
 		21A98A0F38F97D0F74E58A18 /* InlineAnnotationEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InlineAnnotationEditorView.swift; sourceTree = "<group>"; };
+		22EB3365DB318993FBD4D2D8 /* MacShotToolbarPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShotToolbarPolicyTests.swift; sourceTree = "<group>"; };
 		23659A2B0EF7AB33E5F91828 /* ArrowToolHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrowToolHandler.swift; sourceTree = "<group>"; };
 		23AC9645B9E211B3B3611A14 /* BeautifyRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BeautifyRenderer.swift; sourceTree = "<group>"; };
 		23BAD90EEE76E35373DF87AD /* FilledRectangleToolHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilledRectangleToolHandler.swift; sourceTree = "<group>"; };
@@ -821,6 +823,7 @@
 				3D7E497DBAB4D76207671965 /* MacShotCaptureSessionTests.swift */,
 				40A00D500EB025447C645BCD /* MacShotCoreLicenseNoticeTests.swift */,
 				B32CB76D5CD5C1511B477578 /* MacShotPreferencesAdapterTests.swift */,
+				22EB3365DB318993FBD4D2D8 /* MacShotToolbarPolicyTests.swift */,
 			);
 			path = MacShotCoreTests;
 			sourceTree = "<group>";
@@ -1191,6 +1194,7 @@
 				70B32B96CA7E551D225F95A6 /* MacShotCaptureSessionTests.swift in Sources */,
 				FE816C19EE8C84D11D6A1235 /* MacShotCoreLicenseNoticeTests.swift in Sources */,
 				8D3BB1BE02F857D294AC30BA /* MacShotPreferencesAdapterTests.swift in Sources */,
+				7F84ACFAC33F40273464CD33 /* MacShotToolbarPolicyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
