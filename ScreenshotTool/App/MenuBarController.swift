@@ -10,7 +10,7 @@ protocol MenuBarVisibilityControlling: AnyObject {
 final class MenuBarController: MenuBarVisibilityControlling {
     private var statusItem: NSStatusItem?
     private let openSettings: () -> Void
-    private let startCapture: () -> Void
+    private var startCapture: () -> Void
 
     init(openSettings: @escaping () -> Void, startCapture: @escaping () -> Void) {
         self.openSettings = openSettings
@@ -32,6 +32,10 @@ final class MenuBarController: MenuBarVisibilityControlling {
             NSStatusBar.system.removeStatusItem(statusItem)
             self.statusItem = nil
         }
+    }
+
+    func replaceStartCaptureAction(_ action: @escaping () -> Void) {
+        startCapture = action
     }
 
     @objc private func handleCapture() {

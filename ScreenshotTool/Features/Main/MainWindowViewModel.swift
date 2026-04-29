@@ -5,7 +5,7 @@ final class MainWindowViewModel: ObservableObject {
     private let permissionsService: PermissionsService
     private let windowRouter: WindowRouter
     private let historyStore: CaptureHistoryStore
-    private let startCaptureAction: () -> Void
+    private var startCaptureAction: () -> Void
 
     @Published private(set) var permissions: PermissionsSnapshot
     @Published private(set) var recentCaptures: [CaptureHistoryItem] = []
@@ -34,6 +34,10 @@ final class MainWindowViewModel: ObservableObject {
 
     func startCapture() {
         startCaptureAction()
+    }
+
+    func replaceStartCaptureAction(_ action: @escaping () -> Void) {
+        startCaptureAction = action
     }
 
     var shortcutSummary: String {

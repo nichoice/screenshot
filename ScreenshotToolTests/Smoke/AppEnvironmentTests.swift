@@ -22,7 +22,7 @@ final class AppEnvironmentTests: XCTestCase {
         let hotkeyHandler = CaptureHotkeyHandler(
             hotkeyService: FakeAppEnvironmentHotkeyService(),
             preferencesStore: preferencesStore,
-            captureCoordinator: captureCoordinator
+            startCapture: {}
         )
         let menuBarController = MenuBarController(openSettings: {}, startCapture: {})
         let historyStore = CaptureHistoryStore(
@@ -91,7 +91,7 @@ final class AppEnvironmentTests: XCTestCase {
             hotkeyHandler: CaptureHotkeyHandler(
                 hotkeyService: FakeAppEnvironmentHotkeyService(),
                 preferencesStore: preferencesStore,
-                captureCoordinator: CaptureCoordinator(screenCaptureService: FakeAppEnvironmentWorkingScreenCaptureService())
+                startCapture: {}
             ),
             menuBarController: MenuBarController(openSettings: {}, startCapture: {}),
             historyStore: historyStore,

@@ -4,22 +4,22 @@ import Foundation
 final class CaptureHotkeyHandler {
     private let hotkeyService: HotkeyService
     private let preferencesStore: AppPreferencesStore
-    private let captureCoordinator: CaptureCoordinator
+    private var startCapture: () -> Void
 
     init(
         hotkeyService: HotkeyService,
         preferencesStore: AppPreferencesStore,
-        captureCoordinator: CaptureCoordinator
+        startCapture: @escaping () -> Void
     ) {
         self.hotkeyService = hotkeyService
         self.preferencesStore = preferencesStore
-        self.captureCoordinator = captureCoordinator
+        self.startCapture = startCapture
     }
 
     func start() throws {
-        try hotkeyService.register(hotkey: preferencesStore.capturePreferences.hotkey) { [weak captureCoordinator] in
+        try hotkeyService.register(hotkey: preferencesStore.capturePreferences.hotkey) { [weak self] in
             Task { @MainActor in
-                captureCoordinator?.beginCapture()
+                self?.startCapture()
             }
         }
     }
@@ -27,5 +27,9 @@ final class CaptureHotkeyHandler {
     func reload() throws {
         hotkeyService.unregisterAll()
         try start()
+    }
+
+    func replaceStartCaptureAction(_ action: @escaping () -> Void) {
+        startCapture = action
     }
 }

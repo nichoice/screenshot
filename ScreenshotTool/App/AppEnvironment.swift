@@ -19,6 +19,7 @@ final class AppEnvironment: ObservableObject {
     let ocrService: OCRService
     let shareService: ShareService
     let captureSoundPlayer: CaptureSoundPlaying
+    let macShotCaptureEngine: MacShotCaptureEngine
     let themeController: AppThemeController
     let mainWindowViewModel: MainWindowViewModel
     let settingsWindowViewModel: SettingsWindowViewModel
@@ -39,7 +40,8 @@ final class AppEnvironment: ObservableObject {
         outputService: CaptureOutputService,
         ocrService: OCRService,
         shareService: ShareService,
-        captureSoundPlayer: CaptureSoundPlaying
+        captureSoundPlayer: CaptureSoundPlaying,
+        macShotCaptureEngine: MacShotCaptureEngine? = nil
     ) {
         self.windowTitle = windowTitle
         self.preferencesStore = preferencesStore
@@ -57,14 +59,13 @@ final class AppEnvironment: ObservableObject {
         self.ocrService = ocrService
         self.shareService = shareService
         self.captureSoundPlayer = captureSoundPlayer
+        self.macShotCaptureEngine = macShotCaptureEngine ?? MacShotCaptureEngine()
         self.themeController = AppThemeController(preferencesStore: preferencesStore)
         self.mainWindowViewModel = MainWindowViewModel(
             permissionsService: permissionsService,
             windowRouter: windowRouter,
             historyStore: historyStore,
-            startCaptureAction: {
-                captureCoordinator.beginCapture()
-            }
+            startCaptureAction: {}
         )
         self.settingsWindowViewModel = SettingsWindowViewModel(
             preferencesStore: preferencesStore,
@@ -75,6 +76,24 @@ final class AppEnvironment: ObservableObject {
             inputMethodManager: inputMethodManager,
             menuBarController: menuBarController
         )
+        self.mainWindowViewModel.replaceStartCaptureAction { [weak self] in
+            self?.startCapture()
+        }
+        self.hotkeyHandler.replaceStartCaptureAction { [weak self] in
+            self?.startCapture()
+        }
+        self.menuBarController.replaceStartCaptureAction { [weak self] in
+            self?.startCapture()
+        }
+    }
+
+    func startCapture() {
+        guard permissionsService.requestScreenRecordingAccessIfNeeded() else {
+            permissionsService.openScreenRecordingSettings()
+            return
+        }
+
+        _ = macShotCaptureEngine.startCapture(preferences: macShotPreferences)
     }
 
     func start() {
@@ -149,15 +168,13 @@ final class AppEnvironment: ObservableObject {
         let hotkeyHandler = CaptureHotkeyHandler(
             hotkeyService: CarbonHotkeyService(),
             preferencesStore: preferencesStore,
-            captureCoordinator: captureCoordinator
+            startCapture: {}
         )
         let menuBarController = MenuBarController(
             openSettings: {
                 windowRouter.openSettings()
             },
-            startCapture: {
-                captureCoordinator.beginCapture()
-            }
+            startCapture: {}
         )
         let cacheDirectory = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("ScreenshotTool/Captures")
@@ -210,15 +227,13 @@ final class AppEnvironment: ObservableObject {
         let hotkeyHandler = CaptureHotkeyHandler(
             hotkeyService: CarbonHotkeyService(),
             preferencesStore: preferencesStore,
-            captureCoordinator: captureCoordinator
+            startCapture: {}
         )
         let menuBarController = MenuBarController(
             openSettings: {
                 windowRouter.openSettings()
             },
-            startCapture: {
-                captureCoordinator.beginCapture()
-            }
+            startCapture: {}
         )
         let outputService = CaptureOutputService(
             renderer: AnnotationRenderer(),
