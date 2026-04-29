@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import MacShotCore
 
@@ -93,7 +94,65 @@ final class AppEnvironment: ObservableObject {
             return
         }
 
-        _ = macShotCaptureEngine.startCapture(preferences: macShotPreferences)
+        _ = macShotCaptureEngine.startCapture(
+            preferences: macShotPreferences,
+            onComplete: { [weak self] result in
+                self?.handleMacShotCaptureResult(result)
+            },
+            onCancel: {}
+        )
+    }
+
+    func handleMacShotCaptureResult(_ result: MacShotCaptureResult) {
+        guard let cgImage = result.image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+
+        let defaultDirectory = defaultCaptureDirectory()
+        let preferences = preferencesStore.capturePreferences
+
+        switch preferences.defaultOutputAction {
+        case .copyOnly:
+            _ = try? outputService.copyRenderedImage(cgImage, capturedAt: result.capturedAt)
+        case .saveOnly:
+            _ = try? outputService.saveRenderedImage(
+                cgImage,
+                capturedAt: result.capturedAt,
+                format: preferences.imageFormat,
+                directory: defaultDirectory
+            )
+        case .copyAndSave:
+            _ = try? outputService.saveRenderedImage(
+                cgImage,
+                capturedAt: result.capturedAt,
+                format: preferences.imageFormat,
+                directory: defaultDirectory
+            )
+            _ = try? outputService.copyRenderedImage(cgImage, capturedAt: result.capturedAt)
+        case .openEditor:
+            let captureResult = CaptureResult(
+                fullImage: cgImage,
+                image: cgImage,
+                selectionRect: CGRect(
+                    origin: .zero,
+                    size: CGSize(width: cgImage.width, height: cgImage.height)
+                ),
+                capturedAt: result.capturedAt
+            )
+            windowRouter.presentFloatingToolbar(
+                for: captureResult,
+                document: AnnotationDocument(),
+                outputService: outputService,
+                ocrService: ocrService,
+                shareService: shareService,
+                defaultSaveDirectory: defaultDirectory,
+                imageFormat: preferences.imageFormat,
+                defaultOutputAction: .openEditor
+            )
+        }
+
+        if preferences.playCaptureSound {
+            captureSoundPlayer.playCaptureSound()
+        }
+        mainWindowViewModel.refresh()
     }
 
     func start() {
@@ -207,15 +266,18 @@ final class AppEnvironment: ObservableObject {
     static func bootstrapForTests() -> AppEnvironment {
         let defaults = UserDefaults(suiteName: "ScreenshotToolTests")!
         defaults.removePersistentDomain(forName: "ScreenshotToolTests")
+        let testDirectory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("ScreenshotToolTests-\(UUID().uuidString)", isDirectory: true)
+        try? FileManager.default.removeItem(at: testDirectory)
         let preferencesStore = AppPreferencesStore(userDefaults: defaults)
         let rulesStore = InputMethodRulesStore(
-            fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("rules-tests.json")
+            fileURL: testDirectory.appendingPathComponent("rules.json")
         )
         let inputSourceService = TISInputSourceService()
         let windowRouter = WindowRouter()
         let captureCoordinator = CaptureCoordinator(screenCaptureService: WindowListScreenCaptureService())
         let historyStore = CaptureHistoryStore(
-            fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("history-tests.json"),
+            fileURL: testDirectory.appendingPathComponent("history.json"),
             limit: preferencesStore.annotationPreferences.historyLimit
         )
         let manager = InputMethodManager(
@@ -239,7 +301,7 @@ final class AppEnvironment: ObservableObject {
             renderer: AnnotationRenderer(),
             clipboardService: PasteboardClipboardService(),
             historyStore: historyStore,
-            cacheDirectory: FileManager.default.temporaryDirectory.appendingPathComponent("captures-tests")
+            cacheDirectory: testDirectory.appendingPathComponent("captures", isDirectory: true)
         )
 
         return AppEnvironment(
@@ -263,6 +325,15 @@ final class AppEnvironment: ObservableObject {
 }
 
 private extension AppEnvironment {
+    func defaultCaptureDirectory() -> URL {
+        URL(
+            fileURLWithPath: preferencesStore.capturePreferences.defaultSaveDirectoryPath
+                ?? FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("ScreenshotTool")
+                .path
+        )
+    }
+
     var macShotPreferences: MacShotPreferences {
         MacShotPreferences(
             defaultColorHex: preferencesStore.annotationPreferences.defaultColorHex,
@@ -273,3 +344,11 @@ private extension AppEnvironment {
         )
     }
 }
+
+#if DEBUG
+extension AppEnvironment {
+    func handleMacShotCaptureResultForTesting(image: NSImage, capturedAt: Date) {
+        handleMacShotCaptureResult(MacShotCaptureResult(image: image, capturedAt: capturedAt))
+    }
+}
+#endif

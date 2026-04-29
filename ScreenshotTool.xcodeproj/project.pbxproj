@@ -131,6 +131,7 @@
 		C3E8F65B8C6D32209C7B118B /* PinWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C145B0B308B762843C68CC3F /* PinWindowController.swift */; };
 		C64D6236A0E8677C1B3250E6 /* SettingsWindowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B19868BBE662767510679B0E /* SettingsWindowViewModel.swift */; };
 		C6A45FC6B82193411C078974 /* SettingsWindowLayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0945B16A69F877046F391B3 /* SettingsWindowLayoutTests.swift */; };
+		C6AED869ECAC7B1D9DF93936 /* MacShotOutputRoutingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE91E5A771AE4B8B09C11664 /* MacShotOutputRoutingTests.swift */; };
 		C96C5899EC702DD0C6588CF8 /* AnnotationEditorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3648F167A50F9ECC5A22DD7 /* AnnotationEditorState.swift */; };
 		CA8365040412145063F320DB /* CaptureImageCropper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F1837A703DFDF73B5DCFACD /* CaptureImageCropper.swift */; };
 		CAB8F56A17727BBB7E2589C5 /* RectangleToolHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AFD7E17884B7F2EF31B8F0 /* RectangleToolHandler.swift */; };
@@ -350,6 +351,7 @@
 		D958A30F8AD33B47D806878B /* TmpScratchDirectory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpScratchDirectory.swift; sourceTree = "<group>"; };
 		DC311CD68CD660D0D4B48ED2 /* MacShotCaptureSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShotCaptureSession.swift; sourceTree = "<group>"; };
 		DE576B1171E3A640B84E6A6B /* CaptureOverlayWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureOverlayWindow.swift; sourceTree = "<group>"; };
+		DE91E5A771AE4B8B09C11664 /* MacShotOutputRoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacShotOutputRoutingTests.swift; sourceTree = "<group>"; };
 		DF0E78A29B7766EE08D0FF71 /* AppPreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferencesStore.swift; sourceTree = "<group>"; };
 		DFFDA6995A47F3A6C7567785 /* MacShotCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MacShotCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0582ADA4901FB119A8B2D19 /* ClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardService.swift; sourceTree = "<group>"; };
@@ -400,6 +402,7 @@
 			children = (
 				875AD71A1D39B8C33210C6DD /* AppEnvironmentTests.swift */,
 				C6BBC9B4820070149858F5F0 /* MacShotCaptureRoutingTests.swift */,
+				DE91E5A771AE4B8B09C11664 /* MacShotOutputRoutingTests.swift */,
 				02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */,
 			);
 			path = Smoke;
@@ -1172,6 +1175,7 @@
 				97132428A95BF0AFF7BBF8D6 /* InputMethodRuleMatcherTests.swift in Sources */,
 				B928BA370AC209BCA5D57AD2 /* InputMethodRulesStoreTests.swift in Sources */,
 				5C17051D7AD7916135590D4A /* MacShotCaptureRoutingTests.swift in Sources */,
+				C6AED869ECAC7B1D9DF93936 /* MacShotOutputRoutingTests.swift in Sources */,
 				5455B6FCB28CB46CA5CDC603 /* MainWindowViewModelTests.swift in Sources */,
 				CFCFB7C1D42A01202A6ECE83 /* ScreenshotToolSmokeTests.swift in Sources */,
 				C6A45FC6B82193411C078974 /* SettingsWindowLayoutTests.swift in Sources */,

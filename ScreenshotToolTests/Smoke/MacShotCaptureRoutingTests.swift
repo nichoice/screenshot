@@ -1,5 +1,5 @@
-import MacShotCore
 import XCTest
+@testable import MacShotCore
 @testable import ScreenshotTool
 
 @MainActor
@@ -59,7 +59,7 @@ private extension MacShotCaptureRoutingTests {
             ocrService: VisionOCRService(),
             shareService: SystemShareService(),
             captureSoundPlayer: RoutingCaptureSoundPlayer(),
-            macShotCaptureEngine: MacShotCaptureEngine()
+            macShotCaptureEngine: MacShotCaptureEngine(presentsOverlay: false)
         )
     }
 }
