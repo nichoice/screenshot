@@ -5,7 +5,7 @@ import AppKit
 @MainActor
 final class MacShotCaptureSessionTests: XCTestCase {
     func testSessionStartsOnlyOnce() {
-        let session = MacShotCaptureSession(preferences: .defaults)
+        let session = MacShotCaptureSession(preferences: .defaults, presentsOverlay: false)
 
         XCTAssertTrue(session.start())
         XCTAssertFalse(session.start())
@@ -13,7 +13,7 @@ final class MacShotCaptureSessionTests: XCTestCase {
     }
 
     func testCancelMovesSessionToCancelledOnce() {
-        let session = MacShotCaptureSession(preferences: .defaults)
+        let session = MacShotCaptureSession(preferences: .defaults, presentsOverlay: false)
         _ = session.start()
 
         XCTAssertTrue(session.cancel())
@@ -22,12 +22,27 @@ final class MacShotCaptureSessionTests: XCTestCase {
     }
 
     func testSessionCompletesOnlyOnce() {
-        let session = MacShotCaptureSession(preferences: .defaults)
+        let session = MacShotCaptureSession(preferences: .defaults, presentsOverlay: false)
         _ = session.start()
         let image = NSImage(size: NSSize(width: 10, height: 8))
 
         XCTAssertTrue(session.complete(with: image, capturedAt: Date(timeIntervalSince1970: 456)))
         XCTAssertFalse(session.complete(with: image, capturedAt: Date(timeIntervalSince1970: 789)))
         XCTAssertEqual(session.state, .completed)
+    }
+
+    func testEngineStoresCompletionHandlerUntilSessionCompletes() {
+        let engine = MacShotCaptureEngine(presentsOverlay: false)
+        var received: MacShotCaptureResult?
+
+        XCTAssertTrue(engine.startCapture(preferences: .defaults) { result in
+            received = result
+        } onCancel: {})
+
+        let image = NSImage(size: NSSize(width: 10, height: 8))
+        engine.completeForTesting(image: image, capturedAt: Date(timeIntervalSince1970: 321))
+
+        XCTAssertEqual(received?.capturedAt, Date(timeIntervalSince1970: 321))
+        XCTAssertFalse(engine.isCapturing)
     }
 }
