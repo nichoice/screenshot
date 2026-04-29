@@ -1,4 +1,6 @@
+import AppKit
 import XCTest
+@testable import MacShotCore
 @testable import ScreenshotTool
 
 final class AppEnvironmentTests: XCTestCase {
@@ -53,7 +55,7 @@ final class AppEnvironmentTests: XCTestCase {
         )
 
         environment.start()
-        captureCoordinator.beginCapture()
+        environment.startCapture()
 
         XCTAssertEqual(permissionsService.requestScreenRecordingAccessIfNeededCount, 1)
         XCTAssertEqual(permissionsService.openScreenRecordingSettingsCount, 1)
@@ -65,7 +67,12 @@ final class AppEnvironmentTests: XCTestCase {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)
         let preferencesStore = AppPreferencesStore(userDefaults: defaults)
-        preferencesStore.updateCapture { $0.playCaptureSound = true }
+        let captureDirectory = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function)-output")
+        preferencesStore.updateCapture {
+            $0.playCaptureSound = true
+            $0.defaultOutputAction = .saveOnly
+            $0.defaultSaveDirectoryPath = captureDirectory.path
+        }
         let rulesStore = InputMethodRulesStore(
             fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function)-rules.json")
         )
@@ -103,18 +110,17 @@ final class AppEnvironmentTests: XCTestCase {
             ),
             ocrService: VisionOCRService(),
             shareService: SystemShareService(),
-            captureSoundPlayer: soundPlayer
+            captureSoundPlayer: soundPlayer,
+            macShotCaptureEngine: MacShotCaptureEngine(presentsOverlay: false)
         )
 
         environment.start()
-        let result = CaptureResult(
-            fullImage: makeTestImage(),
-            image: makeTestImage(),
-            selectionRect: CGRect(x: 10, y: 10, width: 40, height: 30),
+        environment.startCapture()
+
+        environment.macShotCaptureEngine.completeForTesting(
+            image: NSImage(cgImage: makeTestImage(), size: NSSize(width: 1, height: 1)),
             capturedAt: Date()
         )
-
-        environment.captureCoordinator.onCaptureCompleted?(result)
 
         XCTAssertEqual(soundPlayer.playCount, 1)
     }
