@@ -1092,6 +1092,10 @@ class OverlayView: NSView {
             handleCursor.set()
             return
         }
+        if shouldAllowSelectionBorderMove(), hitTestSelectionBorder(at: point) {
+            NSCursor.openHand.set()
+            return
+        }
 
         // Annotation control cursors (resize handles, rotation, delete, body)
         if state == .selected && !isDraggingAnnotation && !isResizingAnnotation && !isRotatingAnnotation {
@@ -1248,37 +1252,8 @@ class OverlayView: NSView {
 
     /// Returns the appropriate resize cursor if the point is on a selection handle, nil otherwise.
     private func resizeHandleCursor(at point: NSPoint) -> NSCursor? {
-        let r = selectionRect
-        let hs = handleSize + 4
-        let edgeT: CGFloat = 6
-        // Corner handles
-        if NSRect(x: r.minX - hs / 2, y: r.maxY - hs / 2, width: hs, height: hs).contains(point)
-            || NSRect(x: r.maxX - hs / 2, y: r.minY - hs / 2, width: hs, height: hs).contains(point)
-        {
-            return Self.nwseCursor
-        }
-        if NSRect(x: r.maxX - hs / 2, y: r.maxY - hs / 2, width: hs, height: hs).contains(point)
-            || NSRect(x: r.minX - hs / 2, y: r.minY - hs / 2, width: hs, height: hs).contains(point)
-        {
-            return Self.neswCursor
-        }
-        // Edge handles
-        if NSRect(x: r.minX + hs / 2, y: r.maxY - edgeT / 2, width: r.width - hs, height: edgeT)
-            .contains(point)
-            || NSRect(x: r.minX + hs / 2, y: r.minY - edgeT / 2, width: r.width - hs, height: edgeT)
-                .contains(point)
-        {
-            return .resizeUpDown
-        }
-        if NSRect(x: r.minX - edgeT / 2, y: r.minY + hs / 2, width: edgeT, height: r.height - hs)
-            .contains(point)
-            || NSRect(
-                x: r.maxX - edgeT / 2, y: r.minY + hs / 2, width: edgeT, height: r.height - hs
-            ).contains(point)
-        {
-            return .resizeLeftRight
-        }
-        return nil
+        let handle = hitTestSelectionHandleDot(at: point)
+        return handle == .none ? nil : cursorForHandle(handle)
     }
 
     private func cursorForHandle(_ handle: ResizeHandle) -> NSCursor {
@@ -1327,6 +1302,9 @@ class OverlayView: NSView {
 
     /// Override to control whether selection resize handles are active. Base returns true when not in editor mode or scroll capturing.
     func shouldAllowSelectionResize() -> Bool { !isEditorMode && !isScrollCapturing }
+
+    /// Override to control whether dragging the selected border moves the selected capture area.
+    func shouldAllowSelectionBorderMove() -> Bool { !isEditorMode && !isScrollCapturing }
 
     /// Override to control whether a new selection can be started. Base returns true when not recording and not in editor mode.
     func shouldAllowNewSelection() -> Bool { !isRecording && !isEditorMode }
@@ -4421,6 +4399,30 @@ class OverlayView: NSView {
         return .none
     }
 
+    private func hitTestSelectionHandleDot(at point: NSPoint) -> ResizeHandle {
+        let hitPad: CGFloat = 2
+        for (handle, rect) in allHandleRects() {
+            if rect.insetBy(dx: -hitPad, dy: -hitPad).contains(point) {
+                return handle
+            }
+        }
+        return .none
+    }
+
+    private func hitTestSelectionBorder(at point: NSPoint) -> Bool {
+        let edgeThickness: CGFloat = 6
+        let r = selectionRect
+        guard r.width > 0, r.height > 0 else { return false }
+
+        let borderRects = [
+            NSRect(x: r.minX, y: r.maxY - edgeThickness / 2, width: r.width, height: edgeThickness),
+            NSRect(x: r.minX, y: r.minY - edgeThickness / 2, width: r.width, height: edgeThickness),
+            NSRect(x: r.minX - edgeThickness / 2, y: r.minY, width: edgeThickness, height: r.height),
+            NSRect(x: r.maxX - edgeThickness / 2, y: r.minY, width: edgeThickness, height: r.height),
+        ]
+        return borderRects.contains { $0.contains(point) }
+    }
+
     private func handleRectsForRect(_ r: NSRect) -> [(ResizeHandle, NSRect)] {
         let s = handleSize
         return [
@@ -4488,6 +4490,19 @@ class OverlayView: NSView {
         if isAnchoredSelecting {
             updateSelectionRect(to: point, shiftHeld: event.modifierFlags.contains(.shift))
             commitAnchoredSelection()
+            return
+        }
+
+        if OverlayDoubleClickConfirmationPolicy(
+            clickCount: event.clickCount,
+            state: state,
+            currentTool: currentTool,
+            isTextEditing: textEditView != nil,
+            isRecording: isRecording,
+            isScrollCapturing: isScrollCapturing,
+            isPointInsideSelection: pointIsInSelection(point)
+        ).shouldRequestQuickSave {
+            overlayDelegate?.overlayViewDidRequestQuickSave()
             return
         }
 
@@ -4693,7 +4708,7 @@ class OverlayView: NSView {
 
             // Check handles (disabled in editor)
             if shouldAllowSelectionResize() {
-                let handle = hitTestHandle(at: point)
+                let handle = hitTestSelectionHandleDot(at: point)
                 if handle != .none {
                     isResizingSelection = true
                     selectionIsWindowSnap = false
@@ -4702,6 +4717,16 @@ class OverlayView: NSView {
                     resizeHandle = handle
                     return
                 }
+            }
+
+            if shouldAllowSelectionBorderMove(), hitTestSelectionBorder(at: point) {
+                isDraggingSelection = true
+                selectionIsWindowSnap = false
+                snappedWindowID = nil
+                snappedWindowImage = nil
+                dragOffset = NSPoint(x: point.x - selectionRect.origin.x, y: point.y - selectionRect.origin.y)
+                NSCursor.closedHand.set()
+                return
             }
 
             // Crop tool drag (use canvas coords so it aligns with the image)
@@ -7972,4 +7997,3 @@ private class TooltipBackgroundView: NSView {
         (text as NSString).draw(at: NSPoint(x: pad, y: pad / 2), withAttributes: attrs)
     }
 }
-

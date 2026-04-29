@@ -22,6 +22,24 @@ ScreenshotTool is a personal macOS screenshot utility for MacBook Air M4. It com
 - `project.yml`: XcodeGen project definition.
 - `script/build_and_run.sh`: local build and run helper.
 
+## macshot Usage Scope
+
+The screenshot engine is built around source imported from the local `macshot` project at `/Users/nic/Documents/workspace/screenshot/macshot`. Imported and modified files live under `MacShotCore/Imported`, with a small bridge layer in `MacShotCore/`.
+
+The app currently uses these `macshot`-derived technologies:
+
+| Area | `macshot` technology used in this project |
+| --- | --- |
+| Screen capture | ScreenCaptureKit-based full-screen and window capture, including multi-display capture and overlay-window exclusion. |
+| Capture overlay | AppKit overlay windows, region selection, resize handles, border dragging, window snapping, and keyboard-driven capture actions. |
+| Annotation canvas | `OverlayView`, annotation state, hit testing, undo/redo support, selection movement, resize/delete/edit behavior, and composited image export. |
+| Annotation tools | Arrow, line, rectangle, filled rectangle, ellipse, pencil, marker, text, number, pixelate/blur, measure, loupe, stamp, and color sampling tool handlers. |
+| Toolbar and popovers | Floating annotation toolbar, tool option rows, color/font/effects/emoji/gradient/list popovers, and toolbar feature gating. |
+| Image utilities | Image encoding, image effects, beautify rendering, OCR helper, barcode detection, filename formatting, temporary share files, and language helper utilities where needed by the imported core. |
+| Preferences bridge | `MacShotPreferencesAdapter` maps ScreenshotTool settings into the `UserDefaults` keys expected by the imported `macshot` core. |
+
+The app intentionally does not use `macshot` as a whole application. ScreenshotTool keeps its own SwiftUI settings UI, main window, capture history, output routing, menu bar behavior, app theme settings, hotkey ownership, GitHub workflow, and input source automation. Some imported `macshot` features that are outside the current screenshot path are disabled or shimmed in `MacShotCore/Imported/MacShotFeatureShims.swift`.
+
 ## Requirements
 
 - macOS 14 or later.
@@ -95,4 +113,3 @@ The app includes a diagnostics page that shows the current permission state and 
 ## License Notice
 
 `MacShotCore` incorporates and modifies GPLv3-licensed source from the local `macshot` project. Keep `MacShotCore/LICENSE.macshot-GPLv3.txt` and `MacShotCore/NOTICE.md` with source or binary distributions.
-
