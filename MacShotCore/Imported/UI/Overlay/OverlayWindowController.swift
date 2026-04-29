@@ -120,9 +120,11 @@ class OverlayWindowController {
             window.makeKeyAndOrderFront(nil)
             if let view = overlayView { window.makeFirstResponder(view) }
         } else {
-            // Async path — show transparent but block input until screenshot arrives.
-            window.ignoresMouseEvents = true
+            // Async path — show transparent and still receive input so an immediate
+            // drag after the hotkey does not pass through to the app underneath.
+            window.ignoresMouseEvents = false
             window.orderFront(nil)
+            if let view = overlayView { window.makeFirstResponder(view) }
         }
     }
 
