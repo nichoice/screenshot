@@ -35,7 +35,7 @@ struct AppPreferences: Codable, Equatable {
 
 struct CapturePreferences: Codable, Equatable {
     var hotkey: GlobalHotkey = .defaultCapture
-    var defaultSaveDirectoryPath: String? = nil
+    var defaultSaveDirectoryPath: String? = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first?.path
     var defaultOutputAction: CaptureOutputAction = .copyAndSave
     var imageFormat: CaptureImageFormat = .png
     var includeCursor: Bool = false

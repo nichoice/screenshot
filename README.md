@@ -6,12 +6,18 @@ ScreenshotTool is a personal macOS screenshot utility for MacBook Air M4. It com
 
 - macOS screenshot overlay based on imported `macshot` core code.
 - Region selection, window snapping, and inline annotation toolbar.
-- Screenshot output preferences for copy, save, or copy-and-save.
-- Recent capture history in the main window.
+- Screenshot output preferences for clipboard-only, save-only, copy-and-save, or edit-first workflows.
+- Configurable default save directory, defaulting to the Desktop.
 - Global screenshot shortcut: `Command + Shift + 4`.
 - App-wide theme setting: light, dark, or follow system.
 - Optional menu bar icon while keeping background residency.
 - Input source automation with a global default and per-app overrides.
+
+## Output Boundary
+
+- Clipboard-only screenshots are copied to the system clipboard only. ScreenshotTool does not write a saved image, preview cache image, or main-window history item for that action.
+- Save-only and copy-and-save screenshots write image files to the configured default save directory. The default directory is the Desktop.
+- Edit-first screenshots remain in the annotation overlay until the user explicitly chooses copy, save, share, or another toolbar action.
 
 ## Project Structure
 
@@ -38,7 +44,7 @@ The app currently uses these `macshot`-derived technologies:
 | Image utilities | Image encoding, image effects, beautify rendering, OCR helper, barcode detection, filename formatting, temporary share files, and language helper utilities where needed by the imported core. |
 | Preferences bridge | `MacShotPreferencesAdapter` maps ScreenshotTool settings into the `UserDefaults` keys expected by the imported `macshot` core. |
 
-The app intentionally does not use `macshot` as a whole application. ScreenshotTool keeps its own SwiftUI settings UI, main window, capture history, output routing, menu bar behavior, app theme settings, hotkey ownership, GitHub workflow, and input source automation. Some imported `macshot` features that are outside the current screenshot path are disabled or shimmed in `MacShotCore/Imported/MacShotFeatureShims.swift`.
+The app intentionally does not use `macshot` as a whole application. ScreenshotTool keeps its own SwiftUI settings UI, main window, save-directory ownership, output routing, menu bar behavior, app theme settings, hotkey ownership, GitHub workflow, and input source automation. Some imported `macshot` features that are outside the current screenshot path are disabled or shimmed in `MacShotCore/Imported/MacShotFeatureShims.swift`.
 
 ## Requirements
 

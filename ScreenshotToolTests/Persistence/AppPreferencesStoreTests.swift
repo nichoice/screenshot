@@ -12,6 +12,7 @@ final class AppPreferencesStoreTests: XCTestCase {
         XCTAssertTrue(store.appPreferences.showsMenuBarIcon)
         XCTAssertEqual(store.capturePreferences.hotkey, GlobalHotkey(keyCode: 21, modifiers: [.command, .shift]))
         XCTAssertEqual(store.capturePreferences.defaultOutputAction, .copyAndSave)
+        XCTAssertEqual(store.capturePreferences.defaultSaveDirectoryPath, FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].path)
         XCTAssertEqual(store.annotationPreferences.defaultLineWidth, 4)
         XCTAssertTrue(store.inputMethodPreferences.isEnabled)
     }
@@ -24,12 +25,14 @@ final class AppPreferencesStoreTests: XCTestCase {
         store.updateCapture {
             $0.imageFormat = .jpeg
             $0.defaultOutputAction = .openEditor
+            $0.defaultSaveDirectoryPath = "/tmp/ScreenshotToolCustom"
             $0.playCaptureSound = true
         }
 
         let reloaded = AppPreferencesStore(userDefaults: defaults)
         XCTAssertEqual(reloaded.capturePreferences.imageFormat, .jpeg)
         XCTAssertEqual(reloaded.capturePreferences.defaultOutputAction, .openEditor)
+        XCTAssertEqual(reloaded.capturePreferences.defaultSaveDirectoryPath, "/tmp/ScreenshotToolCustom")
         XCTAssertTrue(reloaded.capturePreferences.playCaptureSound)
     }
 
@@ -50,5 +53,6 @@ final class AppPreferencesStoreTests: XCTestCase {
         let store = AppPreferencesStore(userDefaults: defaults)
 
         XCTAssertEqual(store.capturePreferences.hotkey, .defaultCapture)
+        XCTAssertEqual(store.capturePreferences.defaultSaveDirectoryPath, FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].path)
     }
 }

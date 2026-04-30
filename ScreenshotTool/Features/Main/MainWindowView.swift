@@ -48,42 +48,13 @@ private struct MainDashboardCard: View {
 
             SettingsSectionCard(
                 title: "运行状态",
-                description: "在这里快速确认权限、快捷键和最近截图。"
+                description: "在这里快速确认权限、快捷键和当前运行状态。"
             ) {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(spacing: 24) {
                         statusBlock("屏幕录制", value: viewModel.permissions.screenRecording.displayName)
                         statusBlock("辅助功能", value: viewModel.permissions.accessibility.displayName)
                         statusBlock("截图快捷键", value: viewModel.shortcutSummary)
-                    }
-
-                    Divider()
-
-                    if viewModel.recentCaptures.isEmpty {
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("还没有截图记录")
-                                .font(.headline)
-                            Text("从上方按钮开始截图后，最近记录会直接显示在这里。")
-                                .foregroundStyle(.secondary)
-                        }
-                    } else {
-                        VStack(alignment: .leading, spacing: 10) {
-                            ForEach(viewModel.recentCaptures.prefix(5)) { item in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(item.previewFilePath)
-                                            .font(.headline)
-                                        Text(item.savedFilePath ?? "仅复制到剪贴板")
-                                            .font(.subheadline)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Text(item.createdAt.formatted(date: .abbreviated, time: .shortened))
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                        }
                     }
                 }
             }

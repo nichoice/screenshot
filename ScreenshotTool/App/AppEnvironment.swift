@@ -111,7 +111,7 @@ final class AppEnvironment: ObservableObject {
 
         switch preferences.defaultOutputAction {
         case .copyOnly:
-            _ = try? outputService.copyRenderedImage(cgImage, capturedAt: result.capturedAt)
+            outputService.copyRenderedImage(cgImage)
         case .saveOnly:
             _ = try? outputService.saveRenderedImage(
                 cgImage,
@@ -126,7 +126,7 @@ final class AppEnvironment: ObservableObject {
                 format: preferences.imageFormat,
                 directory: defaultDirectory
             )
-            _ = try? outputService.copyRenderedImage(cgImage, capturedAt: result.capturedAt)
+            outputService.copyRenderedImage(cgImage)
         case .openEditor:
             let captureResult = CaptureResult(
                 fullImage: cgImage,
@@ -283,9 +283,7 @@ private extension AppEnvironment {
     func defaultCaptureDirectory() -> URL {
         URL(
             fileURLWithPath: preferencesStore.capturePreferences.defaultSaveDirectoryPath
-                ?? FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask)[0]
-                .appendingPathComponent("ScreenshotTool")
-                .path
+                ?? FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].path
         )
     }
 
@@ -295,7 +293,8 @@ private extension AppEnvironment {
             defaultLineWidth: preferencesStore.annotationPreferences.defaultLineWidth,
             defaultFontSize: preferencesStore.annotationPreferences.defaultFontSize,
             rememberLastTool: preferencesStore.annotationPreferences.rememberLastTool,
-            includeCursor: preferencesStore.capturePreferences.includeCursor
+            includeCursor: preferencesStore.capturePreferences.includeCursor,
+            defaultSaveDirectoryPath: defaultCaptureDirectory().path
         )
     }
 }

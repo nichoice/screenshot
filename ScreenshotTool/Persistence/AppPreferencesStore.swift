@@ -23,6 +23,7 @@ final class AppPreferencesStore: ObservableObject {
         self.annotationPreferences = Self.load(AnnotationPreferences.self, key: .annotation, from: userDefaults) ?? AnnotationPreferences()
         self.inputMethodPreferences = Self.load(InputMethodPreferences.self, key: .inputMethod, from: userDefaults) ?? InputMethodPreferences()
         migrateLegacyCaptureHotkeyIfNeeded()
+        migrateDefaultSaveDirectoryIfNeeded()
     }
 
     func updateApp(_ mutate: (inout AppPreferences) -> Void) {
@@ -54,6 +55,12 @@ final class AppPreferencesStore: ObservableObject {
         let legacyDefaultCapture = GlobalHotkey(keyCode: 23, modifiers: [.command, .shift])
         guard capturePreferences.hotkey == legacyDefaultCapture else { return }
         capturePreferences.hotkey = .defaultCapture
+        save(capturePreferences, key: .capture)
+    }
+
+    private func migrateDefaultSaveDirectoryIfNeeded() {
+        guard capturePreferences.defaultSaveDirectoryPath == nil else { return }
+        capturePreferences.defaultSaveDirectoryPath = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first?.path
         save(capturePreferences, key: .capture)
     }
 

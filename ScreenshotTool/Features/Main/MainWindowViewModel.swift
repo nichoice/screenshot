@@ -4,7 +4,6 @@ import Foundation
 final class MainWindowViewModel: ObservableObject {
     private let permissionsService: PermissionsService
     private let windowRouter: WindowRouter
-    private let historyStore: CaptureHistoryStore
     private var startCaptureAction: () -> Void
 
     @Published private(set) var permissions: PermissionsSnapshot
@@ -18,14 +17,13 @@ final class MainWindowViewModel: ObservableObject {
     ) {
         self.permissionsService = permissionsService
         self.windowRouter = windowRouter
-        self.historyStore = historyStore
         self.startCaptureAction = startCaptureAction
         self.permissions = permissionsService.currentSnapshot()
     }
 
     func refresh() {
         permissions = permissionsService.currentSnapshot()
-        recentCaptures = historyStore.items
+        recentCaptures = []
     }
 
     func openSettings() {

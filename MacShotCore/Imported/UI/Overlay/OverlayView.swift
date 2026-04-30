@@ -2891,6 +2891,18 @@ class OverlayView: NSView {
         needsDisplay = true
     }
 
+    func replaceScreenshotImageAfterBackgroundRemoval(_ image: NSImage) {
+        guard let previousImage = screenshotImage?.copy() as? NSImage else { return }
+
+        undoStack.append(.imageTransform(previousImage: previousImage, annotationOffsets: []))
+        redoStack.removeAll()
+        screenshotImage = image
+        annotations = []
+        cachedCompositedImage = nil
+        cachedEffectsScreenshot = nil
+        needsDisplay = true
+    }
+
     // MARK: - Snap/Alignment Guides
 
     /// Collect all snap target X and Y values from the selection rect and existing annotations.

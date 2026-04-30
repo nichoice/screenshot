@@ -115,7 +115,7 @@ final class WindowRouter: ObservableObject {
 
         func copyAndClose() {
             guard let finalized = finalizedResult() else { return }
-            _ = try? outputService.copy(result: finalized, document: document)
+            outputService.copy(result: finalized, document: document)
             inlineState.showFeedback("已复制到剪贴板")
             self.hideCaptureOverlay()
         }

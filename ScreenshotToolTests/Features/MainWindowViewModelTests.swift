@@ -35,7 +35,7 @@ final class MainWindowViewModelTests: XCTestCase {
     }
 
     @MainActor
-    func testRefreshPullsLatestHistoryItems() throws {
+    func testRefreshDoesNotExposeCaptureHistoryOnGeneralPage() throws {
         let permissionsService = LocalFakePermissionsService()
         let router = WindowRouter()
         let historyURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
@@ -51,7 +51,7 @@ final class MainWindowViewModelTests: XCTestCase {
 
         viewModel.refresh()
 
-        XCTAssertEqual(viewModel.recentCaptures.count, 1)
+        XCTAssertTrue(viewModel.recentCaptures.isEmpty)
     }
 
     @MainActor

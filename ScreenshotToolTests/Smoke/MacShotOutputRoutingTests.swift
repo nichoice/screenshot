@@ -4,7 +4,7 @@ import XCTest
 
 @MainActor
 final class MacShotOutputRoutingTests: XCTestCase {
-    func testMacShotCompletionRefreshesRecentCaptures() {
+    func testMacShotCopyOnlyDoesNotWriteRecentCaptureHistory() {
         let environment = AppEnvironment.bootstrapForTests()
         environment.preferencesStore.updateCapture { $0.defaultOutputAction = .copyOnly }
         let image = Self.makeImage()
@@ -15,7 +15,8 @@ final class MacShotOutputRoutingTests: XCTestCase {
         )
 
         environment.mainWindowViewModel.refresh()
-        XCTAssertEqual(environment.mainWindowViewModel.recentCaptures.count, 1)
+        XCTAssertEqual(environment.historyStore.items.count, 0)
+        XCTAssertEqual(environment.mainWindowViewModel.recentCaptures.count, 0)
     }
 
     private static func makeImage() -> NSImage {

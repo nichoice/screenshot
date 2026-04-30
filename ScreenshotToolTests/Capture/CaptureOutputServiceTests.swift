@@ -36,7 +36,7 @@ final class CaptureOutputServiceTests: XCTestCase {
         XCTAssertEqual(clipboard.copyCount, 0)
     }
 
-    func testCopyWritesHistoryItemMarkedAsCopied() throws {
+    func testCopyOnlyCopiesToClipboardWithoutWritingFilesOrHistory() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(#function)
         try? FileManager.default.removeItem(at: directory)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -57,12 +57,11 @@ final class CaptureOutputServiceTests: XCTestCase {
             selectionRect: CGRect(x: 0, y: 0, width: 2, height: 2),
             capturedAt: Date()
         )
-        let item = try service.copy(result: result, document: AnnotationDocument())
+        service.copy(result: result, document: AnnotationDocument())
 
         XCTAssertEqual(clipboard.copyCount, 1)
-        XCTAssertTrue(item.didCopyToClipboard)
-        XCTAssertNil(item.savedFilePath)
-        XCTAssertEqual(historyStore.items.first?.id, item.id)
+        XCTAssertTrue(historyStore.items.isEmpty)
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: directory.path), [])
     }
 
     func testPrepareShareItemWritesShareFileAndHistoryItem() throws {
@@ -99,7 +98,7 @@ final class CaptureOutputServiceTests: XCTestCase {
         XCTAssertEqual(historyStore.items.first?.id, item.id)
     }
 
-    func testCopyRenderedImageWritesHistoryAndClipboard() throws {
+    func testCopyRenderedImageOnlyWritesClipboard() throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(#function)
         try? FileManager.default.removeItem(at: directory)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -113,12 +112,11 @@ final class CaptureOutputServiceTests: XCTestCase {
             cacheDirectory: directory
         )
 
-        let item = try service.copyRenderedImage(makeImage(), capturedAt: Date(timeIntervalSince1970: 123))
+        service.copyRenderedImage(makeImage())
 
         XCTAssertEqual(clipboard.copyCount, 1)
-        XCTAssertTrue(item.didCopyToClipboard)
-        XCTAssertNil(item.savedFilePath)
-        XCTAssertEqual(historyStore.items.first?.id, item.id)
+        XCTAssertTrue(historyStore.items.isEmpty)
+        XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: directory.path), [])
     }
 
     func testSaveRenderedImageWritesFileAndHistory() throws {

@@ -75,6 +75,11 @@ final class SettingsWindowViewModel: ObservableObject {
         capturePreferences = preferencesStore.capturePreferences
     }
 
+    func setDefaultSaveDirectory(_ directory: URL) {
+        preferencesStore.updateCapture { $0.defaultSaveDirectoryPath = directory.path }
+        capturePreferences = preferencesStore.capturePreferences
+    }
+
     func setPlayCaptureSound(_ enabled: Bool) {
         preferencesStore.updateCapture { $0.playCaptureSound = enabled }
         capturePreferences = preferencesStore.capturePreferences

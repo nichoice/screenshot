@@ -13,7 +13,8 @@ final class MacShotPreferencesAdapterTests: XCTestCase {
                 defaultLineWidth: 7,
                 defaultFontSize: 22,
                 rememberLastTool: false,
-                includeCursor: true
+                includeCursor: true,
+                defaultSaveDirectoryPath: "/tmp/ScreenshotTool"
             )
         )
 
@@ -22,5 +23,6 @@ final class MacShotPreferencesAdapterTests: XCTestCase {
         XCTAssertEqual(defaults.double(forKey: "textFontSize"), 22)
         XCTAssertFalse(defaults.bool(forKey: "rememberLastTool"))
         XCTAssertTrue(defaults.bool(forKey: "captureCursor"))
+        XCTAssertEqual(defaults.string(forKey: "saveDirectory"), "/tmp/ScreenshotTool")
     }
 }

@@ -13,5 +13,8 @@ public final class MacShotPreferencesAdapter {
         userDefaults.set(preferences.defaultFontSize, forKey: "textFontSize")
         userDefaults.set(preferences.rememberLastTool, forKey: "rememberLastTool")
         userDefaults.set(preferences.includeCursor, forKey: "captureCursor")
+        if let defaultSaveDirectoryPath = preferences.defaultSaveDirectoryPath {
+            userDefaults.set(defaultSaveDirectoryPath, forKey: "saveDirectory")
+        }
     }
 }

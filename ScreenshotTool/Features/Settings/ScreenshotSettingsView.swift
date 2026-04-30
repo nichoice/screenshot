@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 struct ScreenshotSettingsView: View {
@@ -44,10 +45,16 @@ struct ScreenshotSettingsView: View {
 
             SettingsSectionCard(
                 title: "输出",
-                description: "展示当前默认输出路径，以及捕获完成后的处理摘要。"
+                description: "配置保存类截图的默认目录；仅复制的截图只进入剪切板，不写入文件或历史。"
             ) {
                 VStack(alignment: .leading, spacing: 12) {
-                    infoRow("默认保存目录", value: viewModel.capturePreferences.defaultSaveDirectoryPath ?? "系统图片目录 / ScreenshotTool")
+                    HStack(alignment: .firstTextBaseline, spacing: 12) {
+                        infoRow("默认保存目录", value: saveDirectoryDisplayPath)
+                        Spacer()
+                        Button("选择目录...") {
+                            chooseSaveDirectory()
+                        }
+                    }
                     infoRow("完成后动作", value: outputSummary(viewModel.capturePreferences.defaultOutputAction))
                     infoRow("文件格式", value: viewModel.capturePreferences.imageFormat == .png ? "PNG 无损" : "JPEG 压缩")
                     infoRow("提示音", value: viewModel.capturePreferences.playCaptureSound ? "完成截图后播放系统提示音" : "静音")
@@ -66,10 +73,29 @@ struct ScreenshotSettingsView: View {
         }
     }
 
+    private var saveDirectoryDisplayPath: String {
+        viewModel.capturePreferences.defaultSaveDirectoryPath
+            ?? FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].path
+    }
+
+    private func chooseSaveDirectory() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.canCreateDirectories = true
+        panel.prompt = "选择"
+        panel.directoryURL = URL(fileURLWithPath: saveDirectoryDisplayPath)
+
+        if panel.runModal() == .OK, let url = panel.url {
+            viewModel.setDefaultSaveDirectory(url)
+        }
+    }
+
     private func outputSummary(_ action: CaptureOutputAction) -> String {
         switch action {
         case .copyOnly:
-            "截图后立即复制到剪贴板"
+            "截图后立即复制到剪贴板，不保存文件，不写历史"
         case .saveOnly:
             "截图后直接保存到默认目录"
         case .copyAndSave:

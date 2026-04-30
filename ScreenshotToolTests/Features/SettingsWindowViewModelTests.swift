@@ -83,6 +83,33 @@ final class SettingsWindowViewModelTests: XCTestCase {
     }
 
     @MainActor
+    func testSetDefaultSaveDirectoryPersistsSelection() throws {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            )
+        )
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("ScreenshotToolCustom")
+
+        viewModel.setDefaultSaveDirectory(directory)
+
+        XCTAssertEqual(preferencesStore.capturePreferences.defaultSaveDirectoryPath, directory.path)
+        XCTAssertEqual(viewModel.capturePreferences.defaultSaveDirectoryPath, directory.path)
+    }
+
+    @MainActor
     func testSetPlayCaptureSoundPersistsSelection() {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)

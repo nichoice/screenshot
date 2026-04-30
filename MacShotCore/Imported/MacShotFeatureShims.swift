@@ -88,35 +88,6 @@ final class WebcamOverlay: NSPanel {
     }
 }
 
-@MainActor
-final class EditorTopBarView: NSView {
-    weak var overlayView: OverlayView?
-    var onDone: (() -> Void)?
-
-    func updateSizeLabel(width: Int, height: Int) {}
-
-    func updateZoom(_ magnification: CGFloat) {}
-
-    func showDoneButton() {}
-}
-
-final class EditorView: OverlayView {
-    var drewFromCompositeCache = false
-}
-
-enum DetachedEditorWindowController {
-    static func open(
-        image: NSImage,
-        tool: AnnotationTool = .arrow,
-        color: NSColor = .systemRed,
-        strokeWidth: CGFloat = 3,
-        annotations: [Annotation] = [],
-        historyEntryID: String? = nil,
-        fromCapture: Bool = false,
-        disableBeautify: Bool = false
-    ) {}
-}
-
 enum AppDelegate {
     static var captureSound: NSSound?
 }
@@ -211,14 +182,14 @@ enum TranslateOverlay {
 
 enum SaveDirectoryAccess {
     static var displayPath: String {
-        UserDefaults.standard.string(forKey: "saveDirectory") ?? "~/Pictures"
+        UserDefaults.standard.string(forKey: "saveDirectory") ?? FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first?.path ?? "~/Desktop"
     }
 
     static func resolve() -> URL {
         if let path = UserDefaults.standard.string(forKey: "saveDirectory") {
             return URL(fileURLWithPath: path)
         }
-        return FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask).first
+        return FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
             ?? FileManager.default.homeDirectoryForCurrentUser
     }
 
@@ -226,7 +197,7 @@ enum SaveDirectoryAccess {
         if let path = UserDefaults.standard.string(forKey: "saveDirectory") {
             return URL(fileURLWithPath: path)
         }
-        return FileManager.default.urls(for: .picturesDirectory, in: .userDomainMask).first
+        return FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
     }
 
     static func save(url: URL) {

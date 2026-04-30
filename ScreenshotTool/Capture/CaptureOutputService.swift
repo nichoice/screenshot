@@ -20,9 +20,9 @@ final class CaptureOutputService {
         self.cacheDirectory = cacheDirectory
     }
 
-    func copy(result: CaptureResult, document: AnnotationDocument) throws -> CaptureHistoryItem {
+    func copy(result: CaptureResult, document: AnnotationDocument) {
         let rendered = renderer.render(baseImage: result.image, items: document.items)
-        return try copyRenderedImage(rendered, capturedAt: result.capturedAt)
+        copyRenderedImage(rendered)
     }
 
     func save(result: CaptureResult, document: AnnotationDocument, format: CaptureImageFormat, directory: URL) throws -> CaptureHistoryItem {
@@ -35,18 +35,8 @@ final class CaptureOutputService {
         return try saveRenderedImage(rendered, capturedAt: result.capturedAt, format: format, directory: directory)
     }
 
-    func copyRenderedImage(_ image: CGImage, capturedAt: Date) throws -> CaptureHistoryItem {
+    func copyRenderedImage(_ image: CGImage) {
         clipboardService.copy(image: image)
-        let previewURL = try writePreview(image)
-        let item = CaptureHistoryItem(
-            id: UUID(),
-            createdAt: capturedAt,
-            previewFilePath: previewURL.path,
-            savedFilePath: nil,
-            didCopyToClipboard: true
-        )
-        try historyStore.append(item)
-        return item
     }
 
     func saveRenderedImage(

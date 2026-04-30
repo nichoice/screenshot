@@ -37,6 +37,7 @@ protocol OverlayWindowControllerDelegate: AnyObject {
 /// Does NOT subclass NSWindowController to avoid AppKit retain-cycle issues.
 @MainActor
 class OverlayWindowController {
+    static var backgroundRemover: BackgroundRemoving = VisionBackgroundRemover()
 
     weak var overlayDelegate: OverlayWindowControllerDelegate?
     var capturedWindowTitle: String?
@@ -636,66 +637,24 @@ extension OverlayWindowController: OverlayViewDelegate {
         guard var image = captureRegion() else { return }
         image = applyBeautifyIfNeeded(image) ?? image
 
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-            return
-        }
-
-        let request = VNGenerateForegroundInstanceMaskRequest()
-        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-
-        DispatchQueue.global(qos: .userInitiated).async {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
             do {
-                try handler.perform([request])
-                guard let result = request.results?.first else {
-                    throw NSError(domain: "Macshot", code: 1)
+                let finalImage = try await Self.backgroundRemover.removeBackground(from: image)
+                // quickCaptureMode: 0=save, 1=copy, 2=both, 3=do nothing
+                let mode = UserDefaults.standard.object(forKey: "quickCaptureMode") as? Int ?? 1
+                if mode == 1 || mode == 2 {
+                    self.copyImageToClipboard(finalImage)
                 }
-
-                let maskPixelBuffer = try result.generateScaledMaskForImage(
-                    forInstances: result.allInstances, from: handler)
-
-                let originalCIImage = CIImage(cgImage: cgImage)
-                let maskCIImage = CIImage(cvPixelBuffer: maskPixelBuffer)
-
-                // Blend original with mask
-                guard let filter = CIFilter(name: "CIBlendWithMask") else {
-                    throw NSError(domain: "Macshot", code: 2)
-                }
-                filter.setValue(originalCIImage, forKey: kCIInputImageKey)
-                filter.setValue(maskCIImage, forKey: kCIInputMaskImageKey)
-                filter.setValue(
-                    CIImage(color: .clear).cropped(to: originalCIImage.extent),
-                    forKey: kCIInputBackgroundImageKey)
-
-                guard let outputCIImage = filter.outputImage else {
-                    throw NSError(domain: "Macshot", code: 3)
-                }
-
-                let context = CIContext()
-                guard
-                    let finalCGImage = context.createCGImage(
-                        outputCIImage, from: outputCIImage.extent)
-                else { throw NSError(domain: "Macshot", code: 4) }
-
-                let finalNSImage = NSImage(cgImage: finalCGImage, size: image.size)
-
-                DispatchQueue.main.async {
-                    // quickCaptureMode: 0=save, 1=copy, 2=both, 3=do nothing
-                    let mode = UserDefaults.standard.object(forKey: "quickCaptureMode") as? Int ?? 1
-                    if mode == 1 || mode == 2 {
-                        self.copyImageToClipboard(finalNSImage)
-                    }
-                    self.playCopySound()
-                    self.dismiss()
-                    self.overlayDelegate?.overlayDidConfirm(self, capturedImage: finalNSImage, annotationData: nil)
-                }
+                self.playCopySound()
+                self.dismiss()
+                self.overlayDelegate?.overlayDidConfirm(self, capturedImage: finalImage, annotationData: nil)
             } catch {
                 #if DEBUG
                     print("Vision background removal error: \(error.localizedDescription)")
                 #endif
-                DispatchQueue.main.async {
-                    self.overlayView?.showOverlayError(
-                        "Background removal failed — no clear subject found.")
-                }
+                self.overlayView?.showOverlayError(
+                    "Background removal failed — no clear subject found.")
             }
         }
     }
