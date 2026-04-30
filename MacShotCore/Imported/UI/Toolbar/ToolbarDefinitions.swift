@@ -60,6 +60,8 @@ enum MacShotCoreFeatureFlags {
     static let uploadEnabled = false
     static let beautifyEnabled = false
     static let effectsEnabled = false
+    static let ocrEnabled = false
+    static let translationEnabled = false
 }
 
 class ToolbarLayout {
@@ -406,14 +408,14 @@ class ToolbarLayout {
         }
 
         // OCR (tag 1003)
-        if actionEnabled(1003) {
+        if MacShotCoreFeatureFlags.ocrEnabled && actionEnabled(1003) {
             buttons.append(
                 ToolbarButton(
                     action: .ocr, sfSymbol: "doc.text.viewfinder", tooltip: L("OCR Text")))
         }
 
         // Translate (tag 1008)
-        if actionEnabled(1008) {
+        if MacShotCoreFeatureFlags.translationEnabled && actionEnabled(1008) {
             var translateBtn = ToolbarButton(
                 action: .translate, sfSymbol: "translate", tooltip: L("Translate"))
             translateBtn.isSelected = translateEnabled

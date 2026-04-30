@@ -13,7 +13,6 @@ final class InlineAnnotationToolbarModelTests: XCTestCase {
                 .pen,
                 .mosaic,
                 .text,
-                .ocr,
                 .undo,
                 .save,
                 .pin,
@@ -29,7 +28,7 @@ final class InlineAnnotationToolbarModelTests: XCTestCase {
         XCTAssertEqual(
             InlineAnnotationToolbarModel.groups,
             [
-                [.rectangle, .ellipse, .emoji, .arrow, .pen, .mosaic, .text, .ocr],
+                [.rectangle, .ellipse, .emoji, .arrow, .pen, .mosaic, .text],
                 [.undo],
                 [.save, .pin, .edit, .share],
                 [.cancel, .confirm]

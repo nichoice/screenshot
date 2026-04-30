@@ -6,7 +6,7 @@ final class InputMethodManager: ObservableObject {
     private let rulesStore: InputMethodRulesStore
     private let inputSourceService: InputSourceService
     private let matcher: InputMethodRuleMatcher
-    private weak var observer: FrontmostApplicationObserver?
+    private var observer: FrontmostApplicationObserver?
 
     @Published private(set) var status = InputMethodAutomationStatus()
 
@@ -69,4 +69,10 @@ final class InputMethodManager: ObservableObject {
             lastSwitchSucceeded: succeeded
         )
     }
+
+    #if DEBUG
+    func simulateFrontmostApplicationChangeForTesting(bundleIdentifier: String?) {
+        observer?.onChange?(bundleIdentifier)
+    }
+    #endif
 }

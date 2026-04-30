@@ -27,7 +27,6 @@ enum InlineAnnotationToolbarModel {
         .pen,
         .mosaic,
         .text,
-        .ocr,
         .undo,
         .save,
         .pin,
@@ -38,7 +37,7 @@ enum InlineAnnotationToolbarModel {
     ]
 
     static let groups: [[InlineAnnotationToolbarItem]] = [
-        [.rectangle, .ellipse, .emoji, .arrow, .pen, .mosaic, .text, .ocr],
+        [.rectangle, .ellipse, .emoji, .arrow, .pen, .mosaic, .text],
         [.undo],
         [.save, .pin, .edit, .share],
         [.cancel, .confirm]

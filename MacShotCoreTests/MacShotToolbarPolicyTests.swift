@@ -20,6 +20,8 @@ final class MacShotToolbarPolicyTests: XCTestCase {
         XCTAssertFalse(actions.containsAction(.record))
         XCTAssertFalse(actions.containsAction(.scrollCapture))
         XCTAssertFalse(actions.containsAction(.upload))
+        XCTAssertFalse(actions.containsAction(.ocr))
+        XCTAssertFalse(actions.containsAction(.translate))
     }
 }
 
@@ -31,7 +33,9 @@ private extension [ToolbarButtonAction] {
                  (.beautify, .beautify),
                  (.record, .record),
                  (.scrollCapture, .scrollCapture),
-                 (.upload, .upload):
+                 (.upload, .upload),
+                 (.ocr, .ocr),
+                 (.translate, .translate):
                 true
             default:
                 false

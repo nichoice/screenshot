@@ -39,6 +39,37 @@ final class InputMethodManagerTests: XCTestCase {
         XCTAssertEqual(manager.status.lastTargetInputSourceID, "com.apple.keylayout.US")
         XCTAssertEqual(manager.status.lastSwitchSucceeded, true)
     }
+
+    @MainActor
+    func testStartObservingRetainsObserverAndAppliesGlobalDefaultOnChange() async {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        preferencesStore.updateInputMethod {
+            $0.isEnabled = true
+            $0.globalDefaultInputSourceID = "com.apple.inputmethod.SCIM.WBX"
+        }
+
+        let rulesURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
+        try? FileManager.default.removeItem(at: rulesURL)
+        let rulesStore = InputMethodRulesStore(fileURL: rulesURL)
+        let service = FakeInputSourceService(current: "com.apple.keylayout.ABC")
+        let manager = InputMethodManager(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: service,
+            matcher: InputMethodRuleMatcher(),
+            observer: FakeFrontmostApplicationObserver()
+        )
+
+        manager.startObserving()
+        manager.simulateFrontmostApplicationChangeForTesting(bundleIdentifier: "com.apple.finder")
+        await Task.yield()
+
+        XCTAssertEqual(service.selectedIDs, ["com.apple.inputmethod.SCIM.WBX"])
+        XCTAssertEqual(manager.status.lastTargetInputSourceID, "com.apple.inputmethod.SCIM.WBX")
+        XCTAssertEqual(manager.status.lastSwitchSucceeded, true)
+    }
 }
 
 private final class FakeInputSourceService: InputSourceService {
@@ -62,5 +93,19 @@ private final class FakeInputSourceService: InputSourceService {
         selectedIDs.append(id)
         current = id
         return true
+    }
+}
+
+private final class FakeFrontmostApplicationObserver: FrontmostApplicationObserver {
+    var onChange: ((String?) -> Void)?
+    private(set) var didStart = false
+    private(set) var didStop = false
+
+    func start() {
+        didStart = true
+    }
+
+    func stop() {
+        didStop = true
     }
 }

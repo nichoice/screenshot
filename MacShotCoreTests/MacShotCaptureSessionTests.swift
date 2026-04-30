@@ -31,6 +31,27 @@ final class MacShotCaptureSessionTests: XCTestCase {
         XCTAssertEqual(session.state, .completed)
     }
 
+    func testSessionDismissesOverlaysBeforeCompletionHandler() {
+        var didDismissOverlays = false
+        var completionObservedDismissedOverlays = false
+        let session = MacShotCaptureSession(
+            preferences: .defaults,
+            presentsOverlay: false,
+            onComplete: { _ in
+                completionObservedDismissedOverlays = didDismissOverlays
+            },
+            onDismissOverlays: {
+                didDismissOverlays = true
+            }
+        )
+        _ = session.start()
+        let image = NSImage(size: NSSize(width: 10, height: 8))
+
+        XCTAssertTrue(session.complete(with: image))
+        XCTAssertTrue(didDismissOverlays)
+        XCTAssertTrue(completionObservedDismissedOverlays)
+    }
+
     func testEngineStoresCompletionHandlerUntilSessionCompletes() {
         let engine = MacShotCaptureEngine(presentsOverlay: false)
         var received: MacShotCaptureResult?

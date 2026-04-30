@@ -16,6 +16,7 @@ public final class MacShotCaptureSession {
     private let presentsOverlay: Bool
     private let onComplete: ((MacShotCaptureResult) -> Void)?
     private let onCancel: (() -> Void)?
+    private let onDismissOverlays: (() -> Void)?
     private var overlayControllers: [OverlayWindowController] = []
 
     public convenience init(preferences: MacShotPreferences) {
@@ -26,12 +27,14 @@ public final class MacShotCaptureSession {
         preferences: MacShotPreferences,
         presentsOverlay: Bool,
         onComplete: ((MacShotCaptureResult) -> Void)? = nil,
-        onCancel: (() -> Void)? = nil
+        onCancel: (() -> Void)? = nil,
+        onDismissOverlays: (() -> Void)? = nil
     ) {
         self.preferences = preferences
         self.presentsOverlay = presentsOverlay
         self.onComplete = onComplete
         self.onCancel = onCancel
+        self.onDismissOverlays = onDismissOverlays
     }
 
     @discardableResult
@@ -60,6 +63,7 @@ public final class MacShotCaptureSession {
         let captureResult = MacShotCaptureResult(image: image, capturedAt: capturedAt)
         result = captureResult
         state = .completed
+        dismissOverlayControllers()
         onComplete?(captureResult)
         return true
     }
@@ -87,6 +91,7 @@ public final class MacShotCaptureSession {
     }
 
     private func dismissOverlayControllers() {
+        onDismissOverlays?()
         overlayControllers.forEach { $0.dismiss() }
         overlayControllers.removeAll()
     }
@@ -107,12 +112,10 @@ extension MacShotCaptureSession: OverlayWindowControllerDelegate {
             return
         }
         _ = complete(with: image)
-        dismissOverlayControllers()
     }
 
     func overlayDidRequestPin(_ controller: OverlayWindowController, image: NSImage) {
         _ = complete(with: image)
-        dismissOverlayControllers()
     }
 
     func overlayDidRequestOCR(_ controller: OverlayWindowController, text: String, image: NSImage?) {
@@ -121,12 +124,10 @@ extension MacShotCaptureSession: OverlayWindowControllerDelegate {
         } else {
             _ = cancel()
         }
-        dismissOverlayControllers()
     }
 
     func overlayDidRequestUpload(_ controller: OverlayWindowController, image: NSImage) {
         _ = complete(with: image)
-        dismissOverlayControllers()
     }
 
     func overlayDidRequestStartRecording(_ controller: OverlayWindowController, rect: NSRect, screen: NSScreen) {}
