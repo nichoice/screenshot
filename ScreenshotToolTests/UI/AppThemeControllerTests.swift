@@ -44,4 +44,12 @@ final class AppThemeControllerTests: XCTestCase {
         XCTAssertEqual(controller.appAppearanceName(for: .dark), .darkAqua)
         XCTAssertNil(controller.appAppearanceName(for: .followSystem))
     }
+
+    @MainActor
+    func testResolvedLogoAssetNameUsesThemeSpecificArtwork() {
+        let controller = AppThemeController()
+
+        XCTAssertEqual(controller.logoAssetName(for: .light), "AppLogoLight")
+        XCTAssertEqual(controller.logoAssetName(for: .dark), "AppLogoDark")
+    }
 }

@@ -1,25 +1,49 @@
 import AppKit
 import Combine
 
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     var environment: AppEnvironment?
     private var cancellables: Set<AnyCancellable> = []
+    private var appearanceObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         environment?.start()
         guard let themeController = environment?.themeController else { return }
 
-        applyAppearance(named: themeController.preferredAppAppearanceName)
+        applyTheme(themeController)
         themeController.$themePreference
-            .map { [weak themeController] _ in themeController?.preferredAppAppearanceName }
-            .sink { [weak self] appearanceName in
-                self?.applyAppearance(named: appearanceName ?? nil)
+            .sink { [weak self, weak themeController] _ in
+                guard let themeController else { return }
+                self?.applyTheme(themeController)
             }
             .store(in: &cancellables)
+
+        appearanceObserver = DistributedNotificationCenter.default().addObserver(
+            forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
+            object: nil,
+            queue: .main
+        ) { [weak self, weak themeController] _ in
+            Task { @MainActor in
+                guard let themeController else { return }
+                self?.applyTheme(themeController)
+            }
+        }
+    }
+
+    deinit {
+        if let appearanceObserver {
+            DistributedNotificationCenter.default().removeObserver(appearanceObserver)
+        }
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         !(environment?.preferencesStore.appPreferences.stayResidentAfterClosingWindow ?? true)
+    }
+
+    private func applyTheme(_ themeController: AppThemeController) {
+        applyAppearance(named: themeController.preferredAppAppearanceName)
+        applyApplicationIcon(using: themeController)
     }
 
     private func applyAppearance(named appearanceName: NSAppearance.Name?) {
@@ -28,5 +52,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             NSApp.appearance = nil
         }
+    }
+
+    private func applyApplicationIcon(using themeController: AppThemeController) {
+        let resolvedTheme = themeController.resolve(themeController.themePreference, systemIsDark: systemIsDark)
+        let logoAssetName = themeController.logoAssetName(for: resolvedTheme)
+        guard let image = NSImage(named: logoAssetName) else { return }
+
+        NSApp.applicationIconImage = image
+    }
+
+    private var systemIsDark: Bool {
+        NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
     }
 }

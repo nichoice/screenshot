@@ -61,4 +61,13 @@ final class AppThemeController: ObservableObject {
     var preferredAppAppearanceName: NSAppearance.Name? {
         appAppearanceName(for: themePreference)
     }
+
+    func logoAssetName(for resolvedTheme: ResolvedAppTheme) -> String {
+        switch resolvedTheme {
+        case .light:
+            "AppLogoLight"
+        case .dark:
+            "AppLogoDark"
+        }
+    }
 }

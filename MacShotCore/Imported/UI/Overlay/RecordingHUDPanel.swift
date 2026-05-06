@@ -1,9 +1,22 @@
 import Cocoa
 
+@MainActor
+protocol RecordingHUDPresenting: AnyObject {
+    var excludedWindowNumber: CGWindowID { get }
+    var onStopRecording: (() -> Void)? { get set }
+
+    func show(relativeTo screenRect: NSRect, screen: NSScreen)
+    func close()
+}
+
 /// Tiny always-on-top control used by the MVP recording flow.
 @MainActor
-final class RecordingHUDPanel: NSPanel {
+final class RecordingHUDPanel: NSPanel, RecordingHUDPresenting {
     var onStopRecording: (() -> Void)?
+
+    var excludedWindowNumber: CGWindowID {
+        CGWindowID(windowNumber)
+    }
 
     private let timeLabel = NSTextField(labelWithString: "00:00")
     private let stopButton = NSButton()
