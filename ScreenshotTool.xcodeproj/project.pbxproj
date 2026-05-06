@@ -30,6 +30,7 @@
 		1EE9538EEC249C82479D7340 /* MacShotPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = B333CE380A760D6FC76985D2 /* MacShotPreferences.swift */; };
 		1F093818C4A4B13EA259F1E7 /* EditorWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89DD236CB6C100C8BB5262EE /* EditorWindowController.swift */; };
 		215717DC6FD46C2B50019781 /* AnnotationEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9123B1C20B88413E9B0D7913 /* AnnotationEditorView.swift */; };
+		21B465512B1BAA1AC451F217 /* AppPresentationPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BC221B5BD222C3B2225CFD3 /* AppPresentationPolicyTests.swift */; };
 		2240650B39A6F6FE595E6F0C /* MacShotCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFFDA6995A47F3A6C7567785 /* MacShotCore.framework */; };
 		27847E0A090CAFBD23DA40CD /* OverlayWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E5E7FC44EE072D6182B36E0 /* OverlayWindowController.swift */; };
 		2981306F2B354E38B8A892D0 /* Annotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9E0951F3AEF61164F5A5FD /* Annotation.swift */; };
@@ -38,6 +39,7 @@
 		2AD45F3896C77905C4B2C55B /* AppThemeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2B32E5BF8618623ECFDFC7 /* AppThemeController.swift */; };
 		2B2DF926DA971A64954B9271 /* MacShotCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFFDA6995A47F3A6C7567785 /* MacShotCore.framework */; };
 		2FCC80F064E5FD15A7C4D1D2 /* MacShotCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DFFDA6995A47F3A6C7567785 /* MacShotCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		305FF9A4C8ACB8E47745D4D4 /* AppPresentationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E06F65D96E1BF66973B6A3CB /* AppPresentationPolicy.swift */; };
 		30997406B0D722F8D0701573 /* MacShotRecordingGeometryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CBCAACE681EAD4F06C30465 /* MacShotRecordingGeometryTests.swift */; };
 		31CA67326A3B70C86D4B8C30 /* AppEnvironmentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875AD71A1D39B8C33210C6DD /* AppEnvironmentTests.swift */; };
 		353B5BE7FA6BC80A9FDF8FDC /* TextEditingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B396BE7B7B753DB2E57C9904 /* TextEditingController.swift */; };
@@ -306,6 +308,7 @@
 		759DE94376F0FFF7DE591C2F /* FrontmostApplicationObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrontmostApplicationObserver.swift; sourceTree = "<group>"; };
 		78F059F6FC8AD03AB17BCE43 /* PermissionsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PermissionsService.swift; sourceTree = "<group>"; };
 		7AFB6630DF2ACEDF5434D646 /* CaptureSoundPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureSoundPlayer.swift; sourceTree = "<group>"; };
+		7BC221B5BD222C3B2225CFD3 /* AppPresentationPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPresentationPolicyTests.swift; sourceTree = "<group>"; };
 		7E7475D6EACEAAD83C1602E4 /* SettingsWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsWindowView.swift; sourceTree = "<group>"; };
 		801740C8329456E214F8C2A8 /* DefaultPermissionsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultPermissionsServiceTests.swift; sourceTree = "<group>"; };
 		8518466CF6E59A57849B5212 /* CaptureResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureResult.swift; sourceTree = "<group>"; };
@@ -387,6 +390,7 @@
 		DF0E78A29B7766EE08D0FF71 /* AppPreferencesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPreferencesStore.swift; sourceTree = "<group>"; };
 		DFFDA6995A47F3A6C7567785 /* MacShotCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MacShotCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0582ADA4901FB119A8B2D19 /* ClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardService.swift; sourceTree = "<group>"; };
+		E06F65D96E1BF66973B6A3CB /* AppPresentationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPresentationPolicy.swift; sourceTree = "<group>"; };
 		E1646D8B2B6DB49CD772733B /* AnnotationCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnotationCodable.swift; sourceTree = "<group>"; };
 		E71AAAC5F45D07ACD53124F5 /* DetachedEditorWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetachedEditorWindowController.swift; sourceTree = "<group>"; };
 		E94E9B81B464E5C82F5125A4 /* DetachedEditorWindowControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetachedEditorWindowControllerTests.swift; sourceTree = "<group>"; };
@@ -437,6 +441,7 @@
 			isa = PBXGroup;
 			children = (
 				875AD71A1D39B8C33210C6DD /* AppEnvironmentTests.swift */,
+				7BC221B5BD222C3B2225CFD3 /* AppPresentationPolicyTests.swift */,
 				C6BBC9B4820070149858F5F0 /* MacShotCaptureRoutingTests.swift */,
 				DE91E5A771AE4B8B09C11664 /* MacShotOutputRoutingTests.swift */,
 				02AB2175C714C22C6EA5BA9C /* ScreenshotToolSmokeTests.swift */,
@@ -754,6 +759,7 @@
 			children = (
 				874667A6E837D42B15A053C6 /* AppDelegate.swift */,
 				138DD3B0DF97E1FBCFE129B7 /* AppEnvironment.swift */,
+				E06F65D96E1BF66973B6A3CB /* AppPresentationPolicy.swift */,
 				089F0466C40FB3708A81CAA1 /* CaptureHotkeyHandler.swift */,
 				3238B1D4082244B13FD4E2E1 /* MainWindowRootView.swift */,
 				F2AD1441814010E378CEA2FD /* MenuBarController.swift */,
@@ -1109,6 +1115,7 @@
 				8C30AC932457E4403FE12C83 /* AppEnvironment.swift in Sources */,
 				8D09F5376590CC308EDBBBFB /* AppPreferences.swift in Sources */,
 				CFE4C8799011C5ADD2AAB84F /* AppPreferencesStore.swift in Sources */,
+				305FF9A4C8ACB8E47745D4D4 /* AppPresentationPolicy.swift in Sources */,
 				0B254AEBA1E71BFA3CF14D65 /* AppTheme.swift in Sources */,
 				2AD45F3896C77905C4B2C55B /* AppThemeController.swift in Sources */,
 				A0717731970B9FE74641A6DA /* AppearanceSettingsView.swift in Sources */,
@@ -1245,6 +1252,7 @@
 				AF73499ABB6E62A6F67C0607 /* AnnotationRendererTests.swift in Sources */,
 				31CA67326A3B70C86D4B8C30 /* AppEnvironmentTests.swift in Sources */,
 				14561089389CBB46680BEC5C /* AppPreferencesStoreTests.swift in Sources */,
+				21B465512B1BAA1AC451F217 /* AppPresentationPolicyTests.swift in Sources */,
 				B2734D332578E4FF6B80D380 /* AppThemeControllerTests.swift in Sources */,
 				3C84D8EF7ACDB672FC8E4178 /* CaptureCoordinatorTests.swift in Sources */,
 				4DB730BA33C0E1287BA45918 /* CaptureHistoryStoreTests.swift in Sources */,
@@ -1491,6 +1499,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1567,6 +1576,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSUIElement = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

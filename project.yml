@@ -32,6 +32,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.nic.ScreenshotTool
         PRODUCT_NAME: ScreenshotTool
         GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSUIElement: YES
     dependencies:
       - target: MacShotCore
   ScreenshotToolTests:

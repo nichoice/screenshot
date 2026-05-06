@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var appearanceObserver: NSObjectProtocol?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(AppPresentationPolicy.backgroundResidentActivationPolicy)
         environment?.start()
         guard let themeController = environment?.themeController else { return }
 
@@ -38,7 +39,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
-        !(environment?.preferencesStore.appPreferences.stayResidentAfterClosingWindow ?? true)
+        AppPresentationPolicy.shouldTerminateAfterLastWindowClosed
     }
 
     private func applyTheme(_ themeController: AppThemeController) {

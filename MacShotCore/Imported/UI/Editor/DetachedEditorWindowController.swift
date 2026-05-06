@@ -28,7 +28,6 @@ final class DetachedEditorWindowController: NSObject, NSWindowDelegate {
         fromCapture: Bool = false,
         disableBeautify: Bool = false
     ) {
-        NSApp.setActivationPolicy(.regular)
         let controller = DetachedEditorWindowController()
         controller.show(
             image: image,

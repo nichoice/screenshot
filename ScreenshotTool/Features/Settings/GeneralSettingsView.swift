@@ -7,13 +7,11 @@ struct GeneralSettingsView: View {
         VStack(alignment: .leading, spacing: 20) {
             SettingsSectionCard(
                 title: "应用行为",
-                description: "决定主窗口关闭后是否继续常驻，以及是否保留菜单栏入口。"
+                description: "Screenshot Tool 会以无 Dock 图标的方式后台常驻；这里可以决定是否额外保留菜单栏入口。"
             ) {
                 VStack(alignment: .leading, spacing: 14) {
-                    Toggle("关闭窗口后继续后台驻留", isOn: Binding(
-                        get: { viewModel.appPreferences.stayResidentAfterClosingWindow },
-                        set: viewModel.setStayResident
-                    ))
+                    statusRow("后台驻留", value: "已启用，关闭窗口后快捷键仍可用")
+                    statusRow("Dock 图标", value: "已隐藏")
 
                     Toggle("显示菜单栏图标", isOn: Binding(
                         get: { viewModel.appPreferences.showsMenuBarIcon },
@@ -27,7 +25,8 @@ struct GeneralSettingsView: View {
                 description: "快速确认当前常驻形态、主题策略和输入法自动化是否生效。"
             ) {
                 VStack(alignment: .leading, spacing: 12) {
-                    statusRow("后台驻留", value: viewModel.appPreferences.stayResidentAfterClosingWindow ? "已启用" : "关闭窗口时退出")
+                    statusRow("后台驻留", value: "已启用")
+                    statusRow("Dock 图标", value: "已隐藏")
                     statusRow("菜单栏入口", value: viewModel.appPreferences.showsMenuBarIcon ? "已显示" : "已隐藏")
                     statusRow("当前主题策略", value: themeLabel(viewModel.appPreferences.themePreference))
                     statusRow("输入法自动切换", value: viewModel.inputMethodPreferences.isEnabled ? "已启用" : "未启用")
