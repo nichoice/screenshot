@@ -17,6 +17,12 @@ final class AppPreferencesStoreTests: XCTestCase {
         XCTAssertTrue(store.inputMethodPreferences.isEnabled)
     }
 
+    func testGlobalHotkeyDisplayNameUsesReadableModifierOrder() {
+        let hotkey = GlobalHotkey(keyCode: 12, modifiers: [.shift, .command])
+
+        XCTAssertEqual(hotkey.displayName, "Command + Shift + Q")
+    }
+
     func testUpdateCapturePreferencesPersistsAcrossInstances() {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)

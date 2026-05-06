@@ -11,6 +11,7 @@ final class SettingsWindowViewModel: ObservableObject {
     private let loginItemService: LoginItemService
     private let inputMethodManager: InputMethodManager
     private let menuBarController: MenuBarVisibilityControlling?
+    private let reloadCaptureHotkey: () throws -> Void
 
     @Published private(set) var appPreferences: AppPreferences
     @Published private(set) var capturePreferences: CapturePreferences
@@ -19,6 +20,7 @@ final class SettingsWindowViewModel: ObservableObject {
     @Published private(set) var rules: [AppInputMethodRule]
     @Published private(set) var availableInputSources: [InputSourceDescriptor]
     @Published private(set) var permissionSnapshot: PermissionsSnapshot
+    @Published private(set) var captureHotkeyErrorMessage: String?
     @Published var selectedSidebarItemID: String?
 
     init(
@@ -28,7 +30,8 @@ final class SettingsWindowViewModel: ObservableObject {
         permissionsService: PermissionsService,
         loginItemService: LoginItemService,
         inputMethodManager: InputMethodManager,
-        menuBarController: MenuBarVisibilityControlling? = nil
+        menuBarController: MenuBarVisibilityControlling? = nil,
+        reloadCaptureHotkey: @escaping () throws -> Void = {}
     ) {
         self.sidebarItems = SettingsSidebarItem.defaultItems
         self.preferencesStore = preferencesStore
@@ -38,6 +41,7 @@ final class SettingsWindowViewModel: ObservableObject {
         self.loginItemService = loginItemService
         self.inputMethodManager = inputMethodManager
         self.menuBarController = menuBarController
+        self.reloadCaptureHotkey = reloadCaptureHotkey
         self.appPreferences = preferencesStore.appPreferences
         self.capturePreferences = preferencesStore.capturePreferences
         self.annotationPreferences = preferencesStore.annotationPreferences
@@ -73,6 +77,23 @@ final class SettingsWindowViewModel: ObservableObject {
     func setImageFormat(_ format: CaptureImageFormat) {
         preferencesStore.updateCapture { $0.imageFormat = format }
         capturePreferences = preferencesStore.capturePreferences
+    }
+
+    func setCaptureHotkey(_ hotkey: GlobalHotkey) throws {
+        let previousHotkey = preferencesStore.capturePreferences.hotkey
+        preferencesStore.updateCapture { $0.hotkey = hotkey.normalized }
+        capturePreferences = preferencesStore.capturePreferences
+
+        do {
+            try reloadCaptureHotkey()
+            captureHotkeyErrorMessage = nil
+        } catch {
+            preferencesStore.updateCapture { $0.hotkey = previousHotkey }
+            capturePreferences = preferencesStore.capturePreferences
+            try? reloadCaptureHotkey()
+            captureHotkeyErrorMessage = "快捷键注册失败，请换一个组合键。"
+            throw error
+        }
     }
 
     func setDefaultSaveDirectory(_ directory: URL) {

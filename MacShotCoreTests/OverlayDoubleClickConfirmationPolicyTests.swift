@@ -30,7 +30,7 @@ final class OverlayDoubleClickConfirmationPolicyTests: XCTestCase {
         XCTAssertFalse(policy.shouldRequestQuickSave)
     }
 
-    func testDoubleClickDoesNotRequestQuickSaveWhileTextToolIsActive() {
+    func testDoubleClickRequestsQuickSaveWhileTextToolIsActive() {
         let policy = OverlayDoubleClickConfirmationPolicy(
             clickCount: 2,
             state: .selected,
@@ -41,10 +41,10 @@ final class OverlayDoubleClickConfirmationPolicyTests: XCTestCase {
             isPointInsideSelection: true
         )
 
-        XCTAssertFalse(policy.shouldRequestQuickSave)
+        XCTAssertTrue(policy.shouldRequestQuickSave)
     }
 
-    func testDoubleClickDoesNotRequestQuickSaveWhileTextEditing() {
+    func testDoubleClickRequestsQuickSaveWhileTextEditing() {
         let policy = OverlayDoubleClickConfirmationPolicy(
             clickCount: 2,
             state: .selected,
@@ -55,7 +55,7 @@ final class OverlayDoubleClickConfirmationPolicyTests: XCTestCase {
             isPointInsideSelection: true
         )
 
-        XCTAssertFalse(policy.shouldRequestQuickSave)
+        XCTAssertTrue(policy.shouldRequestQuickSave)
     }
 
     func testDoubleClickDoesNotRequestQuickSaveOutsideSelection() {

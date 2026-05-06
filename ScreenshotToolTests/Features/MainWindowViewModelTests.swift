@@ -8,14 +8,39 @@ final class MainWindowViewModelTests: XCTestCase {
         let router = WindowRouter()
         let historyURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
         let historyStore = CaptureHistoryStore(fileURL: historyURL, limit: 5)
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
 
         let viewModel = MainWindowViewModel(
+            preferencesStore: preferencesStore,
             permissionsService: permissionsService,
             windowRouter: router,
             historyStore: historyStore
         )
 
         XCTAssertEqual(viewModel.shortcutSummary, "Command + Shift + 4")
+    }
+
+    @MainActor
+    func testShortcutSummaryUpdatesWhenCaptureHotkeyChanges() {
+        let permissionsService = LocalFakePermissionsService()
+        let router = WindowRouter()
+        let historyURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
+        let historyStore = CaptureHistoryStore(fileURL: historyURL, limit: 5)
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let viewModel = MainWindowViewModel(
+            preferencesStore: preferencesStore,
+            permissionsService: permissionsService,
+            windowRouter: router,
+            historyStore: historyStore
+        )
+
+        preferencesStore.updateCapture { $0.hotkey = GlobalHotkey(keyCode: 0, modifiers: [.command, .shift]) }
+
+        XCTAssertEqual(viewModel.shortcutSummary, "Command + Shift + A")
     }
 
     @MainActor

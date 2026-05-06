@@ -83,6 +83,74 @@ final class SettingsWindowViewModelTests: XCTestCase {
     }
 
     @MainActor
+    func testSetCaptureHotkeyPersistsSelectionAndReloadsGlobalHotkey() throws {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        var reloadCount = 0
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            ),
+            reloadCaptureHotkey: {
+                reloadCount += 1
+            }
+        )
+        let hotkey = GlobalHotkey(keyCode: 0, modifiers: [.command, .shift])
+
+        try viewModel.setCaptureHotkey(hotkey)
+
+        XCTAssertEqual(preferencesStore.capturePreferences.hotkey, hotkey)
+        XCTAssertEqual(viewModel.capturePreferences.hotkey, hotkey)
+        XCTAssertEqual(reloadCount, 1)
+    }
+
+    @MainActor
+    func testSetCaptureHotkeyRollsBackWhenGlobalReloadFails() throws {
+        struct ReloadError: Error {}
+
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        let originalHotkey = preferencesStore.capturePreferences.hotkey
+        var reloadCount = 0
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            ),
+            reloadCaptureHotkey: {
+                reloadCount += 1
+                throw ReloadError()
+            }
+        )
+
+        XCTAssertThrowsError(try viewModel.setCaptureHotkey(GlobalHotkey(keyCode: 0, modifiers: [.command, .shift])))
+
+        XCTAssertEqual(preferencesStore.capturePreferences.hotkey, originalHotkey)
+        XCTAssertEqual(viewModel.capturePreferences.hotkey, originalHotkey)
+        XCTAssertEqual(reloadCount, 2)
+        XCTAssertNotNil(viewModel.captureHotkeyErrorMessage)
+    }
+
+    @MainActor
     func testSetDefaultSaveDirectoryPersistsSelection() throws {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)

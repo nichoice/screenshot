@@ -63,6 +63,7 @@ final class AppEnvironment: ObservableObject {
         self.macShotCaptureEngine = macShotCaptureEngine ?? MacShotCaptureEngine()
         self.themeController = AppThemeController(preferencesStore: preferencesStore)
         self.mainWindowViewModel = MainWindowViewModel(
+            preferencesStore: preferencesStore,
             permissionsService: permissionsService,
             windowRouter: windowRouter,
             historyStore: historyStore,
@@ -75,7 +76,10 @@ final class AppEnvironment: ObservableObject {
             permissionsService: permissionsService,
             loginItemService: loginItemService,
             inputMethodManager: inputMethodManager,
-            menuBarController: menuBarController
+            menuBarController: menuBarController,
+            reloadCaptureHotkey: {
+                try hotkeyHandler.reload()
+            }
         )
         self.mainWindowViewModel.replaceStartCaptureAction { [weak self] in
             self?.startCapture()

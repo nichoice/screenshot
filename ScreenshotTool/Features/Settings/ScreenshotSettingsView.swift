@@ -3,6 +3,8 @@ import SwiftUI
 
 struct ScreenshotSettingsView: View {
     @ObservedObject var viewModel: SettingsWindowViewModel
+    @State private var isRecordingHotkey = false
+    @State private var hotkeyValidationMessage: String?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -11,7 +13,7 @@ struct ScreenshotSettingsView: View {
                 description: "控制截图热键后的默认处理方式和文件输出格式。"
             ) {
                 VStack(alignment: .leading, spacing: 16) {
-                    infoRow("截图快捷键", value: "Command + Shift + 4")
+                    hotkeyRow
 
                     Picker("默认动作", selection: Binding(
                         get: { viewModel.capturePreferences.defaultOutputAction },
@@ -63,6 +65,54 @@ struct ScreenshotSettingsView: View {
         }
     }
 
+    private var hotkeyRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .center, spacing: 12) {
+                infoRow(
+                    "截图快捷键",
+                    value: isRecordingHotkey ? "请按下新的快捷键组合" : viewModel.capturePreferences.hotkey.displayName
+                )
+                Spacer()
+                Button(isRecordingHotkey ? "取消" : "修改快捷键") {
+                    hotkeyValidationMessage = nil
+                    isRecordingHotkey.toggle()
+                }
+            }
+
+            if isRecordingHotkey {
+                HotkeyRecorderView(
+                    onCapture: { hotkey in
+                        guard !hotkey.modifiers.isEmpty else {
+                            hotkeyValidationMessage = "快捷键至少需要包含一个修饰键。"
+                            return
+                        }
+
+                        do {
+                            try viewModel.setCaptureHotkey(hotkey)
+                            hotkeyValidationMessage = nil
+                            isRecordingHotkey = false
+                        } catch {
+                            hotkeyValidationMessage = viewModel.captureHotkeyErrorMessage ?? "快捷键注册失败，请换一个组合键。"
+                        }
+                    },
+                    onCancel: {
+                        hotkeyValidationMessage = nil
+                        isRecordingHotkey = false
+                    }
+                )
+                .frame(height: 1)
+
+                Text(hotkeyValidationMessage ?? "按 Esc 取消，按新的组合键后立即保存并重新注册。")
+                    .font(.caption)
+                    .foregroundStyle(hotkeyValidationMessage == nil ? Color.secondary : Color.red)
+            } else if let error = viewModel.captureHotkeyErrorMessage {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+        }
+    }
+
     private func infoRow(_ title: String, value: String) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -103,5 +153,79 @@ struct ScreenshotSettingsView: View {
         case .openEditor:
             "截图后先打开编辑器再决定导出方式"
         }
+    }
+}
+
+private struct HotkeyRecorderView: NSViewRepresentable {
+    var onCapture: (GlobalHotkey) -> Void
+    var onCancel: () -> Void
+
+    func makeNSView(context: Context) -> HotkeyRecorderNSView {
+        HotkeyRecorderNSView(onCapture: onCapture, onCancel: onCancel)
+    }
+
+    func updateNSView(_ nsView: HotkeyRecorderNSView, context: Context) {
+        nsView.onCapture = onCapture
+        nsView.onCancel = onCancel
+        DispatchQueue.main.async {
+            nsView.window?.makeFirstResponder(nsView)
+        }
+    }
+}
+
+private final class HotkeyRecorderNSView: NSView {
+    var onCapture: (GlobalHotkey) -> Void
+    var onCancel: () -> Void
+
+    init(onCapture: @escaping (GlobalHotkey) -> Void, onCancel: @escaping () -> Void) {
+        self.onCapture = onCapture
+        self.onCancel = onCancel
+        super.init(frame: .zero)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override var acceptsFirstResponder: Bool { true }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.window?.makeFirstResponder(self)
+        }
+    }
+
+    override func keyDown(with event: NSEvent) {
+        if event.keyCode == 53 {
+            onCancel()
+            return
+        }
+
+        onCapture(
+            GlobalHotkey(
+                keyCode: UInt32(event.keyCode),
+                modifiers: Self.modifiers(from: event.modifierFlags)
+            )
+        )
+    }
+
+    private static func modifiers(from flags: NSEvent.ModifierFlags) -> [HotkeyModifier] {
+        var modifiers: [HotkeyModifier] = []
+        if flags.contains(.command) {
+            modifiers.append(.command)
+        }
+        if flags.contains(.shift) {
+            modifiers.append(.shift)
+        }
+        if flags.contains(.option) {
+            modifiers.append(.option)
+        }
+        if flags.contains(.control) {
+            modifiers.append(.control)
+        }
+        return modifiers
     }
 }

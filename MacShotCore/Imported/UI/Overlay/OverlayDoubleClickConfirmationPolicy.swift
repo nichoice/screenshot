@@ -12,8 +12,6 @@ struct OverlayDoubleClickConfirmationPolicy {
     var shouldRequestQuickSave: Bool {
         clickCount >= 2
             && state == .selected
-            && currentTool != .text
-            && !isTextEditing
             && !isRecording
             && !isScrollCapturing
             && isPointInsideSelection
