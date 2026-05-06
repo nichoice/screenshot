@@ -104,7 +104,16 @@ final class AppEnvironment: ObservableObject {
     }
 
     func handleMacShotCaptureResult(_ result: MacShotCaptureResult) {
-        guard let cgImage = result.image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+        if let recordingURL = result.recordingURL {
+            NSWorkspace.shared.activateFileViewerSelecting([recordingURL])
+            mainWindowViewModel.refresh()
+            return
+        }
+
+        guard
+            let image = result.image,
+            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        else { return }
 
         let defaultDirectory = defaultCaptureDirectory()
         let preferences = preferencesStore.capturePreferences

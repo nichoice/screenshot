@@ -17,7 +17,7 @@ public final class MacShotCaptureEngine {
     }
 
     public var isCapturing: Bool {
-        activeSession?.state == .running
+        activeSession?.state == .running || activeSession?.state == .recording
     }
 
     @discardableResult
@@ -26,7 +26,7 @@ public final class MacShotCaptureEngine {
         onComplete: @escaping (MacShotCaptureResult) -> Void = { _ in },
         onCancel: @escaping () -> Void = {}
     ) -> Bool {
-        guard activeSession?.state != .running else { return false }
+        guard activeSession?.state != .running && activeSession?.state != .recording else { return false }
         self.onComplete = onComplete
         self.onCancel = onCancel
         let session = MacShotCaptureSession(

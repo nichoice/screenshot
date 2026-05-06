@@ -6,6 +6,7 @@ public final class MacShotCaptureSession {
     public enum State: Equatable {
         case idle
         case running
+        case recording
         case cancelled
         case completed
     }
@@ -17,7 +18,10 @@ public final class MacShotCaptureSession {
     private let onComplete: ((MacShotCaptureResult) -> Void)?
     private let onCancel: (() -> Void)?
     private let onDismissOverlays: (() -> Void)?
+    private let recordingEngineFactory: @MainActor () -> MacShotRecordingEngine
     private var overlayControllers: [OverlayWindowController] = []
+    private var recordingEngine: MacShotRecordingEngine?
+    private var recordingHUDPanel: RecordingHUDPanel?
 
     public convenience init(preferences: MacShotPreferences) {
         self.init(preferences: preferences, presentsOverlay: true)
@@ -28,13 +32,17 @@ public final class MacShotCaptureSession {
         presentsOverlay: Bool,
         onComplete: ((MacShotCaptureResult) -> Void)? = nil,
         onCancel: (() -> Void)? = nil,
-        onDismissOverlays: (() -> Void)? = nil
+        onDismissOverlays: (() -> Void)? = nil,
+        recordingEngineFactory: @escaping @MainActor () -> MacShotRecordingEngine = {
+            ScreenCaptureKitRecordingEngine()
+        }
     ) {
         self.preferences = preferences
         self.presentsOverlay = presentsOverlay
         self.onComplete = onComplete
         self.onCancel = onCancel
         self.onDismissOverlays = onDismissOverlays
+        self.recordingEngineFactory = recordingEngineFactory
     }
 
     @discardableResult
@@ -50,7 +58,10 @@ public final class MacShotCaptureSession {
 
     @discardableResult
     public func cancel() -> Bool {
-        guard state == .running else { return false }
+        guard state == .running || state == .recording else { return false }
+        recordingEngine?.stopRecording()
+        recordingEngine = nil
+        closeRecordingHUD()
         dismissOverlayControllers()
         state = .cancelled
         onCancel?()
@@ -95,6 +106,11 @@ public final class MacShotCaptureSession {
         overlayControllers.forEach { $0.dismiss() }
         overlayControllers.removeAll()
     }
+
+    private func closeRecordingHUD() {
+        recordingHUDPanel?.close()
+        recordingHUDPanel = nil
+    }
 }
 
 extension MacShotCaptureSession: OverlayWindowControllerDelegate {
@@ -130,8 +146,48 @@ extension MacShotCaptureSession: OverlayWindowControllerDelegate {
         _ = complete(with: image)
     }
 
-    func overlayDidRequestStartRecording(_ controller: OverlayWindowController, rect: NSRect, screen: NSScreen) {}
-    func overlayDidRequestStopRecording(_ controller: OverlayWindowController) {}
+    func overlayDidRequestStartRecording(_ controller: OverlayWindowController, rect: NSRect, screen: NSScreen) {
+        guard state == .running else { return }
+
+        let engine = recordingEngineFactory()
+        recordingEngine = engine
+        state = .recording
+
+        let hud = RecordingHUDPanel()
+        hud.onStopRecording = { [weak self] in
+            self?.recordingEngine?.stopRecording()
+        }
+        hud.show(relativeTo: rect, screen: screen)
+        recordingHUDPanel = hud
+
+        let excludedWindowNumbers = overlayControllers.map(\.windowNumber) + [CGWindowID(hud.windowNumber)]
+        dismissOverlayControllers()
+
+        engine.startRecording(
+            rect: rect,
+            screen: screen,
+            excludeWindowNumbers: excludedWindowNumbers
+        ) { [weak self] url, _ in
+            guard let self else { return }
+            guard self.state == .recording else { return }
+            self.recordingEngine = nil
+            self.closeRecordingHUD()
+            guard let url else {
+                self.state = .cancelled
+                self.onCancel?()
+                return
+            }
+
+            let captureResult = MacShotCaptureResult(recordingURL: url)
+            self.result = captureResult
+            self.state = .completed
+            self.onComplete?(captureResult)
+        }
+    }
+
+    func overlayDidRequestStopRecording(_ controller: OverlayWindowController) {
+        recordingEngine?.stopRecording()
+    }
     func overlayDidRequestScrollCapture(_ controller: OverlayWindowController, rect: NSRect, screen: NSScreen) {}
     func overlayDidRequestStopScrollCapture(_ controller: OverlayWindowController) {}
     func overlayDidRequestToggleAutoScroll(_ controller: OverlayWindowController) {}

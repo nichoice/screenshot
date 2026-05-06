@@ -55,7 +55,7 @@ struct ToolbarButton {
 }
 
 enum MacShotCoreFeatureFlags {
-    static let recordingEnabled = false
+    static let recordingEnabled = true
     static let scrollCaptureEnabled = false
     static let uploadEnabled = false
     static let beautifyEnabled = false
@@ -280,52 +280,6 @@ class ToolbarLayout {
             buttons.append(
                 ToolbarButton(action: .stopRecord, sfSymbol: "xmark", tooltip: L("Cancel Recording")))
 
-            let mouseHighlightOn = UserDefaults.standard.bool(forKey: "recordMouseHighlight")
-            var mouseBtn = ToolbarButton(
-                action: .mouseHighlight, sfSymbol: "cursorarrow.click.2", tooltip: L("Highlight Mouse Clicks"))
-            mouseBtn.isSelected = mouseHighlightOn
-            buttons.append(mouseBtn)
-
-            let keystrokesOn = UserDefaults.standard.bool(forKey: "recordKeystroke")
-            var keystrokeBtn = ToolbarButton(
-                action: .showKeystrokes, sfSymbol: "keyboard", tooltip: L("Show Keystrokes"))
-            keystrokeBtn.isSelected = keystrokesOn
-            keystrokeBtn.hasContextMenu = true
-            buttons.append(keystrokeBtn)
-
-            let audioOn = UserDefaults.standard.bool(forKey: "recordSystemAudio")
-            var audioBtn = ToolbarButton(
-                action: .systemAudio, sfSymbol: audioOn ? "speaker.wave.2.fill" : "speaker.slash",
-                tooltip: L("Record System Audio"))
-            audioBtn.isSelected = audioOn
-            buttons.append(audioBtn)
-
-            let micOn = UserDefaults.standard.bool(forKey: "recordMicAudio")
-            var micBtn = ToolbarButton(
-                action: .micAudio, sfSymbol: micOn ? "mic.fill" : "mic.slash", tooltip: L("Record Microphone"))
-            micBtn.isSelected = micOn
-            micBtn.hasContextMenu = true
-            buttons.append(micBtn)
-
-            let webcamOn = UserDefaults.standard.bool(forKey: "recordWebcam")
-            let webcamSymbol: String = {
-                if #available(macOS 14.0, *) {
-                    return webcamOn ? "web.camera.fill" : "web.camera"
-                }
-                return webcamOn ? "camera.fill" : "camera"
-            }()
-            var webcamBtn = ToolbarButton(
-                action: .webcam, sfSymbol: webcamSymbol, tooltip: L("Webcam Overlay"))
-            webcamBtn.isSelected = webcamOn
-            webcamBtn.hasContextMenu = true
-            buttons.append(webcamBtn)
-
-            // Recording settings gear
-            buttons.append(
-                ToolbarButton(
-                    action: .recordSettings, sfSymbol: "gearshape",
-                    tooltip: L("Recording Settings")))
-
             // Allow moving the selection before starting
             buttons.append(
                 ToolbarButton(
@@ -432,7 +386,7 @@ class ToolbarLayout {
         }
 
         // Record (tag 1009) — hidden in editor mode. Right-click for options.
-        if MacShotCoreFeatureFlags.recordingEnabled && !isEditorMode && actionEnabled(1009) {
+        if MacShotCoreFeatureFlags.recordingEnabled && !isEditorMode {
             var recordBtn = ToolbarButton(
                 action: .record, sfSymbol: "video.fill", tooltip: L("Record"))
             recordBtn.tintColor = ToolbarLayout.iconColor
