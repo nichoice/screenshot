@@ -1,0 +1,76 @@
+
+name: Release macOS App
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+
+    runs-on: macos-26
+
+    permissions:
+      contents: write
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+
+    - name: Select Xcode
+      run: |
+        sudo xcode-select -s /Applications/Xcode.app
+        xcodebuild -version
+
+
+    - name: Install tools
+      run: |
+        brew install xcodegen create-dmg
+
+
+    - name: Generate project
+      run:
+        make generate
+
+
+    - name: Test
+      run:
+        make test
+
+
+    - name: Build Archive
+      run: |
+        xcodebuild \
+          -project ScreenshotTool.xcodeproj \
+          -scheme ScreenshotTool \
+          -configuration Release \
+          -archivePath build/ScreenshotTool.xcarchive \
+          archive
+
+
+    - name: Export App
+      run: |
+        mkdir release
+
+        cp -R \
+        build/ScreenshotTool.xcarchive/Products/Applications/ScreenshotTool.app \
+        release/
+
+
+    - name: Create DMG
+      run: |
+        create-dmg \
+          --volname "ScreenshotTool" \
+          --window-size 600 400 \
+          release/ScreenshotTool.dmg \
+          release/ScreenshotTool.app
+
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          release/SnapGo.dmg
