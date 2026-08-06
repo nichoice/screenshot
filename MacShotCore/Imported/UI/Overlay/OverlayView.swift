@@ -4514,6 +4514,7 @@ class OverlayView: NSView {
             isScrollCapturing: isScrollCapturing,
             isPointInsideSelection: pointIsInSelection(point)
         ).shouldRequestQuickSave {
+            prepareForPureQuickSaveGesture()
             overlayDelegate?.overlayViewDidRequestQuickSave()
             return
         }
@@ -6777,6 +6778,32 @@ class OverlayView: NSView {
         needsDisplay = true
     }
 
+    private func prepareForPureQuickSaveGesture() {
+        if textEditView != nil {
+            commitTextFieldIfNeeded()
+        }
+
+        showToolbars = false
+        selectedAnnotations = []
+        currentAnnotation = nil
+        isDraggingAnnotation = false
+        didMoveAnnotation = false
+        isResizingAnnotation = false
+        isRotatingAnnotation = false
+        isResizingTextBox = false
+        isLassoSelecting = false
+        lassoRect = .zero
+        shiftClickPendingDeselect = nil
+        annotationResizeHandle = .none
+        cachedAnnotationLayerExcludingSelected = nil
+        cachedAnnotationLayer = nil
+        PopoverHelper.dismiss()
+        colorWheel.dismiss()
+        window?.makeFirstResponder(self)
+        needsDisplay = true
+        displayIfNeeded()
+    }
+
     private func toggleKeystrokeOverlay() {
         let current = UserDefaults.standard.bool(forKey: "recordKeystroke")
         if current {
@@ -7721,6 +7748,15 @@ class OverlayView: NSView {
         showToolbars = false
         needsDisplay = true
     }
+
+    #if DEBUG
+    var selectedAnnotationCountForTesting: Int { selectedAnnotations.count }
+
+    func beginTextEditingForTesting(at point: NSPoint, text: String) {
+        showTextField(at: point)
+        textEditor.textView?.string = text
+    }
+    #endif
 
     // MARK: - Tool options API (used by ToolOptionsRowView)
 

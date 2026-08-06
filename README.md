@@ -1,6 +1,6 @@
-# ScreenshotTool
+# SnapPii
 
-ScreenshotTool is a personal macOS screenshot utility for MacBook Air M4. It combines a `macshot`-style capture and annotation overlay with this app's own settings UI, output routing, menu bar behavior, hotkeys, and input source automation.
+SnapPii is a personal macOS screenshot utility for MacBook Air M4. It combines a `macshot`-style capture and annotation overlay with this app's own settings UI, output routing, menu bar behavior, hotkeys, and input source automation.
 
 ## Features
 
@@ -15,7 +15,7 @@ ScreenshotTool is a personal macOS screenshot utility for MacBook Air M4. It com
 
 ## Output Boundary
 
-- Clipboard-only screenshots are copied to the system clipboard only. ScreenshotTool does not write a saved image, preview cache image, or main-window history item for that action.
+- Clipboard-only screenshots are copied to the system clipboard only. SnapPii does not write a saved image, preview cache image, or main-window history item for that action.
 - Save-only and copy-and-save screenshots write image files to the configured default save directory. The default directory is the Desktop.
 - Edit-first screenshots remain in the annotation overlay until the user explicitly chooses copy, save, share, or another toolbar action.
 
@@ -42,9 +42,9 @@ The app currently uses these `macshot`-derived technologies:
 | Annotation tools | Arrow, line, rectangle, filled rectangle, ellipse, pencil, marker, text, number, pixelate/blur, measure, loupe, stamp, and color sampling tool handlers. |
 | Toolbar and popovers | Floating annotation toolbar, tool option rows, color/font/effects/emoji/gradient/list popovers, and toolbar feature gating. |
 | Image utilities | Image encoding, image effects, beautify rendering, OCR helper, barcode detection, filename formatting, temporary share files, and language helper utilities where needed by the imported core. |
-| Preferences bridge | `MacShotPreferencesAdapter` maps ScreenshotTool settings into the `UserDefaults` keys expected by the imported `macshot` core. |
+| Preferences bridge | `MacShotPreferencesAdapter` maps SnapPii settings into the `UserDefaults` keys expected by the imported `macshot` core. |
 
-The app intentionally does not use `macshot` as a whole application. ScreenshotTool keeps its own SwiftUI settings UI, main window, save-directory ownership, output routing, menu bar behavior, app theme settings, hotkey ownership, GitHub workflow, and input source automation. Some imported `macshot` features that are outside the current screenshot path are disabled or shimmed in `MacShotCore/Imported/MacShotFeatureShims.swift`.
+The app intentionally does not use `macshot` as a whole application. SnapPii keeps its own SwiftUI settings UI, main window, save-directory ownership, output routing, menu bar behavior, app theme settings, hotkey ownership, GitHub workflow, and input source automation. Some imported `macshot` features that are outside the current screenshot path are disabled or shimmed in `MacShotCore/Imported/MacShotFeatureShims.swift`.
 
 ## Requirements
 
@@ -92,17 +92,36 @@ make test-only TEST=MacShotCoreTests/OverlayWindowControllerTests
 
 ## Local Deployment
 
-For manual permission testing, copy the built app into `/Applications`:
+For manual permission testing, build the app and copy the same app bundle into `/Applications`:
 
 ```bash
-pkill -x ScreenshotTool
-rm -rf /Applications/ScreenshotTool.app
-cp -R .build/xcode/Build/Products/Debug/ScreenshotTool.app /Applications/ScreenshotTool.app
-codesign --force --deep --sign - /Applications/ScreenshotTool.app
-open -n /Applications/ScreenshotTool.app
+pkill -x SnapPii
+./script/build_and_run.sh --verify
+rm -rf /Applications/SnapPii.app
+cp -R .build/xcode/Build/Products/Debug/SnapPii.app /Applications/SnapPii.app
+open -n /Applications/SnapPii.app
 ```
 
-The command above uses ad-hoc signing. macOS privacy permissions are tied to the running app identity, and ad-hoc builds can change identity after rebuilds. If System Settings shows permissions enabled but the app still reports them as denied, remove and re-add the current `/Applications/ScreenshotTool.app` entry, then restart the app.
+macOS privacy permissions are tied to the app's bundle identifier and code signing identity. The build and DMG scripts try to sign with a stable Apple identity in this order:
+
+- `SNAPPII_CODESIGN_IDENTITY`, when explicitly set.
+- `Developer ID Application`, for Release builds.
+- `Apple Development`, for Debug builds.
+
+If no Apple signing identity is installed, the scripts continue with the app produced by Xcode and print a warning. In that fallback mode macOS may treat each rebuild as a new app, so Screen Recording or Accessibility authorization can need to be granted again.
+
+To check local signing identities:
+
+```bash
+security find-identity -p codesigning -v
+```
+
+To force a specific identity:
+
+```bash
+SNAPPII_CODESIGN_IDENTITY="Apple Development: Your Name (TEAMID)" ./script/build_and_run.sh --verify
+SNAPPII_CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" ./script/package_dmg.sh
+```
 
 ## Permissions
 

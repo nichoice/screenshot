@@ -44,7 +44,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "05A05D1C602AC3E853F5060F"
-               BuildableName = "ScreenshotTool.app"
+               BuildableName = "SnapPii.app"
                BlueprintName = "ScreenshotTool"
                ReferencedContainer = "container:ScreenshotTool.xcodeproj">
             </BuildableReference>

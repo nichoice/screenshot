@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP_NAME="${APP_NAME:-ScreenshotTool}"
+APP_NAME="${APP_NAME:-SnapPii}"
 SCHEME="${SCHEME:-ScreenshotTool}"
 PROJECT="${PROJECT:-ScreenshotTool.xcodeproj}"
 CONFIGURATION="${CONFIGURATION:-Release}"
@@ -13,20 +13,38 @@ STAGING_DIR="${STAGING_DIR:-$ROOT_DIR/.build/dmg-staging}"
 
 APP_BUNDLE="$DERIVED_DATA/Build/Products/$CONFIGURATION/$APP_NAME.app"
 
+source "$ROOT_DIR/script/signing.sh"
+source "$ROOT_DIR/script/versioning.sh"
+
 cd "$ROOT_DIR"
 
 echo "==> Building $APP_NAME ($CONFIGURATION)"
-xcodebuild \
-  -project "$PROJECT" \
-  -scheme "$SCHEME" \
-  -configuration "$CONFIGURATION" \
-  -derivedDataPath "$DERIVED_DATA" \
-  build
+build_timestamp="$(screenshottool_build_timestamp)"
+xcodebuild_args=(
+  -project "$PROJECT"
+  -scheme "$SCHEME"
+  -configuration "$CONFIGURATION"
+  -derivedDataPath "$DERIVED_DATA"
+)
+
+while IFS= read -r version_arg; do
+  [[ -n "$version_arg" ]] && xcodebuild_args+=("$version_arg")
+done < <(xcodebuild_version_args "$build_timestamp")
+
+while IFS= read -r signing_arg; do
+  [[ -n "$signing_arg" ]] && xcodebuild_args+=("$signing_arg")
+done < <(xcodebuild_signing_args "$CONFIGURATION")
+
+echo "==> Version $(screenshottool_marketing_version "$build_timestamp") ($build_timestamp)"
+
+xcodebuild "${xcodebuild_args[@]}" build
 
 if [[ ! -d "$APP_BUNDLE" ]]; then
   echo "error: app bundle not found at $APP_BUNDLE" >&2
   exit 1
 fi
+
+codesign_app_bundle "$APP_BUNDLE" "$CONFIGURATION"
 
 APP_INFO_PLIST="$APP_BUNDLE/Contents/Info.plist"
 VERSION="${VERSION:-$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP_INFO_PLIST" 2>/dev/null || true)}"

@@ -22,7 +22,7 @@ struct ScreenshotToolApp: App {
             )
             .preferredColorScheme(themeController.preferredColorScheme)
         }
-        Window("Settings", id: "settings") {
+        Window("SnapPii Settings", id: "settings") {
             SettingsWindowView(viewModel: environment.settingsWindowViewModel)
                 .preferredColorScheme(themeController.preferredColorScheme)
         }

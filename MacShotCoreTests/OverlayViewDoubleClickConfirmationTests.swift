@@ -35,6 +35,45 @@ final class OverlayViewDoubleClickConfirmationTests: XCTestCase {
 
         XCTAssertEqual(delegate.quickSaveRequestCount, 1)
     }
+
+    func testDoubleClickCommitsTextAndClearsTransientEditingChromeBeforeQuickSave() throws {
+        let view = OverlayView(frame: NSRect(x: 0, y: 0, width: 400, height: 300))
+        let window = NSWindow(
+            contentRect: view.bounds,
+            styleMask: .borderless,
+            backing: .buffered,
+            defer: false
+        )
+        window.contentView = view
+
+        let delegate = OverlayViewDelegateSpy()
+        view.overlayDelegate = delegate
+        view.currentTool = .text
+        view.applySelection(NSRect(x: 40, y: 40, width: 220, height: 160))
+        view.beginTextEditingForTesting(at: NSPoint(x: 100, y: 100), text: "hello")
+
+        let event = try XCTUnwrap(NSEvent.mouseEvent(
+            with: .leftMouseDown,
+            location: NSPoint(x: 110, y: 110),
+            modifierFlags: [],
+            timestamp: 0,
+            windowNumber: window.windowNumber,
+            context: nil,
+            eventNumber: 2,
+            clickCount: 2,
+            pressure: 1
+        ))
+
+        view.mouseDown(with: event)
+
+        XCTAssertEqual(delegate.quickSaveRequestCount, 1)
+        XCTAssertNil(view.textEditView)
+        XCTAssertFalse(view.showToolbars)
+        XCTAssertEqual(view.selectedAnnotationCountForTesting, 0)
+        XCTAssertEqual(view.annotations.count, 1)
+        XCTAssertEqual(view.annotations.first?.tool, .text)
+        XCTAssertEqual(view.annotations.first?.text, "hello")
+    }
 }
 
 @MainActor

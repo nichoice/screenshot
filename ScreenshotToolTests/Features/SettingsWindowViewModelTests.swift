@@ -3,6 +3,33 @@ import XCTest
 
 final class SettingsWindowViewModelTests: XCTestCase {
     @MainActor
+    func testAppVersionDisplayNameUsesBundleShortVersionAndBuildNumber() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            ),
+            bundle: InfoPlistTestBundle(values: [
+                "CFBundleShortVersionString": "0.1.1234",
+                "CFBundleVersion": "1777771234"
+            ])
+        )
+
+        XCTAssertEqual(viewModel.appVersionDisplayName, "0.1.1234")
+    }
+
+    @MainActor
     func testSetLaunchAtLoginPersistsAndCallsService() throws {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)
@@ -30,6 +57,37 @@ final class SettingsWindowViewModelTests: XCTestCase {
 
         XCTAssertTrue(preferencesStore.appPreferences.launchAtLogin)
         XCTAssertEqual(loginItemService.lastSetValue, true)
+        XCTAssertTrue(viewModel.launchAtLoginStatus)
+    }
+
+    @MainActor
+    func testSetGlobalInputSourceAppliesImmediatelyToFrontmostApplication() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(
+            fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
+        )
+        let inputSourceService = FakeSettingsInputSourceService(current: "com.apple.inputmethod.SCIM.WBX")
+        let manager = InputMethodManager(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: inputSourceService,
+            matcher: InputMethodRuleMatcher()
+        )
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: inputSourceService,
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: manager
+        )
+
+        viewModel.setInputMethodEnabled(true)
+        viewModel.setGlobalInputSourceID("com.apple.keylayout.ABC")
+
+        XCTAssertEqual(inputSourceService.selectedIDs, ["com.apple.keylayout.ABC"])
     }
 
     @MainActor
@@ -354,17 +412,26 @@ private final class FakePermissionsService: PermissionsService {
 }
 
 private final class FakeSettingsInputSourceService: InputSourceService {
+    var current: String
+    private(set) var selectedIDs: [String] = []
+
+    init(current: String = "com.apple.keylayout.ABC") {
+        self.current = current
+    }
+
     func availableInputSources() -> [InputSourceDescriptor] {
         [InputSourceDescriptor(id: "com.apple.keylayout.ABC", localizedName: "ABC")]
     }
 
     func currentInputSourceID() -> String? {
-        "com.apple.keylayout.ABC"
+        current
     }
 
     @discardableResult
     func selectInputSource(id: String) -> Bool {
-        true
+        selectedIDs.append(id)
+        current = id
+        return true
     }
 }
 
@@ -374,5 +441,18 @@ private final class FakeMenuBarController: MenuBarVisibilityControlling {
 
     func setVisible(_ visible: Bool) {
         visibleValues.append(visible)
+    }
+}
+
+private final class InfoPlistTestBundle: Bundle, @unchecked Sendable {
+    private let values: [String: Any]
+
+    init(values: [String: Any]) {
+        self.values = values
+        super.init()
+    }
+
+    override func object(forInfoDictionaryKey key: String) -> Any? {
+        values[key]
     }
 }

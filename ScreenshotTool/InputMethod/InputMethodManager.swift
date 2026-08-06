@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 @MainActor
@@ -24,13 +25,18 @@ final class InputMethodManager: ObservableObject {
         self.observer = observer
     }
 
-    func startObserving() {
+    func startObserving(initialBundleIdentifier: String? = nil) {
         observer?.onChange = { [weak self] bundleIdentifier in
             Task { @MainActor in
                 self?.handleFrontmostApplicationChange(bundleIdentifier: bundleIdentifier)
             }
         }
         observer?.start()
+        if let initialBundleIdentifier {
+            handleFrontmostApplicationChange(bundleIdentifier: initialBundleIdentifier)
+        } else {
+            applyToFrontmostApplication()
+        }
     }
 
     func stopObserving() {
@@ -67,6 +73,12 @@ final class InputMethodManager: ObservableObject {
             lastBundleIdentifier: bundleIdentifier,
             lastTargetInputSourceID: target,
             lastSwitchSucceeded: succeeded
+        )
+    }
+
+    func applyToFrontmostApplication() {
+        handleFrontmostApplicationChange(
+            bundleIdentifier: NSWorkspace.shared.frontmostApplication?.bundleIdentifier
         )
     }
 

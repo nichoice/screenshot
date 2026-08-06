@@ -27,7 +27,7 @@ struct DiagnosticsSettingsView: View {
                         viewModel.refreshPermissions()
                     }
 
-                    Text("如果系统设置里已经打开，但这里仍显示未授权，请确认系统设置中授权的是当前正在运行的 ScreenshotTool.app。Debug 版本通常位于项目的 .build/xcode/Build/Products/Debug 目录。")
+                    Text("如果系统设置里已经打开，但这里仍显示未授权，请确认系统设置中授权的是当前正在运行的 SnapPii.app。Debug 版本通常位于项目的 .build/xcode/Build/Products/Debug 目录。")
                         .font(.caption)
                         .foregroundStyle(.secondary)
 

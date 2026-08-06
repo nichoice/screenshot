@@ -7,17 +7,28 @@ public final class MacShotCaptureEngine {
     private var onComplete: ((MacShotCaptureResult) -> Void)?
     private var onCancel: (() -> Void)?
     private let presentsOverlay: Bool
+    private let prewarmAction: @MainActor () -> Void
 
     public convenience init() {
         self.init(presentsOverlay: true)
     }
 
-    init(presentsOverlay: Bool) {
+    init(
+        presentsOverlay: Bool,
+        prewarmAction: @escaping @MainActor () -> Void = {
+            ScreenCaptureManager.prewarm()
+        }
+    ) {
         self.presentsOverlay = presentsOverlay
+        self.prewarmAction = prewarmAction
     }
 
     public var isCapturing: Bool {
         activeSession?.state == .running || activeSession?.state == .recording
+    }
+
+    public func prepareForCapture() {
+        prewarmAction()
     }
 
     @discardableResult

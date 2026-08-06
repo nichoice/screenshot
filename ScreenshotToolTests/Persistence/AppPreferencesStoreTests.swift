@@ -61,4 +61,42 @@ final class AppPreferencesStoreTests: XCTestCase {
         XCTAssertEqual(store.capturePreferences.hotkey, .defaultCapture)
         XCTAssertEqual(store.capturePreferences.defaultSaveDirectoryPath, FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].path)
     }
+
+    func testLegacyBundlePreferencesMigrateWithoutOverwritingNewValues() throws {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let legacyApp = AppPreferences(
+            stayResidentAfterClosingWindow: true,
+            showsMenuBarIcon: false,
+            launchAtLogin: true,
+            themePreference: .dark
+        )
+        let legacyCapture = CapturePreferences(
+            hotkey: .defaultCapture,
+            defaultSaveDirectoryPath: "/tmp/legacy-snapshots",
+            defaultOutputAction: .saveOnly,
+            imageFormat: .jpeg,
+            includeCursor: true,
+            playCaptureSound: true
+        )
+        let currentApp = AppPreferences(
+            stayResidentAfterClosingWindow: true,
+            showsMenuBarIcon: true,
+            launchAtLogin: false,
+            themePreference: .light
+        )
+        defaults.set(try JSONEncoder().encode(currentApp), forKey: "app")
+
+        let store = AppPreferencesStore(
+            userDefaults: defaults,
+            legacyPersistentDomain: [
+                "app": try JSONEncoder().encode(legacyApp),
+                "capture": try JSONEncoder().encode(legacyCapture),
+            ]
+        )
+
+        XCTAssertEqual(store.appPreferences.themePreference, .light)
+        XCTAssertEqual(store.capturePreferences.defaultOutputAction, .saveOnly)
+        XCTAssertEqual(store.capturePreferences.defaultSaveDirectoryPath, "/tmp/legacy-snapshots")
+    }
 }

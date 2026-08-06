@@ -21,7 +21,7 @@ final class MenuBarController: MenuBarVisibilityControlling {
         if visible {
             if statusItem == nil {
                 let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-                item.button?.title = "Shot"
+                item.button?.title = "SnapPii"
                 let menu = NSMenu()
                 menu.addItem(withTitle: "Capture", action: #selector(handleCapture), keyEquivalent: "")
                 menu.addItem(withTitle: "Settings", action: #selector(handleSettings), keyEquivalent: "")

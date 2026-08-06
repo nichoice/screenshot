@@ -70,6 +70,35 @@ final class InputMethodManagerTests: XCTestCase {
         XCTAssertEqual(manager.status.lastTargetInputSourceID, "com.apple.inputmethod.SCIM.WBX")
         XCTAssertEqual(manager.status.lastSwitchSucceeded, true)
     }
+
+    @MainActor
+    func testStartObservingAppliesGlobalDefaultToInitialFrontmostApplication() {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        preferencesStore.updateInputMethod {
+            $0.isEnabled = true
+            $0.globalDefaultInputSourceID = "com.apple.keylayout.ABC"
+        }
+
+        let rulesURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json")
+        try? FileManager.default.removeItem(at: rulesURL)
+        let rulesStore = InputMethodRulesStore(fileURL: rulesURL)
+        let service = FakeInputSourceService(current: "com.apple.inputmethod.SCIM.WBX")
+        let manager = InputMethodManager(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: service,
+            matcher: InputMethodRuleMatcher(),
+            observer: FakeFrontmostApplicationObserver()
+        )
+
+        manager.startObserving(initialBundleIdentifier: "com.apple.finder")
+
+        XCTAssertEqual(service.selectedIDs, ["com.apple.keylayout.ABC"])
+        XCTAssertEqual(manager.status.lastTargetInputSourceID, "com.apple.keylayout.ABC")
+        XCTAssertEqual(manager.status.lastSwitchSucceeded, true)
+    }
 }
 
 private final class FakeInputSourceService: InputSourceService {

@@ -66,4 +66,90 @@ final class MacShotCaptureSessionTests: XCTestCase {
         XCTAssertEqual(received?.capturedAt, Date(timeIntervalSince1970: 321))
         XCTAssertFalse(engine.isCapturing)
     }
+
+    func testShareableContentCacheCoalescesConcurrentLoads() async throws {
+        var loadCount = 0
+        let cache = ShareableContentCache<Int> {
+            loadCount += 1
+            try await Task.sleep(nanoseconds: 20_000_000)
+            return 42
+        }
+
+        async let first = cache.value()
+        async let second = cache.value()
+        let (firstValue, secondValue) = try await (first, second)
+
+        XCTAssertEqual(firstValue, 42)
+        XCTAssertEqual(secondValue, 42)
+        XCTAssertEqual(loadCount, 1)
+    }
+
+    func testShareableContentCacheReloadsOnlyAfterInvalidation() async throws {
+        var loadCount = 0
+        let cache = ShareableContentCache<Int> {
+            loadCount += 1
+            return loadCount
+        }
+
+        let firstValue = try await cache.value()
+        let cachedValue = try await cache.value()
+        cache.invalidate()
+        let reloadedValue = try await cache.value()
+
+        XCTAssertEqual(firstValue, 1)
+        XCTAssertEqual(cachedValue, 1)
+        XCTAssertEqual(reloadedValue, 2)
+    }
+
+    func testShareableContentCacheCanAdoptFreshFallbackValue() async throws {
+        var loadCount = 0
+        let cache = ShareableContentCache<Int> {
+            loadCount += 1
+            return 1
+        }
+
+        let initialValue = try await cache.value()
+        cache.replace(with: 7)
+        let replacedValue = try await cache.value()
+
+        XCTAssertEqual(initialValue, 1)
+        XCTAssertEqual(replacedValue, 7)
+        XCTAssertEqual(loadCount, 1)
+    }
+
+    func testCaptureExclusionPrefersCurrentApplicationOverFreshWindowEnumeration() {
+        XCTAssertEqual(
+            ScreenCaptureExclusionStrategy.resolve(
+                currentApplicationAvailable: true,
+                excludedWindowCount: 2
+            ),
+            .currentApplication
+        )
+        XCTAssertEqual(
+            ScreenCaptureExclusionStrategy.resolve(
+                currentApplicationAvailable: false,
+                excludedWindowCount: 2
+            ),
+            .freshWindows
+        )
+        XCTAssertEqual(
+            ScreenCaptureExclusionStrategy.resolve(
+                currentApplicationAvailable: false,
+                excludedWindowCount: 0
+            ),
+            .cachedWindows
+        )
+    }
+
+    func testEnginePrepareForCaptureInvokesPrewarmAction() {
+        var prepareCount = 0
+        let engine = MacShotCaptureEngine(
+            presentsOverlay: false,
+            prewarmAction: { prepareCount += 1 }
+        )
+
+        engine.prepareForCapture()
+
+        XCTAssertEqual(prepareCount, 1)
+    }
 }

@@ -12,6 +12,7 @@ final class SettingsWindowViewModel: ObservableObject {
     private let inputMethodManager: InputMethodManager
     private let menuBarController: MenuBarVisibilityControlling?
     private let reloadCaptureHotkey: () throws -> Void
+    private let bundle: Bundle
 
     @Published private(set) var appPreferences: AppPreferences
     @Published private(set) var capturePreferences: CapturePreferences
@@ -21,6 +22,8 @@ final class SettingsWindowViewModel: ObservableObject {
     @Published private(set) var availableInputSources: [InputSourceDescriptor]
     @Published private(set) var permissionSnapshot: PermissionsSnapshot
     @Published private(set) var captureHotkeyErrorMessage: String?
+    @Published private(set) var launchAtLoginStatus: Bool
+    @Published private(set) var launchAtLoginErrorMessage: String?
     @Published var selectedSidebarItemID: String?
 
     init(
@@ -31,6 +34,7 @@ final class SettingsWindowViewModel: ObservableObject {
         loginItemService: LoginItemService,
         inputMethodManager: InputMethodManager,
         menuBarController: MenuBarVisibilityControlling? = nil,
+        bundle: Bundle = .main,
         reloadCaptureHotkey: @escaping () throws -> Void = {}
     ) {
         self.sidebarItems = SettingsSidebarItem.defaultItems
@@ -42,6 +46,7 @@ final class SettingsWindowViewModel: ObservableObject {
         self.inputMethodManager = inputMethodManager
         self.menuBarController = menuBarController
         self.reloadCaptureHotkey = reloadCaptureHotkey
+        self.bundle = bundle
         self.appPreferences = preferencesStore.appPreferences
         self.capturePreferences = preferencesStore.capturePreferences
         self.annotationPreferences = preferencesStore.annotationPreferences
@@ -49,13 +54,27 @@ final class SettingsWindowViewModel: ObservableObject {
         self.rules = rulesStore.rules
         self.availableInputSources = inputSourceService.availableInputSources()
         self.permissionSnapshot = permissionsService.currentSnapshot()
+        self.launchAtLoginStatus = loginItemService.currentStatus()
+        self.launchAtLoginErrorMessage = nil
         self.selectedSidebarItemID = self.sidebarItems.first?.id
     }
 
     func setLaunchAtLogin(_ enabled: Bool) throws {
-        try loginItemService.setLaunchAtLogin(enabled)
-        preferencesStore.updateApp { $0.launchAtLogin = enabled }
-        appPreferences = preferencesStore.appPreferences
+        do {
+            try loginItemService.setLaunchAtLogin(enabled)
+            preferencesStore.updateApp { $0.launchAtLogin = enabled }
+            appPreferences = preferencesStore.appPreferences
+            launchAtLoginStatus = enabled
+            launchAtLoginErrorMessage = nil
+        } catch {
+            launchAtLoginStatus = loginItemService.currentStatus()
+            launchAtLoginErrorMessage = "开机启动设置失败，请在系统设置的登录项中确认。"
+            throw error
+        }
+    }
+
+    func refreshLaunchAtLoginStatus() {
+        launchAtLoginStatus = loginItemService.currentStatus()
     }
 
     func setMenuBarIconVisible(_ enabled: Bool) {
@@ -129,11 +148,13 @@ final class SettingsWindowViewModel: ObservableObject {
     func setInputMethodEnabled(_ enabled: Bool) {
         preferencesStore.updateInputMethod { $0.isEnabled = enabled }
         inputMethodPreferences = preferencesStore.inputMethodPreferences
+        inputMethodManager.applyToFrontmostApplication()
     }
 
     func setGlobalInputSourceID(_ id: String?) {
         preferencesStore.updateInputMethod { $0.globalDefaultInputSourceID = id }
         inputMethodPreferences = preferencesStore.inputMethodPreferences
+        inputMethodManager.applyToFrontmostApplication()
     }
 
     func setThemePreference(_ preference: AppThemePreference) {
@@ -196,5 +217,15 @@ final class SettingsWindowViewModel: ObservableObject {
             let items = sidebarItems.filter { $0.groupTitle == group }
             return items.isEmpty ? nil : (group, items)
         }
+    }
+
+    var appVersionDisplayName: String {
+        guard let shortVersion = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String,
+              !shortVersion.isEmpty
+        else {
+            return "未知"
+        }
+
+        return shortVersion
     }
 }

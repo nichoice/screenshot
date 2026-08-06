@@ -241,7 +241,7 @@ final class ScreenCaptureKitRecordingEngine: NSObject, MacShotRecordingEngine {
     private func makeOutputURL() -> URL {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd HH.mm.ss.SSS"
-        let baseName = "ScreenshotTool Recording \(formatter.string(from: Date()))"
+        let baseName = "SnapPii Recording \(formatter.string(from: Date()))"
         let directory = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first
             ?? FileManager.default.temporaryDirectory
 

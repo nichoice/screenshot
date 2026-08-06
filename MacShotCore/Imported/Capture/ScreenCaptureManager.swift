@@ -6,34 +6,110 @@ struct ScreenCapture {
     let image: CGImage
 }
 
+@MainActor
+final class ShareableContentCache<Value> {
+    typealias Loader = @MainActor () async throws -> Value
+
+    private let loader: Loader
+    private var cachedValue: Value?
+    private var loadTask: Task<Value, Error>?
+
+    init(loader: @escaping Loader) {
+        self.loader = loader
+    }
+
+    func value() async throws -> Value {
+        if let cachedValue {
+            return cachedValue
+        }
+        if let loadTask {
+            return try await loadTask.value
+        }
+
+        let loader = self.loader
+        let task = Task { try await loader() }
+        loadTask = task
+
+        do {
+            let value = try await task.value
+            cachedValue = value
+            loadTask = nil
+            return value
+        } catch {
+            loadTask = nil
+            throw error
+        }
+    }
+
+    func invalidate() {
+        cachedValue = nil
+        loadTask?.cancel()
+        loadTask = nil
+    }
+
+    func replace(with value: Value) {
+        loadTask?.cancel()
+        loadTask = nil
+        cachedValue = value
+    }
+}
+
+enum ScreenCaptureExclusionStrategy: Equatable {
+    case currentApplication
+    case cachedWindows
+    case freshWindows
+
+    static func resolve(
+        currentApplicationAvailable: Bool,
+        excludedWindowCount: Int
+    ) -> ScreenCaptureExclusionStrategy {
+        if currentApplicationAvailable {
+            return .currentApplication
+        }
+        return excludedWindowCount > 0 ? .freshWindows : .cachedWindows
+    }
+}
+
+@MainActor
 class ScreenCaptureManager {
 
     // MARK: - SCShareableContent cache
 
-    /// Cached shareable content to avoid repeated (slow) enumeration.
-    private static var cachedContent: SCShareableContent?
-    private static var cachedContentTime: Date = .distantPast
-    /// Cache is valid for 2 seconds — long enough to survive the hotkey→capture gap,
-    /// short enough that display changes are picked up.
-    private static let cacheTTL: TimeInterval = 2.0
+    private static let contentCache = ShareableContentCache<SCShareableContent> {
+        try await loadShareableContent()
+    }
+    private static var screenChangeObserver: NSObjectProtocol?
 
-    /// Fetch shareable content, using a short-lived cache to avoid redundant enumeration.
     private static func shareableContent() async throws -> SCShareableContent {
-        if let cached = cachedContent, Date().timeIntervalSince(cachedContentTime) < cacheTTL {
-            return cached
-        }
-        let content = try await SCShareableContent.excludingDesktopWindows(
-            true, onScreenWindowsOnly: true)
-        cachedContent = content
-        cachedContentTime = Date()
-        return content
+        installScreenChangeObserverIfNeeded()
+        return try await contentCache.value()
     }
 
-    /// Pre-warm the shareable content cache so the next capture is instant.
-    /// Call this when the menu bar opens or a hotkey is pressed — before the actual capture starts.
     static func prewarm() {
+        installScreenChangeObserverIfNeeded()
         Task {
             _ = try? await shareableContent()
+        }
+    }
+
+    private static func loadShareableContent() async throws -> SCShareableContent {
+        try await SCShareableContent.excludingDesktopWindows(
+            true,
+            onScreenWindowsOnly: true
+        )
+    }
+
+    private static func installScreenChangeObserverIfNeeded() {
+        guard screenChangeObserver == nil else { return }
+        screenChangeObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didChangeScreenParametersNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            Task { @MainActor in
+                contentCache.invalidate()
+                _ = try? await contentCache.value()
+            }
         }
     }
 
@@ -42,15 +118,24 @@ class ScreenCaptureManager {
     ) {
         Task {
             do {
-                // When excluding windows, fetch fresh content so newly-created
-                // windows (e.g. thumbnails spawned after the cache was built) are
-                // present in the window list and can actually be excluded.
-                let content: SCShareableContent
-                if !excludingWindowNumbers.isEmpty {
-                    content = try await SCShareableContent.excludingDesktopWindows(
-                        true, onScreenWindowsOnly: true)
-                } else {
-                    content = try await shareableContent()
+                var content = try await shareableContent()
+                let currentProcessID = ProcessInfo.processInfo.processIdentifier
+                var currentApplication = content.applications.first {
+                    $0.processID == currentProcessID
+                }
+                let exclusionStrategy = ScreenCaptureExclusionStrategy.resolve(
+                    currentApplicationAvailable: currentApplication != nil,
+                    excludedWindowCount: excludingWindowNumbers.count
+                )
+
+                // Current-app exclusion covers every overlay and app window while keeping
+                // the cached display snapshot reusable. Window exclusion is only a fallback.
+                if exclusionStrategy == .freshWindows {
+                    content = try await loadShareableContent()
+                    contentCache.replace(with: content)
+                    currentApplication = content.applications.first {
+                        $0.processID == currentProcessID
+                    }
                 }
                 let displays = content.displays
                 let screens = NSScreen.screens
@@ -79,10 +164,21 @@ class ScreenCaptureManager {
                 ) { group in
                     for (display, screen) in pairs {
                         group.addTask {
-                            // Screenshot Tool targets macOS 14+, so keep the imported core on
+                            // SnapPii targets macOS 14+, so keep the imported core on
                             // ScreenCaptureKit and avoid removed CoreGraphics capture APIs.
-                            let filter = SCContentFilter(
-                                display: display, excludingWindows: excludedSCWindows)
+                            let filter: SCContentFilter
+                            if let currentApplication {
+                                filter = SCContentFilter(
+                                    display: display,
+                                    excludingApplications: [currentApplication],
+                                    exceptingWindows: []
+                                )
+                            } else {
+                                filter = SCContentFilter(
+                                    display: display,
+                                    excludingWindows: excludedSCWindows
+                                )
+                            }
                             let config = SCStreamConfiguration()
                             let scale = Int(screen.backingScaleFactor)
                             config.width = display.width * scale

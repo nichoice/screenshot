@@ -26,7 +26,7 @@ final class AppEnvironment: ObservableObject {
     let settingsWindowViewModel: SettingsWindowViewModel
 
     init(
-        windowTitle: String = "Screenshot Tool",
+        windowTitle: String = "SnapPii",
         preferencesStore: AppPreferencesStore,
         rulesStore: InputMethodRulesStore,
         permissionsService: PermissionsService,
@@ -98,6 +98,7 @@ final class AppEnvironment: ObservableObject {
             return
         }
 
+        macShotCaptureEngine.prepareForCapture()
         _ = macShotCaptureEngine.startCapture(
             preferences: macShotPreferences,
             onComplete: { [weak self] result in
@@ -169,6 +170,16 @@ final class AppEnvironment: ObservableObject {
     }
 
     func start() {
+        if permissionsService.currentSnapshot().screenRecording == .granted {
+            macShotCaptureEngine.prepareForCapture()
+        }
+
+        let shouldLaunchAtLogin = preferencesStore.appPreferences.launchAtLogin
+        if loginItemService.currentStatus() != shouldLaunchAtLogin {
+            try? loginItemService.setLaunchAtLogin(shouldLaunchAtLogin)
+        }
+        settingsWindowViewModel.refreshLaunchAtLoginStatus()
+
         inputMethodManager.startObserving()
         try? hotkeyHandler.start()
         menuBarController.setVisible(preferencesStore.appPreferences.showsMenuBarIcon)

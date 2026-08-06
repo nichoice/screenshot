@@ -294,6 +294,7 @@
 		509C3273934E24EACB0C129A /* MacShotCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MacShotCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		50DF758D443DF78B7461DDAE /* FloatingToolbarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingToolbarController.swift; sourceTree = "<group>"; };
 		532815ED0A902920E0FF98D9 /* LanguageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageManager.swift; sourceTree = "<group>"; };
+		53D2955FA5DC8FCC5383BD49 /* SnapPii.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SnapPii.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		56C6199DB897EF702FF03409 /* ScreenshotSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotSettingsView.swift; sourceTree = "<group>"; };
 		57D3AA75BE507036A17F185A /* FloatingToolbarPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingToolbarPlacement.swift; sourceTree = "<group>"; };
 		57F542EBB6B31187DCBE916F /* PixelateToolHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PixelateToolHandler.swift; sourceTree = "<group>"; };
@@ -317,7 +318,6 @@
 		8943BF2AC20010D75D416AF9 /* MainWindowViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowViewModelTests.swift; sourceTree = "<group>"; };
 		89DD236CB6C100C8BB5262EE /* EditorWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditorWindowController.swift; sourceTree = "<group>"; };
 		8C6D3908BEA8CF6F43DEBDF6 /* SystemLoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemLoginItemService.swift; sourceTree = "<group>"; };
-		8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ScreenshotTool.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E5E7FC44EE072D6182B36E0 /* OverlayWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayWindowController.swift; sourceTree = "<group>"; };
 		8F26C31D44AF6225B6AEB974 /* CaptureOverlayContrastTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureOverlayContrastTests.swift; sourceTree = "<group>"; };
 		8FC4009B62E32D1FA45E46C5 /* SettingsSidebarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSidebarItem.swift; sourceTree = "<group>"; };
@@ -543,8 +543,8 @@
 			children = (
 				DFFDA6995A47F3A6C7567785 /* MacShotCore.framework */,
 				509C3273934E24EACB0C129A /* MacShotCoreTests.xctest */,
-				8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */,
 				2F117D116B9900C856D7A689 /* ScreenshotToolTests.xctest */,
+				53D2955FA5DC8FCC5383BD49 /* SnapPii.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -986,7 +986,7 @@
 			packageProductDependencies = (
 			);
 			productName = ScreenshotTool;
-			productReference = 8D9371C160BA2CC397F28E4C /* ScreenshotTool.app */;
+			productReference = 53D2955FA5DC8FCC5383BD49 /* SnapPii.app */;
 			productType = "com.apple.product-type.application";
 		};
 		1667AE37C8D41660B046FFE1 /* MacShotCoreTests */ = {
@@ -1071,9 +1071,9 @@
 			projectRoot = "";
 			targets = (
 				238ADD4BF4E4B19E60435C4E /* MacShotCore */,
-				1667AE37C8D41660B046FFE1 /* MacShotCoreTests */,
 				05A05D1C602AC3E853F5060F /* ScreenshotTool */,
 				D584999B44DC230EE5BAB748 /* ScreenshotToolTests */,
+				1667AE37C8D41660B046FFE1 /* MacShotCoreTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1505,8 +1505,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotTool;
-				PRODUCT_NAME = ScreenshotTool;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nic.SnapPii;
+				PRODUCT_MODULE_NAME = ScreenshotTool;
+				PRODUCT_NAME = SnapPii;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -1549,7 +1550,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotToolTests;
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ScreenshotTool.app/Contents/MacOS/ScreenshotTool";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapPii.app/Contents/MacOS/SnapPii";
 			};
 			name = Debug;
 		};
@@ -1566,7 +1567,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotToolTests;
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ScreenshotTool.app/Contents/MacOS/ScreenshotTool";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SnapPii.app/Contents/MacOS/SnapPii";
 			};
 			name = Release;
 		};
@@ -1582,8 +1583,9 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.nic.ScreenshotTool;
-				PRODUCT_NAME = ScreenshotTool;
+				PRODUCT_BUNDLE_IDENTIFIER = com.nic.SnapPii;
+				PRODUCT_MODULE_NAME = ScreenshotTool;
+				PRODUCT_NAME = SnapPii;
 				SDKROOT = macosx;
 			};
 			name = Debug;

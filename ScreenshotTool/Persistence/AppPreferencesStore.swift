@@ -1,6 +1,9 @@
 import Foundation
 
 final class AppPreferencesStore: ObservableObject {
+    private static let legacyBundleIdentifier = "com.nic.ScreenshotTool"
+    private static let migrationMarker = "SnapPii.didMigratePreferencesFromScreenshotTool"
+
     private enum Key: String {
         case app
         case capture
@@ -16,8 +19,19 @@ final class AppPreferencesStore: ObservableObject {
     @Published private(set) var annotationPreferences: AnnotationPreferences
     @Published private(set) var inputMethodPreferences: InputMethodPreferences
 
-    init(userDefaults: UserDefaults = .standard) {
+    init(
+        userDefaults: UserDefaults = .standard,
+        legacyPersistentDomain: [String: Any]? = nil
+    ) {
         self.userDefaults = userDefaults
+        if let legacyPersistentDomain {
+            Self.migrateLegacyPreferences(legacyPersistentDomain, to: userDefaults)
+        } else if userDefaults === UserDefaults.standard {
+            let legacyDomain = userDefaults.persistentDomain(
+                forName: Self.legacyBundleIdentifier
+            )
+            Self.migrateLegacyPreferences(legacyDomain, to: userDefaults)
+        }
         self.appPreferences = Self.load(AppPreferences.self, key: .app, from: userDefaults) ?? AppPreferences()
         self.capturePreferences = Self.load(CapturePreferences.self, key: .capture, from: userDefaults) ?? CapturePreferences()
         self.annotationPreferences = Self.load(AnnotationPreferences.self, key: .annotation, from: userDefaults) ?? AnnotationPreferences()
@@ -70,5 +84,18 @@ final class AppPreferencesStore: ObservableObject {
         }
 
         return try? JSONDecoder().decode(T.self, from: data)
+    }
+
+    private static func migrateLegacyPreferences(
+        _ legacyDomain: [String: Any]?,
+        to defaults: UserDefaults
+    ) {
+        guard !defaults.bool(forKey: migrationMarker) else { return }
+
+        legacyDomain?.forEach { key, value in
+            guard defaults.object(forKey: key) == nil else { return }
+            defaults.set(value, forKey: key)
+        }
+        defaults.set(true, forKey: migrationMarker)
     }
 }

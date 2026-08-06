@@ -14,6 +14,8 @@ final class AppEnvironmentTests: XCTestCase {
         )
         let permissionsService = FakeAppEnvironmentPermissionsService()
         let inputSourceService = FakeAppEnvironmentInputSourceService()
+        let loginItemService = FakeAppEnvironmentLoginItemService()
+        preferencesStore.updateApp { $0.launchAtLogin = true }
         let inputMethodManager = InputMethodManager(
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
@@ -35,7 +37,7 @@ final class AppEnvironmentTests: XCTestCase {
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
             permissionsService: permissionsService,
-            loginItemService: FakeAppEnvironmentLoginItemService(),
+            loginItemService: loginItemService,
             inputSourceService: inputSourceService,
             inputMethodManager: inputMethodManager,
             windowRouter: WindowRouter(),
@@ -60,6 +62,7 @@ final class AppEnvironmentTests: XCTestCase {
         XCTAssertEqual(permissionsService.requestScreenRecordingAccessIfNeededCount, 1)
         XCTAssertEqual(permissionsService.openScreenRecordingSettingsCount, 1)
         XCTAssertFalse(captureCoordinator.isCapturing)
+        XCTAssertEqual(loginItemService.setValues, [true])
     }
 
     @MainActor
@@ -81,6 +84,11 @@ final class AppEnvironmentTests: XCTestCase {
             limit: 5
         )
         let soundPlayer = FakeCaptureSoundPlayer()
+        var prepareCount = 0
+        let captureEngine = MacShotCaptureEngine(
+            presentsOverlay: false,
+            prewarmAction: { prepareCount += 1 }
+        )
         let environment = AppEnvironment(
             preferencesStore: preferencesStore,
             rulesStore: rulesStore,
@@ -111,7 +119,7 @@ final class AppEnvironmentTests: XCTestCase {
             ocrService: VisionOCRService(),
             shareService: SystemShareService(),
             captureSoundPlayer: soundPlayer,
-            macShotCaptureEngine: MacShotCaptureEngine(presentsOverlay: false)
+            macShotCaptureEngine: captureEngine
         )
 
         environment.start()
@@ -123,6 +131,7 @@ final class AppEnvironmentTests: XCTestCase {
         )
 
         XCTAssertEqual(soundPlayer.playCount, 1)
+        XCTAssertEqual(prepareCount, 2)
     }
 }
 
@@ -204,9 +213,14 @@ private final class FakeAppEnvironmentHotkeyService: HotkeyService {
     func unregisterAll() {}
 }
 
-private struct FakeAppEnvironmentLoginItemService: LoginItemService {
+private final class FakeAppEnvironmentLoginItemService: LoginItemService {
+    private(set) var setValues: [Bool] = []
+
     func currentStatus() -> Bool { false }
-    func setLaunchAtLogin(_ enabled: Bool) throws {}
+
+    func setLaunchAtLogin(_ enabled: Bool) throws {
+        setValues.append(enabled)
+    }
 }
 
 @MainActor
