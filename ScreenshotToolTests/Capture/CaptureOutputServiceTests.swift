@@ -1,4 +1,5 @@
 import CoreGraphics
+import ImageIO
 import XCTest
 @testable import ScreenshotTool
 
@@ -33,6 +34,14 @@ final class CaptureOutputServiceTests: XCTestCase {
 
         XCTAssertNotNil(item.savedFilePath)
         XCTAssertTrue(FileManager.default.fileExists(atPath: item.savedFilePath!))
+        XCTAssertFalse(item.previewFilePath.isEmpty)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: item.previewFilePath))
+        let sourceURL = URL(fileURLWithPath: item.savedFilePath!) as CFURL
+        guard let source = CGImageSourceCreateWithURL(sourceURL, nil) else {
+            XCTFail("Expected an encoded PNG image source")
+            return
+        }
+        XCTAssertEqual(CGImageSourceGetType(source) as String?, "public.png")
         XCTAssertEqual(clipboard.copyCount, 0)
     }
 
@@ -117,6 +126,34 @@ final class CaptureOutputServiceTests: XCTestCase {
         XCTAssertEqual(clipboard.copyCount, 1)
         XCTAssertTrue(historyStore.items.isEmpty)
         XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: directory.path), [])
+    }
+
+    func testJPEGSaveUsesImageIODirectly() throws {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(#function)
+        try? FileManager.default.removeItem(at: directory)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+
+        let historyStore = CaptureHistoryStore(fileURL: directory.appendingPathComponent("history.json"), limit: 10)
+        let service = CaptureOutputService(
+            renderer: AnnotationRenderer(),
+            clipboardService: FakeClipboardService(),
+            historyStore: historyStore,
+            cacheDirectory: directory
+        )
+
+        let item = try service.saveRenderedImage(
+            makeImage(),
+            capturedAt: Date(timeIntervalSince1970: 123),
+            format: .jpeg,
+            directory: directory
+        )
+
+        let sourceURL = URL(fileURLWithPath: item.savedFilePath!) as CFURL
+        guard let source = CGImageSourceCreateWithURL(sourceURL, nil) else {
+            XCTFail("Expected an encoded JPEG image source")
+            return
+        }
+        XCTAssertEqual(CGImageSourceGetType(source) as String?, "public.jpeg")
     }
 
     func testSaveRenderedImageWritesFileAndHistory() throws {

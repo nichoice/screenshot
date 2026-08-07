@@ -1318,6 +1318,14 @@ class OverlayView: NSView {
     /// Override to change the rect used when drawing the screenshot in `captureSelectedRegion`. Base returns bounds.
     var captureDrawRect: NSRect { isEditorMode ? selectionRect : bounds }
 
+    /// Window snapping can query the window server before the display image arrives.
+    func enableWindowSnapQueries() {
+        windowSnapCooldown = false
+        if state == .idle && windowSnapEnabled && !windowSnapQueryInFlight {
+            queryWindowSnap(at: NSEvent.mouseLocation)
+        }
+    }
+
     /// Override to position toolbars for editor mode. Base pins bottom bar centered at bottom, right bar at top-right.    /// Override to control whether detach (open in editor) is allowed. Base returns true when not in editor mode.
     func shouldAllowDetach() -> Bool { !isEditorMode }
 
@@ -1344,6 +1352,10 @@ class OverlayView: NSView {
                 // Screenshot ready — draw it with dark overlay
                 image.draw(in: bounds, from: .zero, operation: .copy, fraction: 1.0)
                 NSColor.black.withAlphaComponent(0.45).setFill()
+                NSBezierPath(rect: bounds).fill()
+            } else if state != .idle {
+                // Keep the selection readable while the target display is captured.
+                NSColor.black.withAlphaComponent(0.35).setFill()
                 NSBezierPath(rect: bounds).fill()
             } else {
                 // No screenshot yet — fully transparent. User sees live desktop
@@ -1402,6 +1414,8 @@ class OverlayView: NSView {
                 applyZoomTransform(to: context)
                 if !isScrollCapturing, !isRecording, let image = screenshotImage {
                     image.draw(in: bounds, from: .zero, operation: .copy, fraction: 1.0)
+                } else if screenshotImage == nil && !isScrollCapturing && !isRecording {
+                    context.cgContext.clear(selectionRect)
                 }
                 context.restoreGraphicsState()
             }

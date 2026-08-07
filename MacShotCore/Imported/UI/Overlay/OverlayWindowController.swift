@@ -46,6 +46,7 @@ class OverlayWindowController {
     private var overlayWindow: OverlayWindow?
     private var shareDelegate: SharePickerDelegate?
     private var shareDismissTime: Date = .distantPast
+    private var screenshotTask: Task<Void, Never>?
     var windowNumber: CGWindowID {
         overlayWindow.map { CGWindowID($0.windowNumber) } ?? CGWindowID.max
     }
@@ -113,8 +114,25 @@ class OverlayWindowController {
         }
     }
 
+    /// Capture this display on demand after the overlay is already interactive.
+    func prepareScreenshot(excludingWindowNumbers: [CGWindowID] = []) {
+        guard overlayView?.screenshotImage == nil, screenshotTask == nil else { return }
+        let targetScreen = screen
+        screenshotTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            defer { self.screenshotTask = nil }
+            guard let image = await ScreenCaptureManager.captureScreen(
+                targetScreen,
+                excludingWindowNumbers: excludingWindowNumbers
+            ) else { return }
+            guard self.overlayWindow != nil else { return }
+            self.setScreenshot(image)
+        }
+    }
+
     func showOverlay() {
         guard let window = overlayWindow else { return }
+        overlayView?.enableWindowSnapQueries()
         if overlayView?.screenshotImage != nil {
             // Screenshot already set (sync init path) — interactive immediately.
             if let view = overlayView { view.displayIfNeeded() }
@@ -223,6 +241,8 @@ class OverlayWindowController {
     }
 
     func dismiss() {
+        screenshotTask?.cancel()
+        screenshotTask = nil
         saveSelectionIfNeeded()
         overlayView?.reset()
         overlayView?.screenshotImage = nil
@@ -314,6 +334,7 @@ class OverlayWindowController {
 
 extension OverlayWindowController: OverlayViewDelegate {
     func overlayViewDidFinishSelection(_ rect: NSRect) {
+        prepareScreenshot(excludingWindowNumbers: [windowNumber])
     }
 
     func overlayViewSelectionDidChange(_ rect: NSRect) {
@@ -549,6 +570,7 @@ extension OverlayWindowController: OverlayViewDelegate {
     }
 
     func overlayViewDidBeginSelection() {
+        prepareScreenshot(excludingWindowNumbers: [windowNumber])
         overlayDelegate?.overlayDidBeginSelection(self)
     }
 

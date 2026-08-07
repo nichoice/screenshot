@@ -214,6 +214,47 @@ class ScreenCaptureManager {
         }
     }
 
+    /// Captures only the requested display. The overlay can be shown before this
+    /// finishes, so the first interaction is not blocked by a multi-display capture.
+    static func captureScreen(
+        _ screen: NSScreen,
+        excludingWindowNumbers: [CGWindowID] = []
+    ) async -> CGImage? {
+        guard let content = try? await shareableContent() else { return nil }
+        let screenID = screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? CGDirectDisplayID
+        guard let display = content.displays.first(where: { $0.displayID == screenID }) else {
+            return nil
+        }
+
+        let currentProcessID = ProcessInfo.processInfo.processIdentifier
+        let currentApplication = content.applications.first { $0.processID == currentProcessID }
+        let excludedSCWindows = excludingWindowNumbers.compactMap { windowID in
+            content.windows.first(where: { CGWindowID($0.windowID) == windowID })
+        }
+        let filter: SCContentFilter
+        if let currentApplication {
+            filter = SCContentFilter(
+                display: display,
+                excludingApplications: [currentApplication],
+                exceptingWindows: []
+            )
+        } else {
+            filter = SCContentFilter(display: display, excludingWindows: excludedSCWindows)
+        }
+
+        let config = SCStreamConfiguration()
+        let scale = Int(screen.backingScaleFactor)
+        config.width = display.width * scale
+        config.height = display.height * scale
+        config.showsCursor = UserDefaults.standard.bool(forKey: "captureCursor")
+        config.captureResolution = .best
+
+        return try? await SCScreenshotManager.captureImage(
+            contentFilter: filter,
+            configuration: config
+        )
+    }
+
     // MARK: - Single window capture (with transparency)
 
     /// Captures a single window by its CGWindowID, returning an image with transparent corners.

@@ -55,20 +55,41 @@ enum ImageEncoder {
     }
 
     static func encode(_ image: NSImage) -> Data? {
-        guard let bitmap = makeBitmap(image) else { return nil }
+        guard let cgImage = makeCGImage(image) else { return nil }
+        let outputImage = downscaledImageIfNeeded(cgImage, logicalSize: image.size)
 
         switch format {
         case .png, .webp:
-            return encodePNG(bitmap: bitmap)
+            return encodeWithCGImageDestination(
+                cgImage: outputImage,
+                type: "public.png",
+                lossyQuality: nil
+            )
         case .jpeg:
-            return encodeJPEG(bitmap: bitmap, quality: quality)
+            return encodeWithCGImageDestination(
+                cgImage: outputImage,
+                type: "public.jpeg",
+                lossyQuality: quality
+            )
         case .heic:
-            return encodeHEIC(bitmap: bitmap, quality: quality)
+            return encodeWithCGImageDestination(
+                cgImage: outputImage,
+                type: "public.heic",
+                lossyQuality: quality
+            )
         }
     }
 
     static func copyToClipboard(_ image: NSImage) {
-        guard let data = encodePNGDataForClipboard(image) else { return }
+        guard let cgImage = makeCGImage(image) else { return }
+        let outputImage = downscaledImageIfNeeded(cgImage, logicalSize: image.size)
+        guard
+            let data = encodeWithCGImageDestination(
+                cgImage: outputImage,
+                type: "public.png",
+                lossyQuality: nil
+            )
+        else { return }
 
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
@@ -76,27 +97,30 @@ enum ImageEncoder {
         pasteboard.setData(data, forType: .png)
     }
 
-    private static func makeBitmap(_ image: NSImage) -> NSBitmapImageRep? {
-        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-            guard
-                let tiffData = image.tiffRepresentation,
-                let bitmap = NSBitmapImageRep(data: tiffData)
-            else {
-                return nil
-            }
-            return bitmap
+    private static func makeCGImage(_ image: NSImage) -> CGImage? {
+        if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+            return cgImage
+        }
+        guard
+            let tiffData = image.tiffRepresentation,
+            let bitmap = NSBitmapImageRep(data: tiffData)
+        else {
+            return nil
+        }
+        return bitmap.cgImage
+    }
+
+    private static func downscaledImageIfNeeded(_ image: CGImage, logicalSize: NSSize) -> CGImage {
+        guard downscaleRetina else { return image }
+
+        let logicalWidth = Int(logicalSize.width)
+        let logicalHeight = Int(logicalSize.height)
+        guard logicalWidth > 0, logicalHeight > 0,
+              image.width > logicalWidth, image.height > logicalHeight else {
+            return image
         }
 
-        let bitmap = NSBitmapImageRep(cgImage: cgImage)
-        guard downscaleRetina else { return bitmap }
-
-        let logicalWidth = Int(image.size.width)
-        let logicalHeight = Int(image.size.height)
-        guard bitmap.pixelsWide > logicalWidth, bitmap.pixelsHigh > logicalHeight else {
-            return bitmap
-        }
-
-        let colorSpace = cgImage.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
+        let colorSpace = image.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
         guard
             let context = CGContext(
                 data: nil,
@@ -108,36 +132,12 @@ enum ImageEncoder {
                 bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
             )
         else {
-            return bitmap
+            return image
         }
 
         context.interpolationQuality = .high
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: logicalWidth, height: logicalHeight))
-        guard let downscaled = context.makeImage() else { return bitmap }
-        return NSBitmapImageRep(cgImage: downscaled)
-    }
-
-    private static func encodePNGDataForClipboard(_ image: NSImage) -> Data? {
-        makeBitmap(image)?.representation(using: .png, properties: [:])
-    }
-
-    private static func encodePNG(bitmap: NSBitmapImageRep) -> Data? {
-        guard let cgImage = bitmap.cgImage else {
-            return bitmap.representation(using: .png, properties: [:])
-        }
-        return encodeWithCGImageDestination(cgImage: cgImage, type: "public.png", lossyQuality: nil)
-    }
-
-    private static func encodeJPEG(bitmap: NSBitmapImageRep, quality: CGFloat) -> Data? {
-        guard let cgImage = bitmap.cgImage else {
-            return bitmap.representation(using: .jpeg, properties: [.compressionFactor: quality])
-        }
-        return encodeWithCGImageDestination(cgImage: cgImage, type: "public.jpeg", lossyQuality: quality)
-    }
-
-    private static func encodeHEIC(bitmap: NSBitmapImageRep, quality: CGFloat) -> Data? {
-        guard let cgImage = bitmap.cgImage else { return nil }
-        return encodeWithCGImageDestination(cgImage: cgImage, type: "public.heic", lossyQuality: quality)
+        context.draw(image, in: CGRect(x: 0, y: 0, width: logicalWidth, height: logicalHeight))
+        return context.makeImage() ?? image
     }
 
     private static func encodeWithCGImageDestination(

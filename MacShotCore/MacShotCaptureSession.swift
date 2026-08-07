@@ -98,18 +98,11 @@ public final class MacShotCaptureSession {
             overlayControllers.append(controller)
         }
 
-        let excludedWindowNumbers = overlayControllers.map(\.windowNumber)
-        ScreenCaptureManager.captureAllScreens(excludingWindowNumbers: excludedWindowNumbers) { [weak self] captures in
-            guard let self else { return }
-            if captures.isEmpty {
-                _ = self.cancel()
-                return
-            }
-
-            for capture in captures {
-                self.overlayControllers.first(where: { $0.screen == capture.screen })?.setScreenshot(capture.image)
-            }
-        }
+        let mouseLocation = NSEvent.mouseLocation
+        let initialController = overlayControllers.first {
+            $0.screen.frame.contains(mouseLocation)
+        } ?? overlayControllers.first
+        initialController?.prepareScreenshot(excludingWindowNumbers: overlayControllers.map(\.windowNumber))
     }
 
     private func dismissOverlayControllers() {
