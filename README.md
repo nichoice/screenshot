@@ -1,5 +1,52 @@
 # SnapPii
 
+中文说明在前，完整 English reference follows below.
+
+## 中文
+
+SnapPii 是一款面向 macOS 的截图工具，提供区域选择、窗口吸附、截图标注、剪贴板与文件输出，以及按应用自动切换输入法。
+
+### 功能
+
+- 使用 `Command + Shift + 4` 全局快捷键唤起截图。
+- 支持区域选择、窗口吸附、内联标注和独立编辑。
+- 可选择仅复制、仅保存、复制并保存或进入编辑器。
+- 支持连续截图：多次截取后保存在临时托盘中，确认后一次复制多张独立图片；在 Word 或支持多项目剪贴板的聊天输入框中按一次 `Command + V` 即可按顺序粘贴。
+- 支持 PNG/JPEG、默认保存目录、截图提示音、菜单栏驻留和浅色/深色/跟随系统主题。
+- 支持全局默认输入法与按应用覆盖规则。
+
+### 界面预览
+
+截图与标注工作流：
+
+![SnapPii 捕获与标注界面](docs/images/capture-annotation.png)
+
+常用标注、形状、文本、编号、颜色与表情工具：
+
+![SnapPii 标注工具栏](docs/images/annotation-toolbar.png)
+
+### 快速开始
+
+要求：macOS 14 或更高版本、Xcode（含 macOS SDK）和 XcodeGen。
+
+```bash
+brew install xcodegen
+make generate
+./script/build_and_run.sh
+```
+
+运行全部测试：
+
+```bash
+make test
+```
+
+### 权限
+
+截图需要在“系统设置 -> 隐私与安全性 -> 屏幕与系统音频录制”中授权。输入法自动切换及部分窗口交互需要辅助功能权限。
+
+## English
+
 SnapPii is a personal macOS screenshot utility for MacBook Air M4. It combines a `macshot`-style capture and annotation overlay with this app's own settings UI, output routing, menu bar behavior, hotkeys, and input source automation.
 
 ## Features
@@ -9,6 +56,7 @@ SnapPii is a personal macOS screenshot utility for MacBook Air M4. It combines a
 - Screenshot output preferences for clipboard-only, save-only, copy-and-save, or edit-first workflows.
 - Configurable default save directory, defaulting to the Desktop.
 - Global screenshot shortcut: `Command + Shift + 4`.
+- Batch capture tray: take several screenshots, then copy all of them as independent images for one paste into Word or compatible chat inputs.
 - App-wide theme setting: light, dark, or follow system.
 - Optional menu bar icon while keeping background residency.
 - Input source automation with a global default and per-app overrides.
@@ -16,6 +64,7 @@ SnapPii is a personal macOS screenshot utility for MacBook Air M4. It combines a
 ## Output Boundary
 
 - Clipboard-only screenshots are copied to the system clipboard only. SnapPii does not write a saved image, preview cache image, or main-window history item for that action.
+- Batch captures are retained as temporary PNG files until the next batch session, then copied as ordered, independent pasteboard items.
 - Save-only and copy-and-save screenshots write image files to the configured default save directory. The default directory is the Desktop.
 - Edit-first screenshots remain in the annotation overlay until the user explicitly chooses copy, save, share, or another toolbar action.
 
