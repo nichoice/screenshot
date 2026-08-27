@@ -21,9 +21,12 @@ final class AppEnvironment: ObservableObject {
     let shareService: ShareService
     let captureSoundPlayer: CaptureSoundPlaying
     let macShotCaptureEngine: MacShotCaptureEngine
+    let batchCaptureSession: BatchCaptureSession
     let themeController: AppThemeController
     let mainWindowViewModel: MainWindowViewModel
     let settingsWindowViewModel: SettingsWindowViewModel
+    private let batchClipboardService: BatchClipboardService
+    private let batchCaptureTrayController: BatchCaptureTrayController
 
     init(
         windowTitle: String = "SnapPii",
@@ -42,7 +45,10 @@ final class AppEnvironment: ObservableObject {
         ocrService: OCRService,
         shareService: ShareService,
         captureSoundPlayer: CaptureSoundPlaying,
-        macShotCaptureEngine: MacShotCaptureEngine? = nil
+        macShotCaptureEngine: MacShotCaptureEngine? = nil,
+        batchCaptureSession: BatchCaptureSession? = nil,
+        batchClipboardService: BatchClipboardService = PasteboardBatchClipboardService(),
+        batchCaptureTrayController: BatchCaptureTrayController? = nil
     ) {
         self.windowTitle = windowTitle
         self.preferencesStore = preferencesStore
@@ -61,6 +67,12 @@ final class AppEnvironment: ObservableObject {
         self.shareService = shareService
         self.captureSoundPlayer = captureSoundPlayer
         self.macShotCaptureEngine = macShotCaptureEngine ?? MacShotCaptureEngine()
+        self.batchCaptureSession = batchCaptureSession ?? BatchCaptureSession(
+            rootDirectory: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("ScreenshotTool/BatchClipboard", isDirectory: true)
+        )
+        self.batchClipboardService = batchClipboardService
+        self.batchCaptureTrayController = batchCaptureTrayController ?? BatchCaptureTrayController()
         self.themeController = AppThemeController(preferencesStore: preferencesStore)
         self.mainWindowViewModel = MainWindowViewModel(
             preferencesStore: preferencesStore,
@@ -90,9 +102,53 @@ final class AppEnvironment: ObservableObject {
         self.menuBarController.replaceStartCaptureAction { [weak self] in
             self?.startCapture()
         }
+        self.menuBarController.replaceStartBatchCaptureAction { [weak self] in
+            self?.startBatchCapture()
+        }
     }
 
     func startCapture() {
+        if batchCaptureSession.isActive {
+            continueBatchCapture()
+            return
+        }
+
+        beginCapture(onComplete: { [weak self] result in
+            self?.handleMacShotCaptureResult(result)
+        })
+    }
+
+    func startBatchCapture() {
+        guard !batchCaptureSession.isActive else {
+            continueBatchCapture()
+            return
+        }
+
+        do {
+            try batchCaptureSession.begin()
+        } catch {
+            return
+        }
+        continueBatchCapture()
+    }
+
+    private func continueBatchCapture() {
+        guard batchCaptureSession.isActive, !macShotCaptureEngine.isCapturing else { return }
+        batchCaptureTrayController.hide()
+        beginCapture(
+            onComplete: { [weak self] result in
+                self?.handleBatchCaptureResult(result)
+            },
+            onCancel: { [weak self] in
+                self?.showBatchCaptureTrayOrCancel()
+            }
+        )
+    }
+
+    private func beginCapture(
+        onComplete: @escaping (MacShotCaptureResult) -> Void,
+        onCancel: @escaping () -> Void = {}
+    ) {
         guard permissionsService.requestScreenRecordingAccessIfNeeded() else {
             permissionsService.openScreenRecordingSettings()
             return
@@ -101,11 +157,70 @@ final class AppEnvironment: ObservableObject {
         macShotCaptureEngine.prepareForCapture()
         _ = macShotCaptureEngine.startCapture(
             preferences: macShotPreferences,
-            onComplete: { [weak self] result in
-                self?.handleMacShotCaptureResult(result)
-            },
-            onCancel: {}
+            onComplete: onComplete,
+            onCancel: onCancel
         )
+    }
+
+    private func handleBatchCaptureResult(_ result: MacShotCaptureResult) {
+        guard
+            let image = result.image,
+            let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil)
+        else {
+            showBatchCaptureTrayOrCancel()
+            return
+        }
+
+        if (try? batchCaptureSession.append(image: cgImage, capturedAt: result.capturedAt)) != nil,
+           preferencesStore.capturePreferences.playCaptureSound {
+            captureSoundPlayer.playCaptureSound()
+        }
+        showBatchCaptureTrayOrCancel()
+    }
+
+    private func showBatchCaptureTrayOrCancel() {
+        guard batchCaptureSession.isActive else { return }
+        guard batchCaptureSession.itemCount > 0 else {
+            cancelBatchCapture()
+            return
+        }
+
+        batchCaptureTrayController.show(
+            items: batchCaptureSession.items,
+            maximumItemCount: 20,
+            onContinue: { [weak self] in
+                self?.continueBatchCapture()
+            },
+            onCopyAll: { [weak self] in
+                self?.copyBatchCaptureItems()
+            },
+            onCancel: { [weak self] in
+                self?.cancelBatchCapture()
+            },
+            onRemove: { [weak self] itemID in
+                self?.removeBatchCaptureItem(itemID)
+            }
+        )
+    }
+
+    private func removeBatchCaptureItem(_ itemID: UUID) {
+        batchCaptureSession.remove(id: itemID)
+        showBatchCaptureTrayOrCancel()
+    }
+
+    private func copyBatchCaptureItems() {
+        let items = batchCaptureSession.finish()
+        guard batchClipboardService.copy(items: items) else {
+            batchCaptureSession.clearAllTemporaryFiles()
+            batchCaptureTrayController.hide()
+            return
+        }
+        batchCaptureTrayController.hide()
+    }
+
+    private func cancelBatchCapture() {
+        batchCaptureSession.cancel()
+        batchCaptureTrayController.hide()
     }
 
     func handleMacShotCaptureResult(_ result: MacShotCaptureResult) {
@@ -222,6 +337,10 @@ final class AppEnvironment: ObservableObject {
             historyStore: historyStore,
             cacheDirectory: cacheDirectory
         )
+        let batchCaptureSession = BatchCaptureSession(
+            rootDirectory: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("ScreenshotTool/BatchClipboard", isDirectory: true)
+        )
 
         return AppEnvironment(
             preferencesStore: preferencesStore,
@@ -238,7 +357,8 @@ final class AppEnvironment: ObservableObject {
             outputService: outputService,
             ocrService: VisionOCRService(),
             shareService: SystemShareService(),
-            captureSoundPlayer: SystemCaptureSoundPlayer()
+            captureSoundPlayer: SystemCaptureSoundPlayer(),
+            batchCaptureSession: batchCaptureSession
         )
     }
 
@@ -282,6 +402,9 @@ final class AppEnvironment: ObservableObject {
             historyStore: historyStore,
             cacheDirectory: testDirectory.appendingPathComponent("captures", isDirectory: true)
         )
+        let batchCaptureSession = BatchCaptureSession(
+            rootDirectory: testDirectory.appendingPathComponent("batch-clipboard", isDirectory: true)
+        )
 
         return AppEnvironment(
             preferencesStore: preferencesStore,
@@ -298,7 +421,8 @@ final class AppEnvironment: ObservableObject {
             outputService: outputService,
             ocrService: VisionOCRService(),
             shareService: SystemShareService(),
-            captureSoundPlayer: SystemCaptureSoundPlayer()
+            captureSoundPlayer: SystemCaptureSoundPlayer(),
+            batchCaptureSession: batchCaptureSession
         )
     }
 }

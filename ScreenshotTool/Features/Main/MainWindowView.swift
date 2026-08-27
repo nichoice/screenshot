@@ -3,6 +3,7 @@ import SwiftUI
 struct MainWindowView: View {
     @ObservedObject var mainViewModel: MainWindowViewModel
     @ObservedObject var settingsViewModel: SettingsWindowViewModel
+    let startBatchCapture: () -> Void
 
     var body: some View {
         SettingsWindowView(
@@ -10,7 +11,10 @@ struct MainWindowView: View {
             leadingContent: AnyView(
                 Group {
                     if settingsViewModel.selectedSidebarItemID == "general" || settingsViewModel.selectedSidebarItemID == nil {
-                        MainDashboardCard(viewModel: mainViewModel)
+                        MainDashboardCard(
+                            viewModel: mainViewModel,
+                            startBatchCapture: startBatchCapture
+                        )
                     }
                 }
             )
@@ -24,6 +28,7 @@ struct MainWindowView: View {
 
 private struct MainDashboardCard: View {
     @ObservedObject var viewModel: MainWindowViewModel
+    let startBatchCapture: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -37,6 +42,11 @@ private struct MainDashboardCard: View {
                     }
                     .keyboardShortcut(.space, modifiers: [.command, .shift])
                     .buttonStyle(.borderedProminent)
+
+                    Button("连续截图") {
+                        startBatchCapture()
+                    }
+                    .buttonStyle(.bordered)
 
                     Text(viewModel.shortcutSummary)
                         .font(.headline)

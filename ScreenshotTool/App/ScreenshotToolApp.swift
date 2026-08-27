@@ -18,7 +18,8 @@ struct ScreenshotToolApp: App {
             MainWindowRootView(
                 mainViewModel: environment.mainWindowViewModel,
                 settingsViewModel: environment.settingsWindowViewModel,
-                windowRouter: environment.windowRouter
+                windowRouter: environment.windowRouter,
+                startBatchCapture: environment.startBatchCapture
             )
             .preferredColorScheme(themeController.preferredColorScheme)
         }
