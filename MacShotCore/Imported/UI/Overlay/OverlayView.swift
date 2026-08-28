@@ -125,6 +125,9 @@ class OverlayView: NSView {
 
     // Selection
     private(set) var selectionRect: NSRect = .zero
+    /// When enabled, a plain click leaves the overlay idle instead of selecting the full screen.
+    /// Used by batch capture so each item must be chosen with a drag.
+    var requiresManualSelection: Bool = false
     /// Selection rect from another overlay (in this view's local coords), drawn during cross-screen drag.
     var remoteSelectionRect: NSRect = .zero
     /// The full (unclipped) remote selection in this view's local coords — used for resize anchor calculation.
@@ -5259,6 +5262,14 @@ class OverlayView: NSView {
                 state = .selected
                 if !autoOCRMode && !autoQuickSaveMode && !autoScrollCaptureMode && !autoConfirmMode { showToolbars = true }
                 overlayDelegate?.overlayViewDidFinishSelection(selectionRect)
+            } else if requiresManualSelection {
+                // Batch captures require an explicit drag for every item.
+                selectionRect = .zero
+                state = .idle
+                showToolbars = false
+                hoveredWindowRect = nil
+                needsDisplay = true
+                return
             } else if windowSnapEnabled, let snapRect = hoveredWindowRect, !snapRect.isEmpty {
                 // Click (no drag) with snap on — snap to hovered window
                 selectionRect = snapRect
@@ -5420,6 +5431,13 @@ class OverlayView: NSView {
                 showToolbars = true
             }
             overlayDelegate?.overlayViewDidFinishSelection(selectionRect)
+        } else if requiresManualSelection {
+            selectionRect = .zero
+            state = .idle
+            showToolbars = false
+            hoveredWindowRect = nil
+            needsDisplay = true
+            return
         } else if windowSnapEnabled, let snapRect = hoveredWindowRect, !snapRect.isEmpty {
             selectionRect = snapRect
             selectionIsWindowSnap = true

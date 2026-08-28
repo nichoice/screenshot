@@ -37,7 +37,6 @@ final class AppPreferencesStore: ObservableObject {
         self.annotationPreferences = Self.load(AnnotationPreferences.self, key: .annotation, from: userDefaults) ?? AnnotationPreferences()
         self.inputMethodPreferences = Self.load(InputMethodPreferences.self, key: .inputMethod, from: userDefaults) ?? InputMethodPreferences()
         migrateLegacyCaptureHotkeyIfNeeded()
-        migrateSystemReservedCaptureHotkeyIfNeeded()
         migrateDefaultSaveDirectoryIfNeeded()
     }
 
@@ -76,12 +75,6 @@ final class AppPreferencesStore: ObservableObject {
     private func migrateDefaultSaveDirectoryIfNeeded() {
         guard capturePreferences.defaultSaveDirectoryPath == nil else { return }
         capturePreferences.defaultSaveDirectoryPath = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask).first?.path
-        save(capturePreferences, key: .capture)
-    }
-
-    private func migrateSystemReservedCaptureHotkeyIfNeeded() {
-        guard !capturePreferences.hotkey.isSupportedCaptureHotkey else { return }
-        capturePreferences.hotkey = .defaultCapture
         save(capturePreferences, key: .capture)
     }
 

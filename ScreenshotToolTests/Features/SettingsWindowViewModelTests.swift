@@ -173,7 +173,7 @@ final class SettingsWindowViewModelTests: XCTestCase {
     }
 
     @MainActor
-    func testSetCaptureHotkeyRejectsSystemReservedCommandShiftA() throws {
+    func testSetCaptureHotkeyAcceptsCommandShiftA() throws {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)
         let preferencesStore = AppPreferencesStore(userDefaults: defaults)
@@ -196,12 +196,11 @@ final class SettingsWindowViewModelTests: XCTestCase {
             }
         )
 
-        XCTAssertThrowsError(
-            try viewModel.setCaptureHotkey(GlobalHotkey(keyCode: 0, modifiers: [.command, .shift]))
-        )
-        XCTAssertEqual(preferencesStore.capturePreferences.hotkey, .defaultCapture)
-        XCTAssertEqual(reloadCount, 0)
-        XCTAssertNotNil(viewModel.captureHotkeyErrorMessage)
+        try viewModel.setCaptureHotkey(GlobalHotkey(keyCode: 0, modifiers: [.command, .shift]))
+
+        XCTAssertEqual(preferencesStore.capturePreferences.hotkey, GlobalHotkey(keyCode: 0, modifiers: [.command, .shift]))
+        XCTAssertEqual(reloadCount, 1)
+        XCTAssertNil(viewModel.captureHotkeyErrorMessage)
     }
 
     @MainActor

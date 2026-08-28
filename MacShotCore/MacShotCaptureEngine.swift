@@ -35,7 +35,8 @@ public final class MacShotCaptureEngine {
     public func startCapture(
         preferences: MacShotPreferences,
         onComplete: @escaping (MacShotCaptureResult) -> Void = { _ in },
-        onCancel: @escaping () -> Void = {}
+        onCancel: @escaping () -> Void = {},
+        requiresManualSelection: Bool = false
     ) -> Bool {
         guard activeSession?.state != .running && activeSession?.state != .recording else { return false }
         self.onComplete = onComplete
@@ -48,7 +49,8 @@ public final class MacShotCaptureEngine {
             },
             onCancel: { [weak self] in
                 self?.finishCancellation()
-            }
+            },
+            requiresManualSelection: requiresManualSelection
         )
         activeSession = session
         return session.start()

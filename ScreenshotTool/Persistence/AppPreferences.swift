@@ -26,10 +26,6 @@ struct GlobalHotkey: Codable, Equatable {
 
     static let defaultCapture = GlobalHotkey(keyCode: 21, modifiers: [.command, .shift])
 
-    var isSupportedCaptureHotkey: Bool {
-        normalized != Self.systemReservedCaptureHotkey
-    }
-
     var displayName: String {
         let modifierNames = normalizedModifiers.map(\.displayName)
         return (modifierNames + [Self.keyName(for: keyCode)]).joined(separator: " + ")
@@ -44,11 +40,6 @@ struct GlobalHotkey: Codable, Equatable {
     }
 
     private static let modifierDisplayOrder: [HotkeyModifier] = [.command, .shift, .option, .control]
-
-    private static let systemReservedCaptureHotkey = GlobalHotkey(
-        keyCode: 0,
-        modifiers: [.command, .shift]
-    )
 
     private static func keyName(for keyCode: UInt32) -> String {
         keyCodeNames[keyCode] ?? "Key \(keyCode)"

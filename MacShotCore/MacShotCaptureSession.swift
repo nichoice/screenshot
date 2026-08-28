@@ -18,6 +18,7 @@ public final class MacShotCaptureSession {
     private let onComplete: ((MacShotCaptureResult) -> Void)?
     private let onCancel: (() -> Void)?
     private let onDismissOverlays: (() -> Void)?
+    private let requiresManualSelection: Bool
     private let recordingEngineFactory: @MainActor () -> MacShotRecordingEngine
     private let recordingHUDFactory: @MainActor () -> RecordingHUDPresenting
     private let recordingRegionOverlayFactory: @MainActor () -> RecordingRegionOverlayPresenting
@@ -36,6 +37,7 @@ public final class MacShotCaptureSession {
         onComplete: ((MacShotCaptureResult) -> Void)? = nil,
         onCancel: (() -> Void)? = nil,
         onDismissOverlays: (() -> Void)? = nil,
+        requiresManualSelection: Bool = false,
         recordingEngineFactory: @escaping @MainActor () -> MacShotRecordingEngine = {
             ScreenCaptureKitRecordingEngine()
         },
@@ -51,6 +53,7 @@ public final class MacShotCaptureSession {
         self.onComplete = onComplete
         self.onCancel = onCancel
         self.onDismissOverlays = onDismissOverlays
+        self.requiresManualSelection = requiresManualSelection
         self.recordingEngineFactory = recordingEngineFactory
         self.recordingHUDFactory = recordingHUDFactory
         self.recordingRegionOverlayFactory = recordingRegionOverlayFactory
@@ -93,6 +96,7 @@ public final class MacShotCaptureSession {
     private func startImportedOverlayControllers() {
         for screen in NSScreen.screens {
             let controller = OverlayWindowController(screen: screen)
+            controller.setRequiresManualSelection(requiresManualSelection)
             controller.overlayDelegate = self
             controller.showOverlay()
             overlayControllers.append(controller)

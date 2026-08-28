@@ -162,6 +162,10 @@ class OverlayWindowController {
         overlayView?.clearSelection()
     }
 
+    func setRequiresManualSelection(_ required: Bool) {
+        overlayView?.requiresManualSelection = required
+    }
+
     func triggerRedraw() {
         overlayView?.needsDisplay = true
     }

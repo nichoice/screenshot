@@ -100,11 +100,6 @@ final class SettingsWindowViewModel: ObservableObject {
 
     func setCaptureHotkey(_ hotkey: GlobalHotkey) throws {
         let normalizedHotkey = hotkey.normalized
-        guard normalizedHotkey.isSupportedCaptureHotkey else {
-            captureHotkeyErrorMessage = "Command + Shift + A 被系统保留，不能用于截图快捷键。"
-            throw CaptureHotkeyValidationError.systemReserved
-        }
-
         let previousHotkey = preferencesStore.capturePreferences.hotkey
         preferencesStore.updateCapture { $0.hotkey = normalizedHotkey }
         capturePreferences = preferencesStore.capturePreferences
@@ -121,13 +116,7 @@ final class SettingsWindowViewModel: ObservableObject {
         }
     }
 
-    func resetCaptureHotkeyAfterRegistrationFailure() {
-        preferencesStore.updateCapture { $0.hotkey = .defaultCapture }
-        capturePreferences = preferencesStore.capturePreferences
-        captureHotkeyErrorMessage = "截图快捷键无法注册，已恢复为 Command + Shift + 4。"
-    }
-
-    func reportDefaultCaptureHotkeyRegistrationFailure() {
+    func reportCaptureHotkeyRegistrationFailure() {
         captureHotkeyErrorMessage = "截图快捷键无法注册，请在设置中选择其他组合键。"
     }
 
@@ -244,8 +233,4 @@ final class SettingsWindowViewModel: ObservableObject {
 
         return shortVersion
     }
-}
-
-private enum CaptureHotkeyValidationError: Error {
-    case systemReserved
 }

@@ -139,6 +139,7 @@ final class AppEnvironment: ObservableObject {
             onComplete: { [weak self] result in
                 self?.handleBatchCaptureResult(result)
             },
+            requiresManualSelection: true,
             onCancel: { [weak self] in
                 self?.showBatchCaptureTrayOrCancel()
             }
@@ -147,6 +148,7 @@ final class AppEnvironment: ObservableObject {
 
     private func beginCapture(
         onComplete: @escaping (MacShotCaptureResult) -> Void,
+        requiresManualSelection: Bool = false,
         onCancel: @escaping () -> Void = {}
     ) {
         guard permissionsService.requestScreenRecordingAccessIfNeeded() else {
@@ -158,7 +160,8 @@ final class AppEnvironment: ObservableObject {
         _ = macShotCaptureEngine.startCapture(
             preferences: macShotPreferences,
             onComplete: onComplete,
-            onCancel: onCancel
+            onCancel: onCancel,
+            requiresManualSelection: requiresManualSelection
         )
     }
 
@@ -304,17 +307,7 @@ final class AppEnvironment: ObservableObject {
         do {
             try hotkeyHandler.start()
         } catch {
-            guard preferencesStore.capturePreferences.hotkey != .defaultCapture else {
-                settingsWindowViewModel.reportDefaultCaptureHotkeyRegistrationFailure()
-                return
-            }
-
-            settingsWindowViewModel.resetCaptureHotkeyAfterRegistrationFailure()
-            do {
-                try hotkeyHandler.start()
-            } catch {
-                settingsWindowViewModel.reportDefaultCaptureHotkeyRegistrationFailure()
-            }
+            settingsWindowViewModel.reportCaptureHotkeyRegistrationFailure()
         }
     }
 
