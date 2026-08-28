@@ -22,9 +22,7 @@ final class CarbonHotkeyService: HotkeyService {
     }
 
     func register(hotkey: GlobalHotkey, handler: @escaping () -> Void) throws {
-        Self.handlers[hotkey.keyCode] = handler
-
-        var hotKeyID = EventHotKeyID(signature: Constants.signature, id: hotkey.keyCode)
+        let hotKeyID = EventHotKeyID(signature: Constants.signature, id: hotkey.keyCode)
         var hotKeyRef: EventHotKeyRef?
         let status = RegisterEventHotKey(
             UInt32(hotkey.keyCode),
@@ -39,6 +37,7 @@ final class CarbonHotkeyService: HotkeyService {
             throw NSError(domain: "CarbonHotkeyService", code: Int(status))
         }
 
+        Self.handlers[hotkey.keyCode] = handler
         hotKeyRefs.append(hotKeyRef)
         registeredIDs.append(hotkey.keyCode)
     }

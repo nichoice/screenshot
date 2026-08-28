@@ -62,6 +62,25 @@ final class AppPreferencesStoreTests: XCTestCase {
         XCTAssertEqual(store.capturePreferences.defaultSaveDirectoryPath, FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].path)
     }
 
+    func testSystemReservedCommandShiftAHotkeyMigratesToDefaultCapture() throws {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let reservedHotkey = GlobalHotkey(keyCode: 0, modifiers: [.command, .shift])
+        let preferences = CapturePreferences(
+            hotkey: reservedHotkey,
+            defaultSaveDirectoryPath: nil,
+            defaultOutputAction: .copyOnly,
+            imageFormat: .png,
+            includeCursor: false,
+            playCaptureSound: false
+        )
+        defaults.set(try JSONEncoder().encode(preferences), forKey: "capture")
+
+        let store = AppPreferencesStore(userDefaults: defaults)
+
+        XCTAssertEqual(store.capturePreferences.hotkey, .defaultCapture)
+    }
+
     func testLegacyBundlePreferencesMigrateWithoutOverwritingNewValues() throws {
         let defaults = UserDefaults(suiteName: #function)!
         defaults.removePersistentDomain(forName: #function)

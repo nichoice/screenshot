@@ -296,8 +296,26 @@ final class AppEnvironment: ObservableObject {
         settingsWindowViewModel.refreshLaunchAtLoginStatus()
 
         inputMethodManager.startObserving()
-        try? hotkeyHandler.start()
+        startCaptureHotkeyWithRecovery()
         menuBarController.setVisible(preferencesStore.appPreferences.showsMenuBarIcon)
+    }
+
+    private func startCaptureHotkeyWithRecovery() {
+        do {
+            try hotkeyHandler.start()
+        } catch {
+            guard preferencesStore.capturePreferences.hotkey != .defaultCapture else {
+                settingsWindowViewModel.reportDefaultCaptureHotkeyRegistrationFailure()
+                return
+            }
+
+            settingsWindowViewModel.resetCaptureHotkeyAfterRegistrationFailure()
+            do {
+                try hotkeyHandler.start()
+            } catch {
+                settingsWindowViewModel.reportDefaultCaptureHotkeyRegistrationFailure()
+            }
+        }
     }
 
     static func bootstrap() -> AppEnvironment {

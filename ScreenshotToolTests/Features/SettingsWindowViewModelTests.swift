@@ -163,13 +163,45 @@ final class SettingsWindowViewModelTests: XCTestCase {
                 reloadCount += 1
             }
         )
-        let hotkey = GlobalHotkey(keyCode: 0, modifiers: [.command, .shift])
+        let hotkey = GlobalHotkey(keyCode: 11, modifiers: [.command, .shift])
 
         try viewModel.setCaptureHotkey(hotkey)
 
         XCTAssertEqual(preferencesStore.capturePreferences.hotkey, hotkey)
         XCTAssertEqual(viewModel.capturePreferences.hotkey, hotkey)
         XCTAssertEqual(reloadCount, 1)
+    }
+
+    @MainActor
+    func testSetCaptureHotkeyRejectsSystemReservedCommandShiftA() throws {
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let preferencesStore = AppPreferencesStore(userDefaults: defaults)
+        let rulesStore = InputMethodRulesStore(fileURL: FileManager.default.temporaryDirectory.appendingPathComponent("\(#function).json"))
+        var reloadCount = 0
+        let viewModel = SettingsWindowViewModel(
+            preferencesStore: preferencesStore,
+            rulesStore: rulesStore,
+            inputSourceService: FakeSettingsInputSourceService(),
+            permissionsService: FakePermissionsService(),
+            loginItemService: FakeLoginItemService(),
+            inputMethodManager: InputMethodManager(
+                preferencesStore: preferencesStore,
+                rulesStore: rulesStore,
+                inputSourceService: FakeSettingsInputSourceService(),
+                matcher: InputMethodRuleMatcher()
+            ),
+            reloadCaptureHotkey: {
+                reloadCount += 1
+            }
+        )
+
+        XCTAssertThrowsError(
+            try viewModel.setCaptureHotkey(GlobalHotkey(keyCode: 0, modifiers: [.command, .shift]))
+        )
+        XCTAssertEqual(preferencesStore.capturePreferences.hotkey, .defaultCapture)
+        XCTAssertEqual(reloadCount, 0)
+        XCTAssertNotNil(viewModel.captureHotkeyErrorMessage)
     }
 
     @MainActor
@@ -200,7 +232,7 @@ final class SettingsWindowViewModelTests: XCTestCase {
             }
         )
 
-        XCTAssertThrowsError(try viewModel.setCaptureHotkey(GlobalHotkey(keyCode: 0, modifiers: [.command, .shift])))
+        XCTAssertThrowsError(try viewModel.setCaptureHotkey(GlobalHotkey(keyCode: 11, modifiers: [.command, .shift])))
 
         XCTAssertEqual(preferencesStore.capturePreferences.hotkey, originalHotkey)
         XCTAssertEqual(viewModel.capturePreferences.hotkey, originalHotkey)
